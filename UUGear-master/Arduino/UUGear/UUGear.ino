@@ -84,9 +84,9 @@ void(* resetDevice) (void) = 0;
 
 void setup() {
   // if has no id yet, generate one
-  if (getID() == "") {
+  //if (getID() == "") {
     generateID();
-  }
+  //}
 
   // initialize serial port
   Serial.begin(BAUD_RATE);
