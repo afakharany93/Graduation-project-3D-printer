@@ -3,13 +3,16 @@
 #define BLUE 11
 #define RED 10
 #define GREEN 8
+#define first GREEN
+#define second   RED
+#define third   BLACK 
+#define forth  BLUE
 
-
-// global variables
+/*// global variables
 int first =  GREEN;
 int second =  RED; 
 int third =  BLACK ;
-int forth = BLUE;
+int forth = BLUE;*/
 
 
 void setup() {
