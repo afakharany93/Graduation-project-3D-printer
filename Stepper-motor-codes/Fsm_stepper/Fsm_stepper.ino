@@ -58,7 +58,7 @@ void next_step (struct stepper_state_struct *current_state);
 */
 void previos_step (struct stepper_state_struct *current_state);
 
-
+//global variables and arrays
 
 /*stepper_states is an array that holds the constant values of all the states of the stepper motor */
 struct stepper_state_struct stepper_states[4] = 
@@ -70,7 +70,6 @@ struct stepper_state_struct stepper_states[4] =
 	{0x08 , &stepper_states[0] , &stepper_states[2] }
 };
 
-
 struct timer1_value timer1_value_lookup_table[5] = 
 {
 	{1 	  , 0.0625  , 4096   },
@@ -79,6 +78,11 @@ struct timer1_value timer1_value_lookup_table[5] =
 	{256  , 16	 	, 1048560},
 	{1024 , 64 		, 4194240}
 };
+
+struct stepper_state_struct current_state = stepper_states[0];		//the variable that will hold the current state information, initialized with state zero info
+unsigned long int 	stepper_steps;
+unsigned char 		direction;
+
 
 void setup() 
 {
@@ -94,32 +98,38 @@ void setup()
 	digitalWrite(FORTH, LOW);
 
 	interrupts();             // enable all interrupts
+	stepper_move (90000, 800 );
 }
 
 ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 {
-	
+	if(stepper_steps > 0)
+	{
+		if (direction == NEXT)
+		{			
+			stepper_output (&current_state);
+			next_step(&current_state);
+		}
+		else if (direction == PREVIOUS)
+		{
+			stepper_output (&current_state);
+			previos_step(&current_state);
+		}
+		stepper_steps--;
+	}
+	else
+	{
+		stepper_steps = 0;
+		TIMSK1 = 0;	//disable timer compare interrupt
+	}
 }
 
 void loop() 
 {
-	struct stepper_state_struct current_state = stepper_states[0];		//the variable that will hold the current state information, initialized with state zero info
-	struct stepper_state_struct *current_state_ptr = &current_state;	//pointer to the variable holding curent state info
-
-	for (int i = 0; i<200 ; i++)
-	{
-		stepper_output (current_state_ptr);
-		next_step (current_state_ptr);
-		delay(DELAY_mS);
-	}
-	delay(200);
-	for (int i = 0; i<200 ; i++)
-	{
-		stepper_output (current_state_ptr);
-		previos_step (current_state_ptr);
-		delay(DELAY_mS);
-	}
-	delay(200);
+	
+	//stepper_move (90000, 800 );
+	
+	//delay(1000);
 
 }
 
@@ -164,16 +174,23 @@ void previos_step (struct stepper_state_struct *current_state)
 	*current_state = *current_state->prev;
 }
 
-void stepper_move (struct stepper_state_struct *current_state, int steps, unsigned int time_bet_steps)
+void stepper_move (long int steps, unsigned long int time_bet_steps_stepper )
 {
-	if (steps >= 0)
+	if (steps > 0)
 	{
-
+		direction = CLOCKWISE;
+		stepper_steps = steps;
 	}
-	else
+	else if (steps < 0)
 	{
-
+		direction = ANTICLOCKWISE;
+		stepper_steps = steps * (-1);
 	}
+	else if(steps == 0)
+	{
+		stepper_steps = 0;
+	}
+	timer1_setup ( timer1_value_lookup_table , time_bet_steps_stepper);
 }
 
 //timer functions:
@@ -183,13 +200,13 @@ struct timer1_value * prescale_determination (struct timer1_value *timer1_value_
 	unsigned char counter;
 	for (counter = 0; counter < 5 ; counter++)
 	{
-		if ( (timer1_value_lookup_table_ptr_for_prescale[counter]->max_period_us) > time_bet_steps_for_prescale)
+		if ( (timer1_value_lookup_table_ptr_for_prescale[counter].max_period_us) > time_bet_steps_for_prescale)
 		{
 			break;
 		}
 	}
 	
-	return timer1_value_lookup_table_ptr_for_prescale[counter] ;
+	return &timer1_value_lookup_table_ptr_for_prescale[counter] ;
 }
 
 unsigned int ctc_value_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc)
