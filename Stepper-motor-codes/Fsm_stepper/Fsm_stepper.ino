@@ -82,6 +82,7 @@ struct timer1_value timer1_value_lookup_table[5] =
 struct stepper_state_struct current_state = stepper_states[0];		//the variable that will hold the current state information, initialized with state zero info
 unsigned long int 	stepper_steps;
 unsigned char 		direction;
+unsigned char		stepper_permission = 1;
 
 
 void setup() 
@@ -98,7 +99,7 @@ void setup()
 	digitalWrite(FORTH, LOW);
 
 	interrupts();             // enable all interrupts
-	stepper_move (90000, 800 );
+	
 }
 
 ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
@@ -127,7 +128,7 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 void loop() 
 {
 	
-	//stepper_move (90000, 800 );
+	stepper_move (50000, 800 );
 	
 	//delay(1000);
 
@@ -176,21 +177,25 @@ void previos_step (struct stepper_state_struct *current_state)
 
 void stepper_move (long int steps, unsigned long int time_bet_steps_stepper )
 {
-	if (steps > 0)
+	if (stepper_permission == 1)
 	{
-		direction = CLOCKWISE;
-		stepper_steps = steps;
+		stepper_permission = 0;
+		if (steps > 0)
+		{
+			direction = CLOCKWISE;
+			stepper_steps = steps;
+		}
+		else if (steps < 0)
+		{
+			direction = ANTICLOCKWISE;
+			stepper_steps = steps * (-1);
+		}
+		else if(steps == 0)
+		{
+			stepper_steps = 0;
+		}
+		timer1_setup ( timer1_value_lookup_table , time_bet_steps_stepper);
 	}
-	else if (steps < 0)
-	{
-		direction = ANTICLOCKWISE;
-		stepper_steps = steps * (-1);
-	}
-	else if(steps == 0)
-	{
-		stepper_steps = 0;
-	}
-	timer1_setup ( timer1_value_lookup_table , time_bet_steps_stepper);
 }
 
 //timer functions:
