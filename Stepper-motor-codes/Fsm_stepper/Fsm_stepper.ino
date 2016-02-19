@@ -1,8 +1,6 @@
 /*if it works it was done by Ahmed El Fakharany to test the finite state machine concept with stepper motors for the 3d printer graduation project, 
 if it doesn't workm I don't know who the hell did it but I'm sure it is not Ahmed El Fakharany :D */
 
-#define DELAY_uS 		800		//amount to delay in us
-#define DELAY_mS		1
 //mapping the pins with wire colors
 #define BLACK 			9
 #define BLUE 			11
@@ -18,6 +16,8 @@ if it doesn't workm I don't know who the hell did it but I'm sure it is not Ahme
 #define PREVIOUS 		0
 #define CLOCKWISE 		NEXT
 #define ANTICLOCKWISE 	PREVIOUS
+#define FORWARD 		CLOCKWISE
+#define BACKWARD 		ANTICLOCKWISE
 
 /*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resemnles one step,
  it holds the output of the state and a pointer to the next state to use to step forward and
@@ -57,6 +57,8 @@ void next_step (struct stepper_state_struct *current_state);
   	Functionality : to ready the stepper to take the previous step in a direction opposite to that of next_step function
 */
 void previos_step (struct stepper_state_struct *current_state);
+
+
 
 //global variables and arrays
 
@@ -128,7 +130,7 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 void loop() 
 {
 	
-	stepper_move (50000, 800 );
+	stepper_flow (FORWARD);
 	
 	//delay(1000);
 
@@ -197,6 +199,32 @@ void stepper_move (long int steps, unsigned long int time_bet_steps_stepper )
 		timer1_setup ( timer1_value_lookup_table , time_bet_steps_stepper);
 	}
 }
+
+void stepper_stop ()
+{
+	TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
+	TIMSK1 = 0 ;  // disable timer compare interrupt
+}
+
+void stepper_resume ()
+{
+	TCCR1B |= (1 << WGM12);   // CTC mode
+	TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt
+}
+
+void stepper_flow (unsigned char direction_flow)
+{
+	if (direction_flow == CLOCKWISE )
+	{
+		stepper_move (2147483647, 1000 );
+	}
+	else if (direction_flow == ANTICLOCKWISE )
+	{
+		stepper_move (-2147483647, 1000 );
+	}
+}
+
+
 
 //timer functions:
 
