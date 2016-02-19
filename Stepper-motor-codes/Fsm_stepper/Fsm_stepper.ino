@@ -210,7 +210,15 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 
 void loop() 
 {
-
+	stepper_flow (FORWARD);
+	if (digitalRead(7) == HIGH)
+	{
+		stepper_stop();
+	}
+	if (digitalRead(6) == HIGH)
+	{
+		stepper_resume ();
+	}
 	
 }
 
