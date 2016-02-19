@@ -14,10 +14,14 @@ if it doesn't workm I don't know who the hell did it but I'm sure it is not Ahme
 //mapping directions motion with state transition direction
 #define NEXT 			1
 #define PREVIOUS 		0
-#define CLOCKWISE 		NEXT
-#define ANTICLOCKWISE 	PREVIOUS
+#define CLOCKWISE 		PREVIOUS
+#define ANTICLOCKWISE 	NEXT
 #define FORWARD 		CLOCKWISE
 #define BACKWARD 		ANTICLOCKWISE
+
+
+
+/*********** structs defintions ***********/
 
 /*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resemnles one step,
  it holds the output of the state and a pointer to the next state to use to step forward and
@@ -29,13 +33,57 @@ typedef struct stepper_state_struct
   	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resmbles the next step on the stepper motor, used for forward motion
 	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previos state, used for backwards motion
 } stepper_state_struct;
-
+/* struct timer1_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
+ to be able to operate with the timer1 asagile as possible */
 typedef struct timer1_value
 {
-	unsigned int prescale;
-	float time_per_tick_us;
-	unsigned long int max_period_us;
+	unsigned int prescale;				//to hold the value of the prescale
+	float time_per_tick_us;				//to hold the value of time needed to make one tick in the timer in micro seconds
+	unsigned long int max_period_us;	//to haold the max value the timer can hold in micro seconds
 }timer1_value;
+
+
+
+/*********** Functions prototypes ***********/
+
+//user API
+
+/*
+	Function name : stepper_move
+  	return : void
+  	parameters : long int steps :- variable to hold the value of the number of steps needed to be move, if +ve the motion is in a direction, if -ve the motion is in reverse
+  				 unsigned long int time_bet_steps_stepper :- time between each step, this is the value that determines the speed of motion
+  	Method of operation : its a non blocking function, used to move the stepper motor when it has permission i.e.(stepper_permission == 1), 
+  						  it sets the values of the global variables direction and stepper_steps, and sends the parameters needed to the timer setup function
+*/
+void stepper_move (long int steps, unsigned long int time_bet_steps_stepper );
+
+/*
+	Function name : stepper_stop
+  	return : void
+  	parameters : none
+  	Method of operation : it stops - or pauses- the motion of the stepper motor, it actually stops the timer interrupt since the timer ISR is the function that does the motion 
+*/
+void stepper_stop ();
+
+/*
+	Function name : stepper_resume
+  	return : void
+  	parameters : none
+  	Method of operation : it is used to resume the motion after stopping
+*/
+void stepper_resume ();
+
+/*
+	Function name : stepper_flow
+  	return : void
+  	parameters : unsigned char direction_flow :- to determine the direction of motion
+  	Method of operation : it is used to move the stepper motor in a very big nummber of steps that it seems it moves for infinityyyyy, but it doesn't, 
+  						  best used for moving the stepper motor till a physical event happens to stop it
+*/
+void stepper_flow (unsigned char direction_flow);
+
+//under the hood functions
 
 /*Function name : stepper_output
   return : void
@@ -58,9 +106,35 @@ void next_step (struct stepper_state_struct *current_state);
 */
 void previos_step (struct stepper_state_struct *current_state);
 
+/*
+	Function name : prescale_determination
+  	return : struct timer1_value * :- pointer to the element of the timer1_value_lookup_table with the right prescale
+  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the timer1_value_lookup_table array
+  				 unsigned long int time_bet_steps_for_prescale :- used to hold the time between each step in microseconds
+  	Method of operation : it searches the timer1_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
+*/
+struct timer1_value * prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
+
+/*
+	Function name : ctc_value_determination
+  	return : unsigned int:- used to return the value needed for the OCR1A register in ctc mode
+  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
+  				 unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
+  	Method of operation : it calculates the value neede to be in the OCR1A register for the isr to work in the right perioo of time
+*/
+unsigned int ctc_value_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc);
+
+/*
+	Function name : timer1_setup
+  	return : void
+  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
+  				 unsigned long int time_bet_steps :- used to hold the time between each step in microseconds
+  	Method of operation : it sets the registers for timer 1 to the right prescale value and ctc value and enables the timer one ctc interrupt
+*/
+void timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned long int time_bet_steps);
 
 
-//global variables and arrays
+/*********** global variables and arrays ***********/
 
 /*stepper_states is an array that holds the constant values of all the states of the stepper motor */
 struct stepper_state_struct stepper_states[4] = 
@@ -72,20 +146,25 @@ struct stepper_state_struct stepper_states[4] =
 	{0x08 , &stepper_states[0] , &stepper_states[2] }
 };
 
+/* timer1_value_lookup_table is an array that holds the values of the prescales and the time per tick and the max time value for each prescale */
 struct timer1_value timer1_value_lookup_table[5] = 
 {
-	{1 	  , 0.0625  , 4096   },
-	{8 	  , 0.5 	, 32767  },
-	{64   , 4 	 	, 262140 },
-	{256  , 16	 	, 1048560},
-	{1024 , 64 		, 4194240}
+ //{prescale , time_per_tick_us , max_period_us}
+	{1 	  	, 0.0625  			, 4096   	   },
+	{8 	  	, 0.5 				, 32767  	   },
+	{64   	, 4 	 			, 262140 	   },
+	{256  	, 16	 			, 1048560	   },
+	{1024 	, 64 				, 4194240	   }
 };
 
 struct stepper_state_struct current_state = stepper_states[0];		//the variable that will hold the current state information, initialized with state zero info
-unsigned long int 	stepper_steps;
-unsigned char 		direction;
-unsigned char		stepper_permission = 1;
+unsigned long int 	stepper_steps;			//this variable holds the number of steps remained to be moved, needed by the isr
+unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
+unsigned char		stepper_permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
 
+
+
+/*********** main and isr functions ***********/
 
 void setup() 
 {
@@ -104,40 +183,41 @@ void setup()
 	
 }
 
+/* the ISR function is the one that does the moving of the stepper motor, it outputs the step at the time required */
 ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 {
-	if(stepper_steps > 0)
+	if(stepper_steps > 0)	//if there are any remaining number of steps
 	{
 		if (direction == NEXT)
 		{			
-			stepper_output (&current_state);
-			next_step(&current_state);
+			stepper_output (&current_state);	//ouput the current state
+			next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
 		}
 		else if (direction == PREVIOUS)
 		{
-			stepper_output (&current_state);
-			previos_step(&current_state);
+			stepper_output (&current_state);	//ouput the current state
+			previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
 		}
-		stepper_steps--;
+		stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
 	}
 	else
 	{
-		stepper_steps = 0;
+		stepper_steps = 0;	//just for safety
 		TIMSK1 = 0;	//disable timer compare interrupt
+		TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
 	}
 }
 
 void loop() 
 {
 	
-	stepper_flow (FORWARD);
 	
-	//delay(1000);
-
 }
 
 
+
 /************** Functions **************/
+
 //stepper functions :
 /*Function name : stepper_output
   return : void
@@ -177,11 +257,19 @@ void previos_step (struct stepper_state_struct *current_state)
 	*current_state = *current_state->prev;
 }
 
+/*
+	Function name : stepper_move
+  	return : void
+  	parameters : long int steps :- variable to hold the value of the number of steps needed to be move, if +ve the motion is in a direction, if -ve the motion is in reverse
+  				 unsigned long int time_bet_steps_stepper :- time between each step, this is the value that determines the speed of motion
+  	Method of operation : its a non blocking function, used to move the stepper motor when it has permission i.e.(stepper_permission == 1), 
+  						  it sets the values of the global variables direction and stepper_steps, and sends the parameters needed to the timer setup function
+*/
 void stepper_move (long int steps, unsigned long int time_bet_steps_stepper )
 {
-	if (stepper_permission == 1)
+	if (stepper_permission == 1)	//if you have permission, execute
 	{
-		stepper_permission = 0;
+		stepper_permission = 0;		//permission is used for one time only, this line expires it, to execute again a new permission must be granted
 		if (steps > 0)
 		{
 			direction = CLOCKWISE;
@@ -194,33 +282,52 @@ void stepper_move (long int steps, unsigned long int time_bet_steps_stepper )
 		}
 		else if(steps == 0)
 		{
-			stepper_steps = 0;
+			stepper_steps = 0;	//for safety and anti user stupidity
 		}
-		timer1_setup ( timer1_value_lookup_table , time_bet_steps_stepper);
+		timer1_setup ( timer1_value_lookup_table , time_bet_steps_stepper);		//make the timer do its magic
 	}
 }
 
+/*
+	Function name : stepper_stop
+  	return : void
+  	parameters : none
+  	Method of operation : it stops - or pauses- the motion of the stepper motor, it actually stops the timer interrupt since the timer ISR is the function that does the motion 
+*/
 void stepper_stop ()
 {
 	TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
 	TIMSK1 = 0 ;  // disable timer compare interrupt
 }
 
+/*
+	Function name : stepper_resume
+  	return : void
+  	parameters : none
+  	Method of operation : it is used to resume the motion after stopping
+*/
 void stepper_resume ()
 {
 	TCCR1B |= (1 << WGM12);   // CTC mode
 	TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt
 }
 
+/*
+	Function name : stepper_flow
+  	return : void
+  	parameters : unsigned char direction_flow :- to determine the direction of motion
+  	Method of operation : it is used to move the stepper motor in a very big nummber of steps that it seems it moves for infinityyyyy, but it doesn't, 
+  						  best used for moving the stepper motor till a physical event happens to stop it
+*/
 void stepper_flow (unsigned char direction_flow)
 {
 	if (direction_flow == CLOCKWISE )
 	{
-		stepper_move (2147483647, 1000 );
+		stepper_move (2147483647, 1000 );	//move max number of steps in a direction
 	}
 	else if (direction_flow == ANTICLOCKWISE )
 	{
-		stepper_move (-2147483647, 1000 );
+		stepper_move (-2147483647, 1000 );	//move max number of steps oin the other direction
 	}
 }
 
@@ -228,40 +335,63 @@ void stepper_flow (unsigned char direction_flow)
 
 //timer functions:
 
+/*
+	Function name : prescale_determination
+  	return : struct timer1_value * :- pointer to the element of the timer1_value_lookup_table with the right prescale
+  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the timer1_value_lookup_table array
+  				 unsigned long int time_bet_steps_for_prescale :- used to hold the time between each step in microseconds
+  	Method of operation : it searches the timer1_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
+*/
 struct timer1_value * prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale)
 {
-	unsigned char counter;
-	for (counter = 0; counter < 5 ; counter++)
+	unsigned char counter;		//just a counter for the loop
+	for (counter = 0; counter < 5 ; counter++)	//a loop to search the timer1_value_lookup_table array
 	{
-		if ( (timer1_value_lookup_table_ptr_for_prescale[counter].max_period_us) > time_bet_steps_for_prescale)
+		if ( (timer1_value_lookup_table_ptr_for_prescale[counter].max_period_us) > time_bet_steps_for_prescale)	//if a prescale is found 
 		{
 			break;
 		}
 	}
 	
-	return &timer1_value_lookup_table_ptr_for_prescale[counter] ;
+	return &timer1_value_lookup_table_ptr_for_prescale[counter] ;	//return the address of the suitable array member
 }
 
+/*
+	Function name : ctc_value_determination
+  	return : unsigned int:- used to return the value needed for the OCR1A register in ctc mode
+  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
+  				 unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
+  	Method of operation : it calculates the value neede to be in the OCR1A register for the isr to work in the right perioo of time
+*/
 unsigned int ctc_value_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc)
 {
 	return (time_bet_steps_for_ctc / (timer1_value_lookup_table_ptr_for_ctc-> time_per_tick_us));
 }
 
+/*
+	Function name : timer1_setup
+  	return : void
+  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
+  				 unsigned long int time_bet_steps :- used to hold the time between each step in microseconds
+  	Method of operation : it sets the registers for timer 1 to the right prescale value and ctc value and enables the timer one ctc interrupt
+*/
 void timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned long int time_bet_steps)
 {
 	//temporary varu=iables to hold the values returned from the functions
 	struct timer1_value *timer1_value_lookup_table_ptr_temp;
 	unsigned int ctc_value;
-	timer1_value_lookup_table_ptr_temp = prescale_determination (timer1_value_lookup_table_ptr , time_bet_steps);
-	ctc_value = ctc_value_determination(timer1_value_lookup_table_ptr_temp , time_bet_steps);
+
+	timer1_value_lookup_table_ptr_temp = prescale_determination (timer1_value_lookup_table_ptr , time_bet_steps);	//determine the prescale
+	ctc_value = ctc_value_determination(timer1_value_lookup_table_ptr_temp , time_bet_steps);	//determine the ctc value
 	//registers initialization
 	TCCR1A = 0;
   	TCCR1B = 0;
   	TCNT1  = 0;
   	TIMSK1 = 0;
 
-  	OCR1A =  ctc_value;
+  	OCR1A =  ctc_value;		//set the ctct value in the OCR1A register
   	TCCR1B |= (1 << WGM12);   // CTC mode
+  	//prescale setting
   	if ( (timer1_value_lookup_table_ptr_temp->prescale) == 1 )
   	{
   	 TCCR1B |= (1 << CS10);   
@@ -284,5 +414,6 @@ void timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned
   	 TCCR1B |= (1 << CS10);   
   	 TCCR1B |= (1 << CS12);   
 	}
+
 	TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt
 }
