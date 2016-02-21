@@ -4,10 +4,9 @@ if it works it was done by Ahmed El Fakharany to test the finite state machine c
 if it doesn't workm I don't know who the hell did it but I'm sure it is not Ahmed El Fakharany :D */
 
 #include "Stepper_3D.h"
-#include "Global_variables.h"
 
-#define FORWARD	extruder.forward 
-#define BACKWARD extruder.backward
+#define FORWARD		extruder.forward 
+#define BACKWARD 	extruder.backward
 
 
 stepper_3d extruder;

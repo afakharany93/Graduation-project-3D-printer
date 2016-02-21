@@ -2,7 +2,6 @@
 #define _STEPPER_3D_
 
 #include "Arduino.h"
-#include "Global_variables.h"
 
 
 //defining the direction of the change in states
@@ -118,15 +117,15 @@ class stepper_3d
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
 		struct stepper_state_struct stepper_states[8] = 
 		{
-		  //{out  , next state         , previos state      }
-			{0x01 , &stepper_states[1] , &stepper_states[7] } ,
-			{0x03 , &stepper_states[2] , &stepper_states[0] } ,
-			{0x02 , &stepper_states[3] , &stepper_states[1] } ,
-			{0x06 , &stepper_states[4] , &stepper_states[2] } ,
-			{0x04 , &stepper_states[5] , &stepper_states[3] } ,
-			{0x0c , &stepper_states[6] , &stepper_states[4] } ,
-			{0x08 , &stepper_states[7] , &stepper_states[5] } ,
-			{0x09 , &stepper_states[0] , &stepper_states[6] } ,
+		//states {out  , next state         , previos state      }
+		/*0*/	 {0x01 , &stepper_states[1] , &stepper_states[7] } ,
+		/*1*/	 {0x03 , &stepper_states[2] , &stepper_states[0] } ,
+		/*2*/	 {0x02 , &stepper_states[3] , &stepper_states[1] } ,
+		/*3*/	 {0x06 , &stepper_states[4] , &stepper_states[2] } ,
+		/*4*/	 {0x04 , &stepper_states[5] , &stepper_states[3] } ,
+		/*5*/	 {0x0c , &stepper_states[6] , &stepper_states[4] } ,
+		/*6*/	 {0x08 , &stepper_states[7] , &stepper_states[5] } ,
+		/*7*/	 {0x09 , &stepper_states[0] , &stepper_states[6] } ,
 		};
 
 		/* timer1_value_lookup_table is an array that holds the values of the prescales and the time per tick and the max time value for each prescale */
