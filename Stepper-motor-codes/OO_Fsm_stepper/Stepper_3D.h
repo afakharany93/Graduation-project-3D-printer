@@ -104,7 +104,7 @@ class stepper_3d
 		  	Functionality : if the motor rotates in the other direction than the one specified - given to a function - in all times and all calls, just use 
 		  					this function to correct the rotation direction
 		*/
-		void change_rotation_direction();
+		void change_rotation_direction_mapping();
 		/*
 			Function name : change_rotation_direction
 		  	return : void
@@ -112,17 +112,21 @@ class stepper_3d
 		  	Functionality : if the motor when connected to a linear actuator moves in the other direction than the one specified - given to a function - in all times and all calls, 
 		  					just use this function to correct the motion direction
 		*/
-		void change_linear_direction();
+		void change_linear_direction_mapping();
 
 	private:	//stuff under the hood, the user shouldn't bither himself with
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
-		struct stepper_state_struct stepper_states[4] = 
+		struct stepper_state_struct stepper_states[8] = 
 		{
 		  //{out  , next state         , previos state      }
-			{0x01 , &stepper_states[1] , &stepper_states[3] } ,
-			{0x02 , &stepper_states[2] , &stepper_states[0] } ,
-			{0x04 , &stepper_states[3] , &stepper_states[1] } ,
-			{0x08 , &stepper_states[0] , &stepper_states[2] }
+			{0x01 , &stepper_states[1] , &stepper_states[7] } ,
+			{0x03 , &stepper_states[2] , &stepper_states[0] } ,
+			{0x02 , &stepper_states[3] , &stepper_states[1] } ,
+			{0x06 , &stepper_states[4] , &stepper_states[2] } ,
+			{0x04 , &stepper_states[5] , &stepper_states[3] } ,
+			{0x0c , &stepper_states[6] , &stepper_states[4] } ,
+			{0x08 , &stepper_states[7] , &stepper_states[5] } ,
+			{0x09 , &stepper_states[0] , &stepper_states[6] } ,
 		};
 
 		/* timer1_value_lookup_table is an array that holds the values of the prescales and the time per tick and the max time value for each prescale */

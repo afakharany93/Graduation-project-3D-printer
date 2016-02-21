@@ -37,7 +37,7 @@ void loop()
 	}
 	delay(5000);
 	extruder.permission = 1;
-	extruder.change_linear_direction();
+	extruder.change_linear_direction_mapping();
 	//extruder.stepper_flow (BACKWARD);
 }
 

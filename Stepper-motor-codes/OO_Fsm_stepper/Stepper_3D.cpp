@@ -125,11 +125,11 @@ void stepper_3d::stepper_flow (unsigned char direction_flow)
 {
 	if (direction_flow == clockwise )
 	{
-		stepper_move (2147483647, 1000 );	//move max number of steps in a direction
+		stepper_move (2147483647, 500 );	//move max number of steps in a direction
 	}
 	else if (direction_flow == anticlockwise )
 	{
-		stepper_move (-2147483647, 1000 );	//move max number of steps oin the other direction
+		stepper_move (-2147483647, 500 );	//move max number of steps oin the other direction
 	}
 }
 
@@ -257,7 +257,7 @@ void stepper_3d::inside_ISR ()
 	Functionality : if the motor rotates in the other direction than the one specified - given to a function - in all times and all calls, just use 
 	this function to correct the rotation direction
 */
-void stepper_3d::change_rotation_direction()
+void stepper_3d::change_rotation_direction_mapping()
 {
 	clockwise     ^= 0x01;
 	anticlockwise ^= 0x01;
@@ -271,7 +271,7 @@ void stepper_3d::change_rotation_direction()
 	just use this function to correct the motion direction
 */
 
-void stepper_3d::change_linear_direction()
+void stepper_3d::change_linear_direction_mapping()
 {
 	forward  ^= 0x01;
 	backward ^= 0x01;
