@@ -4,16 +4,7 @@
 #include "Arduino.h"
 #include "Global_variables.h"
 
-//mapping the pins with wire colors
-#define BLACK 			9
-#define BLUE 			11
-#define RED 			10
-#define GREEN 			8
-//mapping wire colors with firing order
-#define FIRST 			GREEN
-#define SECOND   		RED
-#define THIRD   		BLACK 
-#define FORTH  			BLUE
+
 //mapping directions motion with state transition direction
 #define NEXT 			1
 #define PREVIOUS 		0
@@ -44,8 +35,20 @@ typedef struct timer1_value
 
 class stepper_3d
 {
-	public:
+	public:		//what the user has access to
 		stepper_3d ();
+
+		//mapping the pins with wire colors
+		unsigned char black = 9;
+		unsigned char blue  = 11;
+		unsigned char red   = 10;
+		unsigned char green = 8;
+		//mapping wire colors with firing order
+		unsigned char first  = green;
+		unsigned char second = red;
+		unsigned char third  = black;
+		unsigned char forth  = blue;
+
 		/*
 			Function name : stepper_move
 		  	return : void
@@ -80,28 +83,19 @@ class stepper_3d
 		  						  best used for moving the stepper motor till a physical event happens to stop it
 		*/
 		void stepper_flow (unsigned char direction_flow);
-		/*Function name : stepper_output
-		  return : void
-		  parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
-		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previos_step functions
-		 */
-		void stepper_output (struct stepper_state_struct *current_state);
 		/*
-			Function name : next_step
+			Function name : inside_ISR
 		  	return : void
-		  	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
-		  	Functionality : To make resdy the stepper to take the next step in a direction
+		  	parameters :void
+		  	Functionality : this function is to be called inside the timer ISR function, it the function resposible for doing the motion everytime the ISR runs
 		*/
-		void next_step (struct stepper_state_struct *current_state);
-		/*
-			Function name : previos_step
-		  	return : void
-		  	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
-		  	Functionality : to ready the stepper to take the previous step in a direction opposite to that of next_step function
-		*/
-		void previos_step (struct stepper_state_struct *current_state);
+		void inside_ISR () ;
 
-	private:
+		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
+		
+		
+
+	private:	//stuff under the hood, the user shouldn't bither himself with
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
 		struct stepper_state_struct stepper_states[4] = 
 		{
@@ -122,6 +116,31 @@ class stepper_3d
 			{256  	, 16	 			, 1048560	   },
 			{1024 	, 64 				, 4194240	   }
 		};
+
+		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
+		unsigned long int 	stepper_steps;			//this variable holds the number of steps remained to be moved, needed by the isr
+		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
+
+		/*Function name : stepper_output
+		  return : void
+		  parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previos_step functions, runs after next_step or previos_step
+		 */
+		void stepper_output (struct stepper_state_struct *current_state);
+		/*
+			Function name : next_step
+		  	return : void
+		  	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  	Functionality : To make resdy the stepper to take the next step in a direction
+		*/
+		void next_step (struct stepper_state_struct *current_state);
+		/*
+			Function name : previos_step
+		  	return : void
+		  	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  	Functionality : to ready the stepper to take the previous step in a direction opposite to that of next_step function
+		*/
+		void previos_step (struct stepper_state_struct *current_state);
 
 		/*
 			Function name : prescale_determination

@@ -3,26 +3,19 @@
 #include "Arduino.h"
 
 
-/*********** global variables and arrays ***********/
-struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
-unsigned long int 	stepper_steps;			//this variable holds the number of steps remained to be moved, needed by the isr
-unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
-unsigned char		stepper_permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
-
-
 stepper_3d::stepper_3d()
 {
 	current_state = stepper_states[0];
 	//setting pin modes
-	pinMode(FIRST, OUTPUT);
-	pinMode(SECOND, OUTPUT);
-	pinMode(THIRD, OUTPUT);
-	pinMode(FORTH, OUTPUT);
+	pinMode(first, OUTPUT);
+	pinMode(second, OUTPUT);
+	pinMode(third, OUTPUT);
+	pinMode(forth, OUTPUT);
 	//setting all pins as low
-	digitalWrite(FIRST, LOW);
-	digitalWrite(SECOND, LOW);
-	digitalWrite(THIRD, LOW);
-	digitalWrite(FORTH, LOW);
+	digitalWrite(first, LOW);
+	digitalWrite(second, LOW);
+	digitalWrite(third, LOW);
+	digitalWrite(forth, LOW);
 
 	interrupts();             // enable all interrupts
 }
@@ -35,11 +28,11 @@ stepper_3d::stepper_3d()
  */
 void stepper_3d::stepper_output (struct stepper_state_struct *current_state)
 {
-	digitalWrite(FIRST  , (current_state->out & 0x01));		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
-															then the pin mapped to FIRST will be high, if not it will be zero	*/				
-	digitalWrite(SECOND , (current_state->out & 0x02));		//same as the line above but with bit 2 and pin mapped to SECOND
-	digitalWrite(THIRD  , (current_state->out & 0x04));		//same as the line above but with bit 3 and pin mapped to THIRD
-	digitalWrite(FORTH  , (current_state->out & 0x08));		//same as the line above but with bit 4 and pin mapped to FORTH
+	digitalWrite(first  , (current_state->out & 0x01));		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
+															then the pin mapped to first will be high, if not it will be zero	*/				
+	digitalWrite(second , (current_state->out & 0x02));		//same as the line above but with bit 2 and pin mapped to second
+	digitalWrite(third  , (current_state->out & 0x04));		//same as the line above but with bit 3 and pin mapped to third
+	digitalWrite(forth  , (current_state->out & 0x08));		//same as the line above but with bit 4 and pin mapped to forth
 }
 
 /*
@@ -76,9 +69,9 @@ void stepper_3d::previos_step (struct stepper_state_struct *current_state)
 */
 void stepper_3d::stepper_move (long int steps, unsigned long int time_bet_steps_stepper )
 {
-	if (stepper_permission == 1)	//if you have permission, execute
+	if (permission == 1)	//if you have permission, execute
 	{
-		stepper_permission = 0;		//permission is used for one time only, this line expires it, to execute again a new permission must be granted
+		permission = 0;		//permission is used for one time only, this line expires it, to execute again a new permission must be granted
 		if (steps > 0)
 		{
 			direction = CLOCKWISE;
@@ -226,3 +219,34 @@ void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_pt
 
 	TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt
 }
+
+/*
+	Function name : inside_ISR
+  	return : void
+  	parameters :void
+  	Functionality : this function is to be called inside the timer ISR function, it the function resposible for doing the motion everytime the ISR runs
+*/
+void stepper_3d::inside_ISR () 
+{
+	if(stepper_steps > 0)	//if there are any remaining number of steps
+	{
+		if (direction == NEXT)
+		{			
+			stepper_output (&current_state);	//ouput the current state
+			next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
+		}
+		else if (direction == PREVIOUS)
+		{
+			stepper_output (&current_state);	//ouput the current state
+			previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
+		}
+		stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
+	}
+	else
+	{
+		stepper_steps = 0;	//just for safety
+		TIMSK1 = 0;	//disable timer compare interrupt
+		TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
+	}
+}
+
