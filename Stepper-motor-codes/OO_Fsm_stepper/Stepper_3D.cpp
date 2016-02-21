@@ -74,12 +74,12 @@ void stepper_3d::stepper_move (long int steps, unsigned long int time_bet_steps_
 		permission = 0;		//permission is used for one time only, this line expires it, to execute again a new permission must be granted
 		if (steps > 0)
 		{
-			direction = CLOCKWISE;
+			direction = clockwise;
 			stepper_steps = steps;
 		}
 		else if (steps < 0)
 		{
-			direction = ANTICLOCKWISE;
+			direction = anticlockwise;
 			stepper_steps = steps * (-1);
 		}
 		else if(steps == 0)
@@ -123,11 +123,11 @@ void stepper_3d::stepper_resume ()
 */
 void stepper_3d::stepper_flow (unsigned char direction_flow)
 {
-	if (direction_flow == CLOCKWISE )
+	if (direction_flow == clockwise )
 	{
 		stepper_move (2147483647, 1000 );	//move max number of steps in a direction
 	}
-	else if (direction_flow == ANTICLOCKWISE )
+	else if (direction_flow == anticlockwise )
 	{
 		stepper_move (-2147483647, 1000 );	//move max number of steps oin the other direction
 	}
@@ -250,3 +250,29 @@ void stepper_3d::inside_ISR ()
 	}
 }
 
+/*
+	Function name : change_rotation_direction
+	return : void
+	parameters :void
+	Functionality : if the motor rotates in the other direction than the one specified - given to a function - in all times and all calls, just use 
+	this function to correct the rotation direction
+*/
+void stepper_3d::change_rotation_direction()
+{
+	clockwise     ^= 0x01;
+	anticlockwise ^= 0x01;
+}
+
+/*
+	Function name : change_rotation_direction
+	return : void
+	parameters :void
+	Functionality : if the motor when connected to a linear actuator moves in the other direction than the one specified - given to a function - in all times and all calls, 
+	just use this function to correct the motion direction
+*/
+
+void stepper_3d::change_linear_direction()
+{
+	forward  ^= 0x01;
+	backward ^= 0x01;
+}

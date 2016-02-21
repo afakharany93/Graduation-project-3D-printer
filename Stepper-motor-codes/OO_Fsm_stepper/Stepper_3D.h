@@ -5,13 +5,9 @@
 #include "Global_variables.h"
 
 
-//mapping directions motion with state transition direction
+//defining the direction of the change in states
 #define NEXT 			1
 #define PREVIOUS 		0
-#define CLOCKWISE 		PREVIOUS
-#define ANTICLOCKWISE 	NEXT
-#define FORWARD 		CLOCKWISE
-#define BACKWARD 		ANTICLOCKWISE
 
 
 /*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resemnles one step,
@@ -36,18 +32,29 @@ typedef struct timer1_value
 class stepper_3d
 {
 	public:		//what the user has access to
-		stepper_3d ();
+		stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
 		unsigned char black = 9;
 		unsigned char blue  = 11;
 		unsigned char red   = 10;
 		unsigned char green = 8;
+		unsigned char brown;
+		unsigned char orange;
+		unsigned char yellow;
+		unsigned char white;
 		//mapping wire colors with firing order
 		unsigned char first  = green;
 		unsigned char second = red;
 		unsigned char third  = black;
 		unsigned char forth  = blue;
+		//mapping directions motion with state transition direction
+		unsigned char clockwise     = PREVIOUS;
+		unsigned char anticlockwise = NEXT;
+		unsigned char forward       = clockwise;
+		unsigned char backward      = anticlockwise;
+
+		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
 
 		/*
 			Function name : stepper_move
@@ -90,10 +97,22 @@ class stepper_3d
 		  	Functionality : this function is to be called inside the timer ISR function, it the function resposible for doing the motion everytime the ISR runs
 		*/
 		void inside_ISR () ;
-
-		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
-		
-		
+		/*
+			Function name : change_rotation_direction
+		  	return : void
+		  	parameters :void
+		  	Functionality : if the motor rotates in the other direction than the one specified - given to a function - in all times and all calls, just use 
+		  					this function to correct the rotation direction
+		*/
+		void change_rotation_direction();
+		/*
+			Function name : change_rotation_direction
+		  	return : void
+		  	parameters :void
+		  	Functionality : if the motor when connected to a linear actuator moves in the other direction than the one specified - given to a function - in all times and all calls, 
+		  					just use this function to correct the motion direction
+		*/
+		void change_linear_direction();
 
 	private:	//stuff under the hood, the user shouldn't bither himself with
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
