@@ -173,7 +173,7 @@ class UUGearDevice(object):
 
 	def stepper_move(self, steps, time_bet_steps_us):
 		if self.isValid():
-			uugearlib.LED_Blink(byref(self.devProfile), steps, time_bet_steps_us)
+			uugearlib.stepper_move(byref(self.devProfile), steps, time_bet_steps_us)
 
 	def readDHT(self, pin):
 		if self.isValid():
