@@ -77,6 +77,8 @@
 
 #define MSG_RESET_DEVICE		217
 
+#define MSG_STEPPER_MOVE        50
+
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
 
@@ -98,6 +100,8 @@
 #define CMD_READ_SR04			0x51
 
 #define CMD_RESET_DEVICE		0xFF
+
+#define CMD_STEPPER_MOVE        0x60
 
 #define ASSERT_TRUE(x) \
     do { \

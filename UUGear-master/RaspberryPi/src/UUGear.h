@@ -160,3 +160,5 @@ extern int waitForInteger(UUGearDevice *dev, int * errorCode);
 extern char * waitForString(UUGearDevice *dev, int * errorCode);
 
 extern float waitForFloat(UUGearDevice *dev, int * errorCode);
+
+extern void stepper_move(UUGearDevice *dev, int steps , int time_bet_steps_us);

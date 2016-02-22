@@ -384,3 +384,6 @@ void cleanupUUGear ()
 	}
 }
 
+void stepper_move(UUGearDevice *dev, int steps , int time_bet_steps_us) {
+	sendMessageWithParameter(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, steps, time_bet_steps_us);
+}

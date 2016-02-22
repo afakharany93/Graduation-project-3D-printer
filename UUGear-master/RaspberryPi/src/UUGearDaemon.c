@@ -501,6 +501,13 @@ int main(int argc, char **argv)
 					case MSG_RESET_DEVICE:
 						sendCommandWithoutParameter(CMD_RESET_DEVICE, clientId, targetFd);
 						break;
+
+						
+					case MSG_STEPPER_MOVE:
+						sendCommandWithParameter(CMD_STEPPER_MOVE, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
+							count > 4 ? (atoi (parts[4]) & 0xFF) : -1);
+						break;
 				}
 			}
         }

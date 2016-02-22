@@ -29,6 +29,7 @@
  */
 #include <EEPROM.h>
 #include <Servo.h>
+#include "Stepper_3D.h"
 
 #define BAUD_RATE  115200
 
@@ -52,7 +53,7 @@ int servoPins[SERVO_MAX_NUMBER];
 String cmdBuf = "";
 int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
-
+stepper_3d extruder;
 
 // declare reset function
 void(* resetDevice) (void) = 0;
@@ -202,6 +203,9 @@ void processCommand(String cmd) {
       break;
     case 0x51:
       cmdReadSR04(cmd);
+      break;
+    case 0x60:
+      cmd_stepper_move(cmd);
       break;
     case 0xF0:
       break;
@@ -498,3 +502,11 @@ void cmdReadSR04(String cmd) {
 }
 
 
+void cmd_stepper_move(String cmd) {
+  if (cmd.length() > 5) {
+    int steps = cmd.charAt(2);
+    int time_us = cmd.charAt(3);
+    extruder.permission = 1;
+    extruder.stepper_move(steps , time_us);
+  }
+}

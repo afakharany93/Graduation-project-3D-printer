@@ -90,6 +90,9 @@ uugearlib.readSR04.argtypes = [POINTER(UUGearDeviceProfile), c_int, c_int]
 uugearlib.detachUUGearDevice.restype = None
 uugearlib.detachUUGearDevice.argtypes = [POINTER(UUGearDeviceProfile)]
 
+uugearlib.stepper_move.restype = None
+uugearlib.stepper_move.argtypes = [POINTER(UUGearDeviceProfile), c_int , c_int]
+
 
 class UUGearDevice(object):
 	
@@ -167,6 +170,10 @@ class UUGearDevice(object):
 	def detachServo(self, pin):
 		if self.isValid():
 			uugearlib.detachServo(byref(self.devProfile), pin)
+
+	def stepper_move(self, steps, time_bet_steps_us):
+		if self.isValid():
+			uugearlib.LED_Blink(byref(self.devProfile), steps, time_bet_steps_us)
 
 	def readDHT(self, pin):
 		if self.isValid():
