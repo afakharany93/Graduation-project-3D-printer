@@ -58,46 +58,12 @@
 #define MSG_GET_DEVICE  	1
 #define MSG_CLOSE_DEVICE  	2
 
-#define MSG_SET_PIN_INPUT		10
-#define MSG_SET_PIN_OUTPUT		11
-#define MSG_SET_PIN_LOW			12
-#define MSG_SET_PIN_HIGH		13
-#define MSG_GET_PIN_STATUS		14
-#define MSG_ANALOG_WRITE		15
-#define MSG_ANALOG_READ			16
-#define MSG_ANALOG_REFERENCE	17
-
-#define MSG_SERVO_ATTACH		25
-#define MSG_SERVO_WRITE			26
-#define MSG_SERVO_READ			27
-#define MSG_SERVO_DETACH		28
-
-#define MSG_READ_DHT11			41
-#define MSG_READ_SR04			42
-
 #define MSG_RESET_DEVICE		217
 
 #define MSG_STEPPER_MOVE        50
 
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
-
-#define CMD_SET_PIN_OUTPUT		0x31
-#define CMD_SET_PIN_INPUT		0x32
-#define CMD_SET_PIN_HIGH		0x33
-#define CMD_SET_PIN_LOW			0x34
-#define CMD_GET_PIN_STATUS		0x35
-#define CMD_ANALOG_WRITE		0x36
-#define CMD_ANALOG_READ			0x37
-#define CMD_ANALOG_REFERENCE	0x38
-
-#define CMD_SERVO_ATTACH		0x40
-#define CMD_SERVO_WRITE			0x41
-#define CMD_SERVO_READ			0x42
-#define CMD_SERVO_DETACH		0x43
-
-#define CMD_READ_DHT11			0x50
-#define CMD_READ_SR04			0x51
 
 #define CMD_RESET_DEVICE		0xFF
 

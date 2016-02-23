@@ -200,28 +200,7 @@ void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int p
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
-void setPinModeAsOutput(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_SET_PIN_OUTPUT, dev->clientId, dev->fd, pin);
-}
 
-
-void setPinModeAsInput(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_SET_PIN_INPUT, dev->clientId, dev->fd, pin);
-}
-
-
-void setPinHigh(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_SET_PIN_HIGH, dev->clientId, dev->fd, pin);
-}
-
-
-void setPinLow(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_SET_PIN_LOW, dev->clientId, dev->fd, pin);
-}
 
 char * waitForString(UUGearDevice *dev, int * errorCode)
 {
@@ -271,70 +250,6 @@ int waitForInteger(UUGearDevice *dev, int * errorCode)
 	return result;
 }
 
-int getPinStatus(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_GET_PIN_STATUS, dev->clientId, dev->fd, pin);
-	int errorCode = 0;
-	int result = waitForInteger(dev, &errorCode);
-	return errorCode == 0 ? result : -1;
-}
-
-
-void analogWrite(UUGearDevice *dev, int pin, int value) {
-	sendMessageWithParameter(dev->in, MSG_ANALOG_WRITE, dev->clientId, dev->fd, pin, value);
-}
-
-
-int analogRead(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_ANALOG_READ, dev->clientId, dev->fd, pin);
-	int errorCode = 0;
-	int result = waitForInteger(dev, &errorCode);
-	return errorCode == 0 ? result : -1;
-}
-
-void analogReference(UUGearDevice *dev, int type)
-{
-	sendMessage(dev->in, MSG_ANALOG_REFERENCE, dev->clientId, dev->fd, type);
-}
-
-void attachServo(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_SERVO_ATTACH, dev->clientId, dev->fd, pin);
-}
-
-void writeServo(UUGearDevice *dev, int pin, int angle) {
-	sendMessageWithParameter(dev->in, MSG_SERVO_WRITE, dev->clientId, dev->fd, pin, angle);
-}
-
-int readServo(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_SERVO_READ, dev->clientId, dev->fd, pin);
-	int errorCode = 0;
-	int result = waitForInteger(dev, &errorCode);
-	return errorCode == 0 ? result : -1;
-}
-
-void detachServo(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_SERVO_DETACH, dev->clientId, dev->fd, pin);
-}
-
-int readDHT(UUGearDevice *dev, int pin)
-{
-	sendMessage(dev->in, MSG_READ_DHT11, dev->clientId, dev->fd, pin);
-	int errorCode = 0;
-	int result = waitForInteger(dev, &errorCode);
-	return errorCode == 0 ? result : -3;
-}
-
-float readSR04(UUGearDevice *dev, int trigPin, int echoPin)
-{
-	sendMessageWithParameter(dev->in, MSG_READ_SR04, dev->clientId, dev->fd, trigPin, echoPin);
-	int errorCode = 0;
-	float result = waitForFloat(dev, &errorCode);
-	return errorCode == 0 ? result : errorCode;
-}
 
 
 void detachUUGearDevice (UUGearDevice *dev)

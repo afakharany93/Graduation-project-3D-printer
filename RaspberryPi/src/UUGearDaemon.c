@@ -450,54 +450,6 @@ int main(int argc, char **argv)
 					case MSG_CLOSE_DEVICE:
 						clientStatus[clientId] = 0;
 						break;
-					case MSG_SET_PIN_OUTPUT:
-						sendCommand(CMD_SET_PIN_OUTPUT, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_SET_PIN_INPUT:
-						sendCommand(CMD_SET_PIN_INPUT, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_SET_PIN_HIGH:
-						sendCommand(CMD_SET_PIN_HIGH, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_SET_PIN_LOW:
-						sendCommand(CMD_SET_PIN_LOW, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_GET_PIN_STATUS:
-						sendCommand(CMD_GET_PIN_STATUS, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_ANALOG_WRITE:
-						sendCommandWithParameter(CMD_ANALOG_WRITE, clientId, targetFd,
-							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
-							count > 4 ? (atoi (parts[4]) & 0xFF) : -1);
-						break;
-					case MSG_ANALOG_READ:
-						sendCommand(CMD_ANALOG_READ, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_ANALOG_REFERENCE:
-						sendCommand(CMD_ANALOG_REFERENCE, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_SERVO_ATTACH:
-						sendCommand(CMD_SERVO_ATTACH, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_SERVO_WRITE:
-						sendCommandWithParameter(CMD_SERVO_WRITE, clientId, targetFd,
-							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
-							count > 4 ? (atoi (parts[4]) & 0xFF) : -1);
-						break;
-					case MSG_SERVO_READ:
-						sendCommand(CMD_SERVO_READ, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_SERVO_DETACH:
-						sendCommand(CMD_SERVO_DETACH, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_READ_DHT11:
-						sendCommand(CMD_READ_DHT11, clientId, targetFd, count > 3 ? atoi(parts[3]) : -1);
-						break;
-					case MSG_READ_SR04:
-						sendCommandWithParameter(CMD_READ_SR04, clientId, targetFd,
-							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
-							count > 4 ? (atoi (parts[4]) & 0xFF) : -1);
-						break;
 					case MSG_RESET_DEVICE:
 						sendCommandWithoutParameter(CMD_RESET_DEVICE, clientId, targetFd);
 						break;
