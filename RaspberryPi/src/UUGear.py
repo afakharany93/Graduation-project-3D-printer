@@ -24,7 +24,7 @@
  #
  #######################################################################
  
-from ctypes import CDLL, Structure, POINTER, byref, c_char, c_int, c_float, c_char_p
+from ctypes import CDLL, Structure, POINTER, byref, c_char, c_int, c_float, c_char_p , c_short
 
 UUGEAR_ID_MAX_LENGTH = 1024
 
