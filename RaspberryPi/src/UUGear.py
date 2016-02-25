@@ -49,7 +49,7 @@ uugearlib.detachUUGearDevice.restype = None
 uugearlib.detachUUGearDevice.argtypes = [POINTER(UUGearDeviceProfile)]
 
 uugearlib.stepper_move.restype = None
-uugearlib.stepper_move.argtypes = [POINTER(UUGearDeviceProfile), c_int ]
+uugearlib.stepper_move.argtypes = [POINTER(UUGearDeviceProfile), c_int]
 
 
 class UUGearDevice(object):
@@ -76,6 +76,6 @@ class UUGearDevice(object):
 		uugearlib.cleanupUUGear()
 	
 
-	def stepper_move(self, steps, time_bet_steps_us):
+	def stepper_move(self, steps):
 		if self.isValid():
 			uugearlib.stepper_move(byref(self.devProfile), steps)

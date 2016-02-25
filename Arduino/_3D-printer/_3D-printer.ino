@@ -197,6 +197,7 @@ void cmd_stepper_move(String cmd) {
     char first_byte = cmd.charAt(2);
     char second_byte = cmd.charAt(3);
     int steps = ((((int) first_byte) << 8 ) | 0x00FF) & (((int) second_byte) | 0xFF00);
+    lcd.print(steps);
     extruder.permission = 1;
     extruder.stepper_move(steps, 100000);
   }
