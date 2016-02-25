@@ -42,7 +42,11 @@
 #define RESPONSE_START_CHAR  '\t'
 #define RESPONSE_END_STRING  ":)"
 
+// include the library code:
+#include <LiquidCrystal.h>
 
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(13, 12, 5, 4, 3, 2);
 
 
 
@@ -53,10 +57,14 @@ int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
 stepper_3d extruder;
 
+
 // declare reset function
 void(* resetDevice) (void) = 0;
 
 void setup() {
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();
@@ -102,6 +110,7 @@ void loop() {
       if (pos != -1) {
         String cmd = cmdBuf.substring(0, pos + cmdEndStrLen);
         cmdBuf = cmdBuf.substring(pos + cmdEndStrLen);
+        lcd.print(cmd);
         processCommand(cmd);
       }
     }
@@ -185,9 +194,10 @@ void cmdGetID(String cmd) {
 
 void cmd_stepper_move(String cmd) {
   if (cmd.length() > 5) {
-    int steps = cmd.charAt(2);
-    int time_us = cmd.charAt(3);
+    char first_byte = cmd.charAt(2);
+    char second_byte = cmd.charAt(3);
+    int steps = ((((int) first_byte) << 8 ) | 0x00FF) & (((int) second_byte) | 0xFF00);
     extruder.permission = 1;
-    extruder.stepper_flow(extruder.forward);
+    extruder.stepper_move(steps, 100000);
   }
 }

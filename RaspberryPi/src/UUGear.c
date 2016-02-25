@@ -299,6 +299,9 @@ void cleanupUUGear ()
 	}
 }
 
-void stepper_move(UUGearDevice *dev, int steps , int time_bet_steps_us) {
-	sendMessageWithParameter(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, steps, time_bet_steps_us);
+void stepper_move(UUGearDevice *dev, int steps ) 
+{
+	char first_byte  = (char)(steps & 0xFF) ;
+	char second_byte = (char)((steps >> 8) & 0xFF) ;
+	sendMessageWithParameter(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, first_byte, second_byte);
 }
