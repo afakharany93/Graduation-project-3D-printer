@@ -110,6 +110,7 @@ void loop() {
       if (pos != -1) {
         String cmd = cmdBuf.substring(0, pos + cmdEndStrLen);
         cmdBuf = cmdBuf.substring(pos + cmdEndStrLen);
+        lcd.setCursor(0, 0); // bottom left
         lcd.print(cmd);
         processCommand(cmd);
       }
@@ -194,9 +195,10 @@ void cmdGetID(String cmd) {
 
 void cmd_stepper_move(String cmd) {
   if (cmd.length() > 5) {
-    char first_byte = cmd.charAt(2);
-    char second_byte = cmd.charAt(3);
+    int first_byte = cmd.charAt(2);
+    int second_byte = cmd.charAt(3);
     int steps = ((((int) first_byte) << 8 ) | 0x00FF) & (((int) second_byte) | 0xFF00);
+    lcd.setCursor(0, 1); // bottom left
     lcd.print(steps);
     extruder.permission = 1;
     extruder.stepper_move(steps, 100000);

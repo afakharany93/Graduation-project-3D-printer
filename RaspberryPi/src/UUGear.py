@@ -49,7 +49,7 @@ uugearlib.detachUUGearDevice.restype = None
 uugearlib.detachUUGearDevice.argtypes = [POINTER(UUGearDeviceProfile)]
 
 uugearlib.stepper_move.restype = None
-uugearlib.stepper_move.argtypes = [POINTER(UUGearDeviceProfile), c_int]
+uugearlib.stepper_move.argtypes = [POINTER(UUGearDeviceProfile), c_short]
 
 
 class UUGearDevice(object):

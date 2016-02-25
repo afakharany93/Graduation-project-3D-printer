@@ -299,7 +299,7 @@ void cleanupUUGear ()
 	}
 }
 
-void stepper_move(UUGearDevice *dev, int steps ) 
+void stepper_move(UUGearDevice *dev, short steps ) 
 {
 	char first_byte  = (char)(steps & 0xFF) ;
 	char second_byte = (char)((steps >> 8) & 0xFF) ;
