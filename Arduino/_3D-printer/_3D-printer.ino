@@ -42,6 +42,10 @@
 #define RESPONSE_START_CHAR  '\t'
 #define RESPONSE_END_STRING  ":)"
 
+#define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
+#define LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS  0x38
+#define DATA_BYTE_EQ_ZERO_SUBSTITUTE           0xFF
+
 // include the library code:
 #include <LiquidCrystal.h>
 
@@ -197,6 +201,15 @@ void cmd_stepper_move(String cmd) {
   if (cmd.length() > 5) {
     int least_significant_byte = cmd.charAt(2);
     int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
     int steps = ((((int) most_significant_byte) << 8 ) | 0x00FF) & (((int) least_significant_byte) | 0xFF00);
     lcd.setCursor(0, 1); // bottom left
     lcd.print(steps);

@@ -53,6 +53,9 @@
 #define UUGEAR_RESPONSE_START_CHAR	'\t'
 #define UUGEAR_RESPONSE_END_STRING	":)"
 
+#define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
+#define LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS  0x38
+#define DATA_BYTE_EQ_ZERO_SUBSTITUTE           0xFF
 /* Messages between client and daemon */
 #define MSG_EXIT    		0
 #define MSG_GET_DEVICE  	1

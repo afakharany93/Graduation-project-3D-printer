@@ -389,6 +389,13 @@ void sendCommandWithParameter(char cmd, int clientId, int targetFd, int pin, int
 	serialWriteString (targetFd, command);
 }
 
+void send_command_with_3_data_bytes(char cmd, int clientId, int targetFd, int data_byte_1, int data_byte_2 , int data_byte_3)
+{
+	syslog (LOG_INFO, "Send command: cmd=0x%02x, clientId=%d, fd=%d, data_byte_1=%d, data_byte_2=%d, data_byte_3=%d", cmd, clientId, targetFd, data_byte_1, data_byte_2, data_byte_3);
+	char command[] = { COMMAND_START_CHAR, cmd, (char)(data_byte_1 & 0xFF), (char)(data_byte_2 & 0xFF), (char)(data_byte_3 & 0xFF), (char)(clientId & 0xFF), COMMAND_END_CHAR1, COMMAND_END_CHAR2 };
+	serialWriteString (targetFd, command);
+}
+
 
 int main(int argc, char **argv)
 {
@@ -456,9 +463,10 @@ int main(int argc, char **argv)
 
 						
 					case MSG_STEPPER_MOVE:
-						sendCommandWithParameter(CMD_STEPPER_MOVE, clientId, targetFd,
+						send_command_with_3_data_bytes(CMD_STEPPER_MOVE, clientId, targetFd,
 							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
-							count > 4 ? (atoi (parts[4]) & 0xFF) : -1);
+							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
+							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
 						break;
 				}
 			}

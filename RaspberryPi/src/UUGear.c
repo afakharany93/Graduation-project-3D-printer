@@ -200,6 +200,12 @@ void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int p
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
+void send_message_with_3_data_bytes(mqd_t in, int msgType, int clientId, int fd,, int data_byte_1, int data_byte_2 , int data_byte_3)
+{
+	char buffer[MAX_MSG_SIZE + 1];
+	sprintf (buffer,"%d%s%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, data_byte_1, MSG_PART_SEPARATOR, data_byte_2, MSG_PART_SEPARATOR, data_byte_3);
+	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
+}
 
 
 char * waitForString(UUGearDevice *dev, int * errorCode)
@@ -303,5 +309,16 @@ void stepper_move(UUGearDevice *dev, short steps )
 {
 	char least_significant_byte  = (char)(steps & 0xFF) ;
 	char most_significant_byte   = (char)((steps >> 8) & 0xFF) ;
-	sendMessageWithParameter(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, least_significant_byte, most_significant_byte);
+	unsigned char status_byte;
+	if (most_significant_byte == 0)
+	{
+		status_byte = MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		most_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	else if (least_significant_byte == 0)
+	{
+		status_byte = LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		least_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	send_message_with_3_data_bytes(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, least_significant_byte, most_significant_byte , status_byte);
 }
