@@ -301,7 +301,7 @@ void cleanupUUGear ()
 
 void stepper_move(UUGearDevice *dev, short steps ) 
 {
-	char first_byte  = (char)(steps & 0xFF) ;
-	char second_byte = (char)((steps >> 8) & 0xFF) ;
-	sendMessageWithParameter(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, first_byte, second_byte);
+	char least_significant_byte  = (char)(steps & 0xFF) ;
+	char most_significant_byte   = (char)((steps >> 8) & 0xFF) ;
+	sendMessageWithParameter(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, least_significant_byte, most_significant_byte);
 }

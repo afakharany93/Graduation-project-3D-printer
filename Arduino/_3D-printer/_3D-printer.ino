@@ -195,9 +195,9 @@ void cmdGetID(String cmd) {
 
 void cmd_stepper_move(String cmd) {
   if (cmd.length() > 5) {
-    int first_byte = cmd.charAt(2);
-    int second_byte = cmd.charAt(3);
-    int steps = ((((int) first_byte) << 8 ) | 0x00FF) & (((int) second_byte) | 0xFF00);
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int steps = ((((int) most_significant_byte) << 8 ) | 0x00FF) & (((int) least_significant_byte) | 0xFF00);
     lcd.setCursor(0, 1); // bottom left
     lcd.print(steps);
     extruder.permission = 1;
