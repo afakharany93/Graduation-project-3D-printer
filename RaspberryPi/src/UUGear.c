@@ -203,7 +203,7 @@ void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int p
 void send_message_with_3_data_bytes(mqd_t in, int msgType, int clientId, int fd, int data_byte_1, int data_byte_2 , int data_byte_3)
 {
 	char buffer[MAX_MSG_SIZE + 1];
-	sprintf (buffer,"%d%s%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, data_byte_1, MSG_PART_SEPARATOR, data_byte_2, MSG_PART_SEPARATOR, data_byte_3);
+	sprintf (buffer,"%d%s%d%s%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, data_byte_1, MSG_PART_SEPARATOR, data_byte_2, MSG_PART_SEPARATOR, data_byte_3);
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
