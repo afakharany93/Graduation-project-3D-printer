@@ -56,7 +56,7 @@ extern void sendMessage(mqd_t in, int msgType, int clientId, int fd, int pin);
 
 extern void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int pin, int parameter);
 
-extern void send_message_with_3_data_bytes(mqd_t in, int msgType, int clientId, int fd,, int data_byte_1, int data_byte_2 , int data_byte_3);
+extern void send_message_with_3_data_bytes(mqd_t in, int msgType, int clientId, int fd, int data_byte_1, int data_byte_2 , int data_byte_3);
 
 extern int waitForInteger(UUGearDevice *dev, int * errorCode);
 
