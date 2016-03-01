@@ -1,28 +1,12 @@
 /*
- * UUGear Solution: extend your Raspberry Pi with Arduino
+ * This is part of a graduation project solution aims to build a 3d printer,
+ * made by students at the AASTMT sheraton, Mechatronics department, 2016
+ * https://github.com/afakharany93/Graduation-project-3D-printer
  *
- * Author: Shawn (shawn@uugear.com)
+ * Used UUgear for communication
  *
- * Copyright (c) 2014 UUGear s.r.o.
- *
- ***********************************************************************
- *  This file is part of UUGear Solution: 
- *  http://www.uugear.com/uugear-rpi-arduino-solution/
- *  
- *  UUGear Solution is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published
- *  by the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *  
- *  UUGear Solution is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *  
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with UUGear Solution.  If not, see <http://www.gnu.org/licenses/>.
- *
- ***********************************************************************
+ * Authors:
+ * Ahmed El Fakharany - afakharany93@gmail.com
  */
 #include <pthread.h>
 #include <unistd.h>
