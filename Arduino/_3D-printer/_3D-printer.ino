@@ -31,6 +31,9 @@
 #define LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS  0x38
 #define DATA_BYTE_EQ_ZERO_SUBSTITUTE           0xFF
 
+
+#define REPOND_WITH_RECIEVED  0x2F
+
 // include the library code:
 #include <LiquidCrystal.h>
 
@@ -187,6 +190,7 @@ void cmd_stepper_move(String cmd) {
     int least_significant_byte = cmd.charAt(2);
     int most_significant_byte = cmd.charAt(3);
     int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
     if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
     {
       most_significant_byte = 0;   
@@ -199,6 +203,12 @@ void cmd_stepper_move(String cmd) {
     lcd.setCursor(0, 1); // bottom left
     lcd.print(steps);
     extruder.permission = 1;
-    extruder.stepper_move(steps, 800);
+    extruder.stepper_move(steps, 400);
+
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
   }
 }
