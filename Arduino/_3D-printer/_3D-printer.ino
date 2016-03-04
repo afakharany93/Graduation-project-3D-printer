@@ -190,7 +190,7 @@ void cmd_stepper_move(String cmd) {
     int least_significant_byte = cmd.charAt(2);
     int most_significant_byte = cmd.charAt(3);
     int status_byte = cmd.charAt(4);
-    byte clientId = cmd.charAt(1);
+    byte clientId = cmd.charAt(5);
     if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
     {
       most_significant_byte = 0;   
