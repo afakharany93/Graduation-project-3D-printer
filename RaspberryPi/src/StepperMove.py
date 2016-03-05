@@ -6,7 +6,7 @@ UUGearDevice.setShowLogs(0)
 device = UUGearDevice('UUGear-Arduino-1239-9170')
 
 if device.isValid():
-	response = device.stepper_move(100)
+	response = device.stepper_move(2000)
 	print response
 	
 	device.detach()
