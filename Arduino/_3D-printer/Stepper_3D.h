@@ -71,6 +71,10 @@ class stepper_3d
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
 
+		//pwm values
+		unsigned char max_pwm = 255;	//max speed and torque pwm value
+		unsigned char min_pwm = 0; //current limiting pwm value
+
 		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
 
 		/*
@@ -163,10 +167,11 @@ class stepper_3d
 
 		/*Function name : stepper_output
 		  return : void
-		  parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  parameters :  struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  				unsigned char pwm :- an unsigned char to hold the pwm of the output, useful for current limiting	
 		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previos_step functions, runs after next_step or previos_step
 		 */
-		void stepper_output (struct stepper_state_struct *current_state);
+		void stepper_output (struct stepper_state_struct *current_state , unsigned char pwm);
 		/*
 			Function name : next_step
 		  	return : void
