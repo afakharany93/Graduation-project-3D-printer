@@ -15,6 +15,8 @@
 #include <EEPROM.h>
 #include "Stepper_3D.h"
 
+#define LCD_DEBUGGING 1
+
 #define BAUD_RATE  115200
 
 #define EEPROM_SIZE  1024
@@ -27,19 +29,21 @@
 #define RESPONSE_START_CHAR  '\t'
 #define RESPONSE_END_STRING  ":)"
 
+//Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
 #define LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS  0x38
 #define DATA_BYTE_EQ_ZERO_SUBSTITUTE           0xFF
 
-
+//respond to recieving data
 #define REPOND_WITH_RECIEVED  0x2F
 
 // include the library code:
 #include <LiquidCrystal.h>
 
+#if LCD_DEBUGGING
 // initialize the library with the numbers of the interface pins
-LiquidCrystal lcd(13, 12, 5, 4, 3, 2);
-
+LiquidCrystal lcd(13, 12, 10, 9, 8, 7);
+#endif
 
 
 
@@ -54,9 +58,11 @@ stepper_3d extruder;
 void(* resetDevice) (void) = 0;
 
 void setup() {
+  #if LCD_DEBUGGING
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
-  
+  #endif
+
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();
@@ -102,8 +108,10 @@ void loop() {
       if (pos != -1) {
         String cmd = cmdBuf.substring(0, pos + cmdEndStrLen);
         cmdBuf = cmdBuf.substring(pos + cmdEndStrLen);
+        #if LCD_DEBUGGING
         lcd.setCursor(0, 0); // bottom left
         lcd.print(cmd);
+        #endif
         processCommand(cmd);
       }
     }
@@ -200,8 +208,10 @@ void cmd_stepper_move(String cmd) {
       least_significant_byte = 0;
     }
     int steps = ((((int) most_significant_byte) << 8 ) | 0x00FF) & (((int) least_significant_byte) | 0xFF00);
+    #if LCD_DEBUGGING
     lcd.setCursor(0, 1); // bottom left
     lcd.print(steps);
+    #endif
     extruder.permission = 1;
     extruder.stepper_move(steps, 400);
 

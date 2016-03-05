@@ -1,7 +1,25 @@
+/* some hints for usage:
+The Arduino has 3Timers and 6 PWM output pins. The relation between timers and PWM outputs is:
+
+Pins 5 and 6: controlled by timer0
+Pins 9 and 10: controlled by timer1
+Pins 11 and 3: controlled by timer2
+
+On the Arduino Mega we have 6 timers and 15 PWM outputs:
+
+Pins 4 and 13: controlled by timer0
+Pins 11 and 12: controlled by timer1
+Pins 9 and10: controlled by timer2
+Pin 2, 3 and 5: controlled by timer 3
+Pin 6, 7 and 8: controlled by timer 4
+Pin 46, 45 and 44:: controlled by timer 5
+*/
+
 #ifndef _STEPPER_3D_
 #define _STEPPER_3D_
 
 #include "Arduino.h"
+
 
 
 //defining the direction of the change in states
@@ -34,10 +52,10 @@ class stepper_3d
 		stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 9;
+		unsigned char black = 5;
 		unsigned char blue  = 11;
-		unsigned char red   = 10;
-		unsigned char green = 8;
+		unsigned char red   = 6;
+		unsigned char green = 3;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
