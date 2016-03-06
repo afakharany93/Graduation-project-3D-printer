@@ -325,7 +325,7 @@ int stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us )
 		status_byte = LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
 		least_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
 	}
-	send_message_with_3_data_bytes(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, least_significant_byte, most_significant_byte , status_byte);
+	send_message_with_3_data_bytes(dev->in, MSG_STEPPER_D_TIME, dev->clientId, dev->fd, least_significant_byte, most_significant_byte , status_byte);
 	int errorCode = 0;
 	int recieved = waitForInteger(dev, &errorCode);
 	return errorCode == 0 ? recieved : -1;
