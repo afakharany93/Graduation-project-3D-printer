@@ -309,3 +309,24 @@ int stepper_move(UUGearDevice *dev, short steps )
 	int recieved = waitForInteger(dev, &errorCode);
 	return errorCode == 0 ? recieved : -1;
 }
+
+int stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us ) 
+{
+	char least_significant_byte  = (char)(time_us & 0xFF) ;
+	char most_significant_byte   = (char)((time_us >> 8) & 0xFF) ;
+	unsigned char status_byte;
+	if (most_significant_byte == 0)
+	{
+		status_byte = MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		most_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	else if (least_significant_byte == 0)
+	{
+		status_byte = LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		least_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	send_message_with_3_data_bytes(dev->in, MSG_STEPPER_MOVE, dev->clientId, dev->fd, least_significant_byte, most_significant_byte , status_byte);
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}

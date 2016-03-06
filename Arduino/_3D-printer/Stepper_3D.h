@@ -75,6 +75,10 @@ class stepper_3d
 		unsigned char max_pwm = 255;	//max speed and torque pwm value
 		unsigned char min_pwm = 0; //current limiting pwm value
 
+		//time variable
+		unsigned long int time_bet_steps_us = 400 ;
+
+		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
 
 		/*

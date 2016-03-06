@@ -29,6 +29,10 @@
 #define RESPONSE_START_CHAR  '\t'
 #define RESPONSE_END_STRING  ":)"
 
+//commands
+#define CMD_STEPPER_MOVE        0x60
+#define CMD_STEPPER_D_TIME      0x61    //for delay time between steps
+
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
 #define LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS  0x38
@@ -170,8 +174,11 @@ void processCommand(String cmd) {
     case 0x30:
       cmdGetID(cmd);
       break;
-    case 0x60:
+    case CMD_STEPPER_MOVE:
       cmd_stepper_move(cmd);
+      break;
+    case CMD_STEPPER_D_TIME:
+      cmd_stepper_d_time(cmd);
       break;
     case 0xFF:
       resetDevice();
@@ -213,7 +220,35 @@ void cmd_stepper_move(String cmd) {
     lcd.print(steps);
     #endif
     extruder.permission = 1;
-    extruder.stepper_move(steps, 400);
+    extruder.stepper_move(steps, extruder.time_bet_steps_us);
+
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_stepper_d_time(String cmd) {
+  if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    extruder.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    #if LCD_DEBUGGING
+    lcd.setCursor(0, 1); // bottom left
+    lcd.print(extruder.time_bet_steps_us);
+    #endif
 
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);

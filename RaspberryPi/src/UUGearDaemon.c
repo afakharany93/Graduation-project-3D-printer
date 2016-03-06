@@ -452,6 +452,13 @@ int main(int argc, char **argv)
 							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
 							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
 						break;
+
+					case MSG_STEPPER_D_TIME:
+						send_command_with_3_data_bytes(CMD_STEPPER_D_TIME, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
+							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
+							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
+						break;
 				}
 			}
         }

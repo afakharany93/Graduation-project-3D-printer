@@ -10,7 +10,7 @@
  #
  #######################################################################
  
-from ctypes import CDLL, Structure, POINTER, byref, c_char, c_int, c_float, c_char_p , c_short
+from ctypes import CDLL, Structure, POINTER, byref, c_char, c_int, c_float, c_char_p , c_short , c_ushort
 
 UUGEAR_ID_MAX_LENGTH = 1024
 
@@ -36,6 +36,10 @@ uugearlib.detachUUGearDevice.argtypes = [POINTER(UUGearDeviceProfile)]
 
 uugearlib.stepper_move.restype = c_int
 uugearlib.stepper_move.argtypes = [POINTER(UUGearDeviceProfile), c_short]
+
+uugearlib.stepper_time_bet_steps.restype = c_int
+uugearlib.stepper_time_bet_steps.argtypes = [POINTER(UUGearDeviceProfile), c_ushort]
+
 
 
 class UUGearDevice(object):
@@ -65,5 +69,11 @@ class UUGearDevice(object):
 	def stepper_move(self, steps):
 		if self.isValid():
 			return uugearlib.stepper_move(byref(self.devProfile), steps)
+		else :
+			return -1
+
+	def stepper_time_bet_steps(self, time_us):
+		if self.isValid():
+			return uugearlib.stepper_time_bet_steps(byref(self.devProfile), time_us)
 		else :
 			return -1

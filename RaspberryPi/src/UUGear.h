@@ -49,3 +49,5 @@ extern char * waitForString(UUGearDevice *dev, int * errorCode);
 extern float waitForFloat(UUGearDevice *dev, int * errorCode);
 
 extern int stepper_move(UUGearDevice *dev, short steps);
+
+extern int stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us ) ;

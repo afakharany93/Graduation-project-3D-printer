@@ -48,6 +48,7 @@
 #define MSG_RESET_DEVICE		217
 
 #define MSG_STEPPER_MOVE        50
+#define MSG_STEPPER_D_TIME      51      //for delay time between steops
 
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
@@ -55,6 +56,7 @@
 #define CMD_RESET_DEVICE		0xFF
 
 #define CMD_STEPPER_MOVE        0x60
+#define CMD_STEPPER_D_TIME      0x61    //for delay time between steps
 
 #define ASSERT_TRUE(x) \
     do { \
