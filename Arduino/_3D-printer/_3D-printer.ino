@@ -182,7 +182,7 @@ void processCommand(String cmd) {
       cmd_stepper_d_time(cmd);
       break;
     case CMD_STEPPER_GO_HOME:
-
+      cmd_stepper_go_home(cmd);
       break;
     case 0xFF:
       resetDevice();
@@ -262,12 +262,13 @@ void cmd_stepper_d_time(String cmd) {
   }
 }
 
-void cmd_stepper_go_home()
+void cmd_stepper_go_home(String cmd)
 {
   if (cmd.length() > 4) 
   {
     byte clientId = cmd.charAt(2);
-    extruder.stepper_flow (extruder.forward);
+    extruder.permission = 1;
+    extruder.stepper_flow (extruder.backward);
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
