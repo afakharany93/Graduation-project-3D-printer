@@ -459,6 +459,10 @@ int main(int argc, char **argv)
 							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
 							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
 						break;
+						
+					case MSG_STEPPER_GO_HOME:
+						sendCommandWithoutParameter(CMD_STEPPER_GO_HOME, clientId, targetFd);
+						break;
 				}
 			}
         }

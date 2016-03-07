@@ -40,6 +40,9 @@ uugearlib.stepper_move.argtypes = [POINTER(UUGearDeviceProfile), c_short]
 uugearlib.stepper_time_bet_steps.restype = c_int
 uugearlib.stepper_time_bet_steps.argtypes = [POINTER(UUGearDeviceProfile), c_ushort]
 
+uugearlib.stepper_go_home.restype = c_int
+uugearlib.stepper_go_home.argtypes = [POINTER(UUGearDeviceProfile)]
+
 
 
 class UUGearDevice(object):
@@ -75,5 +78,11 @@ class UUGearDevice(object):
 	def stepper_time_bet_steps(self, time_us):
 		if self.isValid():
 			return uugearlib.stepper_time_bet_steps(byref(self.devProfile), time_us)
+		else :
+			return -1
+
+	def stepper_go_home (self) :
+		if self.isValid():
+			return uugearlib.stepper_go_home(byref(self.devProfile))
 		else :
 			return -1
