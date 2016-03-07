@@ -467,6 +467,10 @@ int main(int argc, char **argv)
 					case MSG_STEPPER_STOP:
 						sendCommandWithoutParameter(CMD_STEPPER_STOP, clientId, targetFd);
 						break;
+						
+					case MSG_STEPPER_RESUME:
+						sendCommandWithoutParameter(CMD_STEPPER_RESUME, clientId, targetFd);
+						break;
 				}
 			}
         }

@@ -350,3 +350,12 @@ int stepper_stop (UUGearDevice *dev)
 	int recieved = waitForInteger(dev, &errorCode);
 	return errorCode == 0 ? recieved : -1;
 }
+
+int stepper_resume (UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_STEPPER_RESUME, dev->clientId, dev->fd);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}

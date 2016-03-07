@@ -12,8 +12,16 @@ if device.isValid():
 	response = device.stepper_move(1000)
 	print response
 	
-	sleep(5)
+	sleep(3)
 	response = device.stepper_go_home()
+	print response
+
+	sleep(10)
+	response = device.stepper_stop()
+	print response
+
+	sleep(3)
+	response = device.stepper_resume()
 	print response
 
 	sleep(10)

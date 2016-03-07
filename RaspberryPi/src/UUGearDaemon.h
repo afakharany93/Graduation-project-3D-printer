@@ -53,6 +53,7 @@
 #define MSG_STEPPER_D_TIME      51      //for delay time between steps
 #define MSG_STEPPER_GO_HOME     52
 #define MSG_STEPPER_STOP        53
+#define MSG_STEPPER_RESUME      54
 
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
@@ -63,6 +64,7 @@
 #define CMD_STEPPER_D_TIME      0x61    //for delay time between steps
 #define CMD_STEPPER_GO_HOME     0x62
 #define CMD_STEPPER_STOP        0x63
+#define CMD_STEPPER_RESUME      0x64
 
 #define ASSERT_TRUE(x) \
     do { \

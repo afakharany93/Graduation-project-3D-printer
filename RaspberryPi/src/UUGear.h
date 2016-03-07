@@ -55,3 +55,5 @@ extern int stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us ) ;
 extern int stepper_go_home (UUGearDevice *dev);
 
 extern int stepper_stop (UUGearDevice *dev);
+
+extern int stepper_resume (UUGearDevice *dev);
