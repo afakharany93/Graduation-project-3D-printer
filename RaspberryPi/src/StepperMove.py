@@ -12,8 +12,12 @@ if device.isValid():
 	response = device.stepper_move(1000)
 	print response
 	
-	sleep(10)
+	sleep(5)
 	response = device.stepper_go_home()
+	print response
+
+	sleep(10)
+	response = device.stepper_stop()
 	print response
 
 	device.detach()

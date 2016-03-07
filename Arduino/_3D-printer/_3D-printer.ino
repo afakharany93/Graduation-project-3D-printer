@@ -33,6 +33,7 @@
 #define CMD_STEPPER_MOVE        0x60
 #define CMD_STEPPER_D_TIME      0x61    //for delay time between steps
 #define CMD_STEPPER_GO_HOME     0x62
+#define CMD_STEPPER_STOP        0x63
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -184,6 +185,9 @@ void processCommand(String cmd) {
     case CMD_STEPPER_GO_HOME:
       cmd_stepper_go_home(cmd);
       break;
+    case CMD_STEPPER_STOP:
+      cmd_stepper_stop(cmd);
+      break;
     case 0xFF:
       resetDevice();
       break;
@@ -269,6 +273,21 @@ void cmd_stepper_go_home(String cmd)
     byte clientId = cmd.charAt(2);
     extruder.permission = 1;
     extruder.stepper_flow (extruder.backward);
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_stepper_stop(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    extruder.permission = 1;
+    extruder.stepper_stop ();
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);

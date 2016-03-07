@@ -37,6 +37,8 @@
 #define UUGEAR_RESPONSE_START_CHAR	'\t'
 #define UUGEAR_RESPONSE_END_STRING	":)"
 
+//for sending 2 bytes of data , used for status byte
+#define STATUS_BYTE_INITIAL_VAL                0x10
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
 #define LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS  0x38
 #define DATA_BYTE_EQ_ZERO_SUBSTITUTE           0xFF
@@ -50,6 +52,7 @@
 #define MSG_STEPPER_MOVE        50
 #define MSG_STEPPER_D_TIME      51      //for delay time between steps
 #define MSG_STEPPER_GO_HOME     52
+#define MSG_STEPPER_STOP        53
 
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
@@ -59,6 +62,7 @@
 #define CMD_STEPPER_MOVE        0x60
 #define CMD_STEPPER_D_TIME      0x61    //for delay time between steps
 #define CMD_STEPPER_GO_HOME     0x62
+#define CMD_STEPPER_STOP        0x63
 
 #define ASSERT_TRUE(x) \
     do { \

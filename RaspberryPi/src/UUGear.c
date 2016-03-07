@@ -293,7 +293,7 @@ int stepper_move(UUGearDevice *dev, short steps )
 {
 	char least_significant_byte  = (char)(steps & 0xFF) ;
 	char most_significant_byte   = (char)((steps >> 8) & 0xFF) ;
-	unsigned char status_byte;
+	unsigned char status_byte = STATUS_BYTE_INITIAL_VAL;
 	if (most_significant_byte == 0)
 	{
 		status_byte = MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
@@ -315,7 +315,7 @@ int stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us )
 {
 	char least_significant_byte  = (char)(time_us & 0xFF) ;
 	char most_significant_byte   = (char)((time_us >> 8) & 0xFF) ;
-	unsigned char status_byte;
+	unsigned char status_byte = STATUS_BYTE_INITIAL_VAL;
 	if (most_significant_byte == 0)
 	{
 		status_byte = MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
@@ -336,6 +336,15 @@ int stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us )
 int stepper_go_home (UUGearDevice *dev)
 {
 	sendMessageWithoutParameter(dev->in, MSG_STEPPER_GO_HOME, dev->clientId, dev->fd);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
+int stepper_stop (UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_STEPPER_STOP, dev->clientId, dev->fd);
 	//recieve akhnolodgment procedure
 	int errorCode = 0;
 	int recieved = waitForInteger(dev, &errorCode);
