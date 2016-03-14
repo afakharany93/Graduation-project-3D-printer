@@ -58,7 +58,7 @@ LiquidCrystal lcd(13, 12, 10, 9, 8, 7);
 String cmdBuf = "";
 int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
-stepper_3d extruder;
+stepper_3d motor;
 
 
 // declare reset function
@@ -88,7 +88,7 @@ void setup() {
 /* the ISR function is the one that does the moving of the stepper motor, it outputs the step at the time required */
 ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 {
-  extruder.inside_ISR();
+  motor.inside_ISR();
 }
 
 void loop() {
@@ -232,8 +232,8 @@ void cmd_stepper_move(String cmd) {
     lcd.setCursor(0, 1); // bottom left
     lcd.print(steps);
     #endif
-    extruder.permission = 1;
-    extruder.stepper_move(steps, extruder.time_bet_steps_us);
+    motor.permission = 1;
+    motor.stepper_move(steps, motor.time_bet_steps_us);
 
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
@@ -257,10 +257,10 @@ void cmd_stepper_d_time(String cmd) {
     {
       least_significant_byte = 0;
     }
-    extruder.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    motor.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
     #if LCD_DEBUGGING
     lcd.setCursor(0, 1); // bottom left
-    lcd.print(extruder.time_bet_steps_us);
+    lcd.print(motor.time_bet_steps_us);
     #endif
 
     //notify master with the recieve
@@ -276,8 +276,8 @@ void cmd_stepper_go_home(String cmd)
   if (cmd.length() > 4) 
   {
     byte clientId = cmd.charAt(2);
-    extruder.permission = 1;
-    extruder.stepper_flow (extruder.backward);
+    motor.permission = 1;
+    motor.stepper_flow (motor.backward);
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
@@ -291,8 +291,8 @@ void cmd_stepper_stop(String cmd)
   if (cmd.length() > 4) 
   {
     byte clientId = cmd.charAt(2);
-    extruder.permission = 1;
-    extruder.stepper_stop ();
+    motor.permission = 1;
+    motor.stepper_stop ();
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
@@ -306,8 +306,8 @@ void cmd_stepper_resume(String cmd)
   if (cmd.length() > 4) 
   {
     byte clientId = cmd.charAt(2);
-    extruder.permission = 1;
-    extruder.stepper_resume ();
+    motor.permission = 1;
+    motor.stepper_resume ();
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
