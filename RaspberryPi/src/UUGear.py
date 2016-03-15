@@ -10,7 +10,7 @@
  #
  #######################################################################
  
-from ctypes import CDLL, Structure, POINTER, byref, c_char, c_int, c_float, c_char_p , c_short , c_ushort
+from ctypes import CDLL, Structure, POINTER, byref, c_char, c_int, c_float, c_char_p , c_short , c_ushort , c_char_p
 
 UUGEAR_ID_MAX_LENGTH = 1024
 
@@ -48,6 +48,9 @@ uugearlib.stepper_stop.argtypes = [POINTER(UUGearDeviceProfile)]
 
 uugearlib.stepper_resume.restype = c_int
 uugearlib.stepper_resume.argtypes = [POINTER(UUGearDeviceProfile)]
+
+uugearlib.test_string.restype = c_char_p
+uugearlib.test_string.argtypes = [POINTER(UUGearDeviceProfile)]
 
 
 
@@ -102,5 +105,11 @@ class UUGearDevice(object):
 	def stepper_resume (self) :
 		if self.isValid():
 			return uugearlib.stepper_resume(byref(self.devProfile))
+		else :
+			return -1
+
+	def test_string (self)	:
+		if self.isValid():
+			return uugearlib.test_string(byref(self.devProfile))
 		else :
 			return -1

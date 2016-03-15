@@ -48,23 +48,27 @@
 #define MSG_CLOSE_DEVICE  	2
 
 #define MSG_RESET_DEVICE		217
-
+//stepper messages
 #define MSG_STEPPER_MOVE        50
 #define MSG_STEPPER_D_TIME      51      //for delay time between steps
 #define MSG_STEPPER_GO_HOME     52
 #define MSG_STEPPER_STOP        53
 #define MSG_STEPPER_RESUME      54
 
+#define MSG_TEST_STRING         93
+
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
 
 #define CMD_RESET_DEVICE		0xFF
-
+//stepper commands
 #define CMD_STEPPER_MOVE        0x60
 #define CMD_STEPPER_D_TIME      0x61    //for delay time between steps
 #define CMD_STEPPER_GO_HOME     0x62
 #define CMD_STEPPER_STOP        0x63
 #define CMD_STEPPER_RESUME      0x64
+
+#define CMD_TEST_STRING         0x70
 
 #define ASSERT_TRUE(x) \
     do { \

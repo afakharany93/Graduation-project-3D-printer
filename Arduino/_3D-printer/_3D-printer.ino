@@ -36,6 +36,8 @@
 #define CMD_STEPPER_STOP        0x63
 #define CMD_STEPPER_RESUME      0x64
 
+#define CMD_TEST_STRING         0x70
+
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
 #define LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS  0x38
@@ -193,6 +195,11 @@ void processCommand(String cmd) {
     case CMD_STEPPER_RESUME:
       cmd_stepper_resume(cmd);
       break;
+
+     case CMD_TEST_STRING:
+      cmd_string_test(cmd);
+      break;
+
     case 0xFF:
       resetDevice();
       break;
@@ -312,6 +319,19 @@ void cmd_stepper_resume(String cmd)
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
     Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_string_test(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send recieved
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print("Hello World!!");
     Serial.print(RESPONSE_END_STRING);
   }
 }

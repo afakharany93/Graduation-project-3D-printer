@@ -57,3 +57,4 @@ extern int stepper_go_home (UUGearDevice *dev);
 extern int stepper_stop (UUGearDevice *dev);
 
 extern int stepper_resume (UUGearDevice *dev);
+extern char * test_string(UUGearDevice *dev);
