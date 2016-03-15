@@ -366,6 +366,6 @@ char * test_string(UUGearDevice *dev)
 	//recieve akhnolodgment procedure
 	int errorCode = 0;
 	char * recieved = waitForString(dev, &errorCode);
-	return errorCode == 0 ? recieved : -1;
+	return errorCode == 0 ? recieved : "-1";
 
 }
