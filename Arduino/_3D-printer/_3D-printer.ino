@@ -328,10 +328,14 @@ void cmd_string_test(String cmd)
   if (cmd.length() > 4) 
   {
     byte clientId = cmd.charAt(2);
+    int x =0;
+    int y = 500;
+    char b[100];
+    x = sprintf(b,"Hello World, Awsome Message From Arduino To Rpi %d",y);
     //send recieved
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
-    Serial.print("Hello World!!, Awsome Message From Arduino To Rpi");
+    Serial.print(b);
     Serial.print(RESPONSE_END_STRING);
   }
 }
