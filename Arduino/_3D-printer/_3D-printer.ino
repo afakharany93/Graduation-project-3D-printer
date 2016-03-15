@@ -330,8 +330,8 @@ void cmd_string_test(String cmd)
     byte clientId = cmd.charAt(2);
     int x =0;
     int y = 500;
-    char b[100];
-    x = sprintf(b,"Hello World, Awsome Message From Arduino To Rpi %d",y);
+    char b[200];
+    x = sprintf(b,"Hello World, Awsome Message From Arduino To Rpi %d blah blah Fakharany good yeah, egypt cairo ay 7aga",y);
     //send recieved
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
