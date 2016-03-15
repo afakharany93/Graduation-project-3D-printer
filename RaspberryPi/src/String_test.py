@@ -7,5 +7,8 @@ device = UUGearDevice('UUGear-Arduino-1239-9170')
 
 if device.isValid():
 	print device.test_string()
+
+	device.detach()
+	device.stopDaemon()
 else:
 	print 'UUGear device is not correctly initialized.'

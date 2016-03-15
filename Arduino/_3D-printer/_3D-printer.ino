@@ -331,7 +331,7 @@ void cmd_string_test(String cmd)
     //send recieved
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
-    Serial.print("Hello World!!");
+    Serial.print("Hello World!!, Awsome Message From Arduino To Rpi");
     Serial.print(RESPONSE_END_STRING);
   }
 }
