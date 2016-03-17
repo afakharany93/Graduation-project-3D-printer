@@ -110,7 +110,7 @@ class UUGearDevice(object):
 
 	def stepper_status (self)	:
 		if self.isValid():
-			buf =  uugearlib.test_string(byref(self.devProfile))
+			buf =  uugearlib.stepper_status(byref(self.devProfile))
 			return buf
 		else :
 			return -1
