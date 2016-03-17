@@ -360,10 +360,10 @@ int stepper_resume (UUGearDevice *dev)
 	return errorCode == 0 ? recieved : -1;
 }
 
-char * test_string(UUGearDevice *dev)
+char * stepper_status(UUGearDevice *dev)
 {
-	sendMessageWithoutParameter(dev->in, MSG_TEST_STRING, dev->clientId, dev->fd);
-	//recieve akhnolodgment procedure
+	sendMessageWithoutParameter(dev->in, MSG_STEPPER_STATUS, dev->clientId, dev->fd);
+	//recieve staus response
 	int errorCode = 0;
 	char * recieved = waitForString(dev, &errorCode);
 	return errorCode == 0 ? recieved : "-1";

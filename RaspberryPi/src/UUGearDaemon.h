@@ -54,8 +54,7 @@
 #define MSG_STEPPER_GO_HOME     52
 #define MSG_STEPPER_STOP        53
 #define MSG_STEPPER_RESUME      54
-
-#define MSG_TEST_STRING         93
+#define MSG_STEPPER_STATUS      93
 
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
@@ -67,8 +66,7 @@
 #define CMD_STEPPER_GO_HOME     0x62
 #define CMD_STEPPER_STOP        0x63
 #define CMD_STEPPER_RESUME      0x64
-
-#define CMD_TEST_STRING         0x70
+#define CMD_STEPPER_STATUS      0x65
 
 #define ASSERT_TRUE(x) \
     do { \

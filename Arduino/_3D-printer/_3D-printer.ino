@@ -35,8 +35,7 @@
 #define CMD_STEPPER_GO_HOME     0x62
 #define CMD_STEPPER_STOP        0x63
 #define CMD_STEPPER_RESUME      0x64
-
-#define CMD_TEST_STRING         0x70
+#define CMD_STEPPER_STATUS      0x65
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -196,8 +195,8 @@ void processCommand(String cmd) {
       cmd_stepper_resume(cmd);
       break;
 
-     case CMD_TEST_STRING:
-      cmd_string_test(cmd);
+     case CMD_STEPPER_STATUS:
+      cmd_stepper_status(cmd);
       break;
 
     case 0xFF:
@@ -323,19 +322,15 @@ void cmd_stepper_resume(String cmd)
   }
 }
 
-void cmd_string_test(String cmd)
+void cmd_stepper_status(String cmd)
 {
   if (cmd.length() > 4) 
   {
     byte clientId = cmd.charAt(2);
-    int x =0;
-    int y = 500;
-    char b[200];
-    x = sprintf(b,"Hello World, Awsome Message From Arduino To Rpi %d blah blah Fakharany good yeah, egypt cairo ay 7aga",y);
-    //send recieved
+    //send the status
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
-    Serial.print(b);
+    Serial.print(motor.stepper_status());
     Serial.print(RESPONSE_END_STRING);
   }
 }

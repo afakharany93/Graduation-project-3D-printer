@@ -71,6 +71,7 @@ void stepper_3d::stepper_move (long int steps, unsigned long int time_bet_steps_
 	if (permission == 1)	//if you have permission, execute
 	{
 		permission = 0;		//permission is used for one time only, this line expires it, to execute again a new permission must be granted
+		status_var = MOVE;	//setting status to currently moving
 		if (steps > 0)
 		{
 			direction = clockwise;
@@ -100,6 +101,7 @@ void stepper_3d::stepper_stop ()
 	TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
 	TIMSK1 = 0 ;  // disable timer compare interrupt
 	stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+	status_var = SW_FORCE_STOP;	//setting status to indicate the stop due to software command
 }
 
 /*
@@ -112,6 +114,7 @@ void stepper_3d::stepper_resume ()
 {
 	TCCR1B |= (1 << WGM12);   // CTC mode
 	TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt
+	status_var = RESUME_AF_STOP; //set status to indicate that the steper is resuming 
 }
 
 /*
@@ -131,6 +134,8 @@ void stepper_3d::stepper_flow (unsigned char direction_flow)
 	{
 		stepper_move (-2147483647, 500 );	//move max number of steps oin the other direction
 	}
+	status_var = FLOW;
+
 }
 
 
@@ -248,6 +253,7 @@ void stepper_3d::inside_ISR ()
 		stepper_steps = 0;	//just for safety
 		TIMSK1 = 0;	//disable timer compare interrupt
 		TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
+		status_var = END_MOVE;	//setting status to indicate that the motion ended
 	}
 }
 
@@ -276,4 +282,21 @@ void stepper_3d::change_linear_direction_mapping()
 {
 	forward  ^= 0x01;
 	backward ^= 0x01;
+}
+
+char * stepper_3d::stepper_status()
+{
+	int x = 0;	//to hold the return value of sprintf
+	long int steps;
+	if (direction == clockwise)
+		{
+			steps = stepper_steps;
+		}
+	else if (direction == anticlockwise)
+		{
+			steps =  stepper_steps* (-1);
+		}
+	char buff[50];
+	x = sprintf(buff, "Status %d, t_bet_steps %lu, remain_steps %l",status_var , time_bet_steps_us, steps);
+	return (char *) buff;
 }

@@ -49,8 +49,8 @@ uugearlib.stepper_stop.argtypes = [POINTER(UUGearDeviceProfile)]
 uugearlib.stepper_resume.restype = c_int
 uugearlib.stepper_resume.argtypes = [POINTER(UUGearDeviceProfile)]
 
-uugearlib.test_string.restype = c_char_p
-uugearlib.test_string.argtypes = [POINTER(UUGearDeviceProfile)]
+uugearlib.stepper_status.restype = c_char_p
+uugearlib.stepper_status.argtypes = [POINTER(UUGearDeviceProfile)]
 
 
 
@@ -108,8 +108,9 @@ class UUGearDevice(object):
 		else :
 			return -1
 
-	def test_string (self)	:
+	def stepper_status (self)	:
 		if self.isValid():
-			return uugearlib.test_string(byref(self.devProfile))
+			buf =  uugearlib.test_string(byref(self.devProfile))
+			return buf
 		else :
 			return -1
