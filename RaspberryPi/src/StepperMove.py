@@ -17,7 +17,6 @@ if device.isValid():
 		print status
 
 
-		device1.detach()
 		device.detach()
 		device.stopDaemon()
 else:

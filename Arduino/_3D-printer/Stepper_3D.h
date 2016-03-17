@@ -87,7 +87,7 @@ class stepper_3d
 		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
 
 		//status holding variable
-		unsigned char status_var;
+		unsigned char status_var = END_MOVE;
 
 		/*
 			Function name : stepper_move
