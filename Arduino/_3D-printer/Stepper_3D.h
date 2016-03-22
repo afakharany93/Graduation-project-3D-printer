@@ -176,7 +176,7 @@ class stepper_3d
 		};
 
 		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
-		unsigned long int 	stepper_steps;			//this variable holds the number of steps remained to be moved, needed by the isr
+		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
 		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
 
 		/*Function name : stepper_output

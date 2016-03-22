@@ -65,6 +65,9 @@ class UUGearDevice(object):
 	def __init__(self, id):
 		uugearlib.setupUUGear()
 		self.devProfile = uugearlib.attachUUGearDevice(id)
+		self.stepper_status_dict = {1 : 'Stepper is moving', 2 : 'Stepper has ended motion', 
+									3 : 'Stepper Stopped due to SW', 4 : 'Stepper resuming after stopping by SW' ,
+									5 : 'Stepper is flowing'}
 		
 	def isValid(self):
 		return self.devProfile != None and self.devProfile.fd != -1
@@ -111,6 +114,8 @@ class UUGearDevice(object):
 	def stepper_status (self)	:
 		if self.isValid():
 			buf =  uugearlib.stepper_status(byref(self.devProfile))
+			if (buf.find("Status 5") != -1)
+				buf.replace("5", stepper_status_dict[5], 1)
 			return buf
 		else :
 			return -1
