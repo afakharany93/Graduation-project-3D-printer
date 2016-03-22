@@ -114,7 +114,7 @@ class UUGearDevice(object):
 	def stepper_status (self)	:
 		if self.isValid():
 			buf =  uugearlib.stepper_status(byref(self.devProfile))
-			if (buf.find("Status 5") != -1)
+			if buf.find("Status 5") != -1 :
 				buf.replace("5", stepper_status_dict[5], 1)
 			return buf
 		else :
