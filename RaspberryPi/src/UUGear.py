@@ -114,6 +114,7 @@ class UUGearDevice(object):
 	def stepper_status (self)	:
 		if self.isValid():
 			buf =  uugearlib.stepper_status(byref(self.devProfile))
+			print buf.find("Status 5")
 			if buf.find("Status 5") != -1 :
 				buf.replace("Status 5", 'Status: Stepper is flowing', 1)
 			return buf
