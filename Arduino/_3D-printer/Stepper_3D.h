@@ -25,7 +25,12 @@ Pin 46, 45 and 44:: controlled by timer 5
 //defining the direction of the change in states
 #define NEXT 			1
 #define PREVIOUS 		0
-
+//statuses
+#define MOVE 			1
+#define END_MOVE		2
+#define	SW_FORCE_STOP	3
+#define	RESUME_AF_STOP	4
+#define	FLOW			5
 
 /*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resemnles one step,
 it holds the output of the state and a pointer to the next state to use to step forward and
@@ -80,6 +85,9 @@ class stepper_3d
 
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
+
+		//status holding variable
+		unsigned char status_var = END_MOVE;
 
 		/*
 			Function name : stepper_move
@@ -139,6 +147,8 @@ class stepper_3d
 		*/
 		void change_linear_direction_mapping();
 
+		char * stepper_status();
+
 	private:	//stuff under the hood, the user shouldn't bither himself with
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
 		struct stepper_state_struct stepper_states[8] = 
@@ -166,7 +176,7 @@ class stepper_3d
 		};
 
 		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
-		unsigned long int 	stepper_steps;			//this variable holds the number of steps remained to be moved, needed by the isr
+		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
 		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
 
 		/*Function name : stepper_output

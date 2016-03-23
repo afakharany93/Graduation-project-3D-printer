@@ -359,3 +359,13 @@ int stepper_resume (UUGearDevice *dev)
 	int recieved = waitForInteger(dev, &errorCode);
 	return errorCode == 0 ? recieved : -1;
 }
+
+char * stepper_status(UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_STEPPER_STATUS, dev->clientId, dev->fd);
+	//recieve staus response
+	int errorCode = 0;
+	char * recieved = waitForString(dev, &errorCode);
+	return errorCode == 0 ? recieved : "-1";
+
+}

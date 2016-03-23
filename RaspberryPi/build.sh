@@ -23,6 +23,7 @@ cc -o $TARGET_DIR/lsuu lsuu.c serial.c
 
 cp UUGear.py $TARGET_DIR/UUGear.py
 cp StepperMove.py $TARGET_DIR/StepperMove.py
+cp String_test.py $TARGET_DIR/String_test.py
 
 echo "Copying shared object file to /usr/lib/..."
 

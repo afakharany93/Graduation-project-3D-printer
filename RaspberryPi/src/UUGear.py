@@ -10,7 +10,7 @@
  #
  #######################################################################
  
-from ctypes import CDLL, Structure, POINTER, byref, c_char, c_int, c_float, c_char_p , c_short , c_ushort
+from ctypes import CDLL, Structure, POINTER, byref, c_char, c_int, c_float, c_char_p , c_short , c_ushort , c_char_p
 
 UUGEAR_ID_MAX_LENGTH = 1024
 
@@ -49,6 +49,9 @@ uugearlib.stepper_stop.argtypes = [POINTER(UUGearDeviceProfile)]
 uugearlib.stepper_resume.restype = c_int
 uugearlib.stepper_resume.argtypes = [POINTER(UUGearDeviceProfile)]
 
+uugearlib.stepper_status.restype = c_char_p
+uugearlib.stepper_status.argtypes = [POINTER(UUGearDeviceProfile)]
+
 
 
 class UUGearDevice(object):
@@ -62,6 +65,9 @@ class UUGearDevice(object):
 	def __init__(self, id):
 		uugearlib.setupUUGear()
 		self.devProfile = uugearlib.attachUUGearDevice(id)
+		self.stepper_status_dict = {1 : 'Stepper is moving', 2 : 'Stepper has ended motion', 
+									3 : 'Stepper Stopped due to SW', 4 : 'Stepper resuming after stopping by SW' ,
+									5 : 'Stepper is flowing'}
 		
 	def isValid(self):
 		return self.devProfile != None and self.devProfile.fd != -1
@@ -102,5 +108,22 @@ class UUGearDevice(object):
 	def stepper_resume (self) :
 		if self.isValid():
 			return uugearlib.stepper_resume(byref(self.devProfile))
+		else :
+			return -1
+
+	def stepper_status (self)	:
+		if self.isValid():
+			buf =  uugearlib.stepper_status(byref(self.devProfile))
+			if buf.find("Status 1") != -1 :
+				buf = buf.replace("1", self.stepper_status_dict[1], 1)
+			elif buf.find("Status 2") != -1 :
+				buf = buf.replace("2", self.stepper_status_dict[2], 1)
+			elif buf.find("Status 3") != -1 :
+				buf = buf.replace("3", self.stepper_status_dict[3], 1)
+			elif buf.find("Status 4") != -1 :
+				buf = buf.replace("4", self.stepper_status_dict[4], 1)
+			elif buf.find("Status 5") != -1 :
+				buf = buf.replace("5", self.stepper_status_dict[5], 1)
+			return buf
 		else :
 			return -1
