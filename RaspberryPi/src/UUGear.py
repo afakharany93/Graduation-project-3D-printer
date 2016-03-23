@@ -122,7 +122,7 @@ class UUGearDevice(object):
 				buf = buf.replace("3", self.stepper_status_dict[3], 1)
 			elif buf.find("Status 4") != -1 :
 				buf = buf.replace("4", self.stepper_status_dict[4], 1)
-			else buf.find("Status 5") != -1 :
+			elif buf.find("Status 5") != -1 :
 				buf = buf.replace("5", self.stepper_status_dict[5], 1)
 			return buf
 		else :
