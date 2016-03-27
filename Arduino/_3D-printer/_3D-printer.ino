@@ -15,7 +15,7 @@
 #include <EEPROM.h>
 #include "Stepper_3D.h"
 
-#define LCD_DEBUGGING 1
+#define LCD_DEBUGGING 1   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
 
 #define BAUD_RATE  115200
 
@@ -31,7 +31,7 @@
 
 //commands
 #define CMD_STEPPER_MOVE        0x60
-#define CMD_STEPPER_D_TIME      0x61    //for delay time between steps
+#define CMD_STEPPER_D_TIME      0x61    //for time between steps
 #define CMD_STEPPER_GO_HOME     0x62
 #define CMD_STEPPER_STOP        0x63
 #define CMD_STEPPER_RESUME      0x64
@@ -45,12 +45,18 @@
 //respond to recieving data
 #define REPOND_WITH_RECIEVED  0x2F
 
-// include the library code:
-#include <LiquidCrystal.h>
-
 #if LCD_DEBUGGING
-// initialize the library with the numbers of the interface pins
-LiquidCrystal lcd(13, 12, 10, 9, 8, 7);
+// include the LCD library code:
+#include <Wire.h>                 //to enable I2C to communicate with  the LCD I2C module
+#include <LiquidCrystal_I2C.h>    //to use LCD I2C module related functions
+
+
+
+// Set the LCD address to 0x27 (Could be 0x20 if solder jumpers are bridged!)
+// Set the pins on the I2C chip used for LCD connections:
+//                    addr,en,rw,rs,d4,d5,d6,d7,bl,blpol
+LiquidCrystal_I2C LCD(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  //create an LCD object, Set the LCD I2C address
+
 #endif
 
 
@@ -67,8 +73,11 @@ void(* resetDevice) (void) = 0;
 
 void setup() {
   #if LCD_DEBUGGING
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
+  LCD.begin(16, 2);  // 16 lines by 2 rows
+  LCD.clear();        //clear LCD screen
+  LCD.backlight();    //activate LCD backlight
+  LCD.setCursor(0,0); //set cursor to home position
+  LCD.print("Hello");       //print a message to make sure lcd is working
   #endif
 
   // if has no id yet, generate one
@@ -117,8 +126,9 @@ void loop() {
         String cmd = cmdBuf.substring(0, pos + cmdEndStrLen);
         cmdBuf = cmdBuf.substring(pos + cmdEndStrLen);
         #if LCD_DEBUGGING
-        lcd.setCursor(0, 0); // bottom left
-        lcd.print(cmd);
+        //LCD.clear();        //clear LCD screen
+        LCD.setCursor(0, 0); // 
+        LCD.print(cmd);       //print command on screen
         #endif
         processCommand(cmd);
       }
@@ -235,8 +245,8 @@ void cmd_stepper_move(String cmd) {
     }
     int steps = ((((int) most_significant_byte) << 8 ) | 0x00FF) & (((int) least_significant_byte) | 0xFF00);
     #if LCD_DEBUGGING
-    lcd.setCursor(0, 1); // bottom left
-    lcd.print(steps);
+    LCD.setCursor(0, 1); //
+    LCD.print(steps);   //print number of steps received
     #endif
     motor.permission = 1;
     motor.stepper_move(steps, motor.time_bet_steps_us);
@@ -265,8 +275,8 @@ void cmd_stepper_d_time(String cmd) {
     }
     motor.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
     #if LCD_DEBUGGING
-    lcd.setCursor(0, 1); // bottom left
-    lcd.print(motor.time_bet_steps_us);
+    LCD.setCursor(0, 1); // 
+    LCD.print(motor.time_bet_steps_us); //print the received time between steps
     #endif
 
     //notify master with the recieve
