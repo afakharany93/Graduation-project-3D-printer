@@ -21,7 +21,7 @@
 
 #define EEPROM_SIZE  1024   //used to loop the eeprom for the sake of getting or generating a UUGEAR ID 
 
-#define ID_PREFIX  "MCU-Arduino-"
+#define ID_PREFIX  "MCU_Arduino-"
 
 #define COMMAND_START_CHAR  'U'
 #define COMMAND_END_STRING  "\r\n"
