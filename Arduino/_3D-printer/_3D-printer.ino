@@ -1,6 +1,6 @@
 /*
  * This is part of a graduation project solution aims to build a 3d printer,
- * made by students at the AASTMT Sheraton, Mechatronics department, 2016
+ * made by students at the AASTMT sheraton, Mechatronics department, 2016
  * https://github.com/afakharany93/Graduation-project-3D-printer
  *
  * Used UUgear for communication
@@ -19,9 +19,9 @@
 
 #define BAUD_RATE  115200
 
-#define EEPROM_SIZE  1024   //used to loop the eeprom for the sake of getting or generating a UUGEAR ID 
+#define EEPROM_SIZE  1024
 
-#define ID_PREFIX  "MCU_Arduino-"
+#define ID_PREFIX  "UUGear-Arduino-"
 
 #define COMMAND_START_CHAR  'U'
 #define COMMAND_END_STRING  "\r\n"

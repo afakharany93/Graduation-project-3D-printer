@@ -3,7 +3,7 @@ from UUGear import *
 
 UUGearDevice.setShowLogs(0)
 
-device = UUGearDevice('MCU_Arduino-3921-4545')
+device = UUGearDevice('UUGear-Arduino-1239-9170')
 
 if device.isValid():
 	print device.stepper_status()
