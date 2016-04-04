@@ -1,6 +1,6 @@
 /*
  * This is part of a graduation project solution aims to build a 3d printer,
- * made by students at the AASTMT sheraton, Mechatronics department, 2016
+ * made by students at the AASTMT Sheraton, Mechatronics department, 2016
  * https://github.com/afakharany93/Graduation-project-3D-printer
  *
  * Used UUgear for communication
@@ -23,19 +23,20 @@
 
 #define ID_PREFIX  "UUGear-Arduino-"
 
-#define COMMAND_START_CHAR  'U'
-#define COMMAND_END_STRING  "\r\n"
+#define COMMAND_START_CHAR  'U'     //char used to identify the start of a command message received from master MCU
+#define COMMAND_END_STRING  "\r\n"  //char used to identify the end of a command message received from master MCU
 
-#define RESPONSE_START_CHAR  '\t'
-#define RESPONSE_END_STRING  ":)"
+#define RESPONSE_START_CHAR  '\t'   //char used to define the start of response from Arduino to master
+#define RESPONSE_END_STRING  ":)"   //string used to identify the end of response form Arduino to master
 
 //commands
-#define CMD_STEPPER_MOVE        0x60
-#define CMD_STEPPER_D_TIME      0x61    //for time between steps
-#define CMD_STEPPER_GO_HOME     0x62
-#define CMD_STEPPER_STOP        0x63
-#define CMD_STEPPER_RESUME      0x64
-#define CMD_STEPPER_STATUS      0x65
+//when these commands are received within the command message from master in the command slot within the message, corresponding actions will be taken
+#define CMD_STEPPER_MOVE        0x60    //to move the stepper motor number of steps received within the same message 
+#define CMD_STEPPER_D_TIME      0x61    //for defining time between steps
+#define CMD_STEPPER_GO_HOME     0x62    //to tell the stepper motor to take the carriage to the home position
+#define CMD_STEPPER_STOP        0x63    //to force the motor to stop
+#define CMD_STEPPER_RESUME      0x64    //to resume the motor after stop
+#define CMD_STEPPER_STATUS      0x65    //to send the status of the stepper motor
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
