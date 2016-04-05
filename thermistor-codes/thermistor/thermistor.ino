@@ -2,7 +2,7 @@
 
 #define SERIES_RESISTOR		10000.0		//the value of the resistor in series with the thermistor in ohms
 
-#define AVERGAE_SAMPLES		10			//used to hold the number of samples that are averaged
+#define AVERGAE_SAMPLES		200			//used to hold the number of samples that are averaged
 
 #define BETA_PARAMETER		3950.0	
 
@@ -27,7 +27,7 @@ double thermistor_measurment()
 {
 	int ADC_value;		//used to hold the value reading from the ADC
 	double thermistor_resistance_value;		//used to hold the value of the resistance of the thermistor 
-	int average = 0.0;		//used to hold the averaged value
+	long int average = 0;		//used to hold the averaged value
 	int pin = A0;
 
 	for (int i = 0; i < AVERGAE_SAMPLES; i++ )
