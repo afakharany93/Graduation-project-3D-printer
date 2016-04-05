@@ -1,14 +1,12 @@
 #include <math.h>
 
-#define SERIES_RESISTOR		10000		//the value of the resistor in series with the thermistor in ohms
-
-#define THERMISTOR_PIN		A0			//PIN CONNECTED TO THE THERMISTOR
+#define SERIES_RESISTOR		10000.0		//the value of the resistor in series with the thermistor in ohms
 
 #define AVERGAE_SAMPLES		10			//used to hold the number of samples that are averaged
 
-#define BETA_PARAMETER		3950	
+#define BETA_PARAMETER		3950.0	
 
-#define	NOMINLA_THERMISTOR_VALUE	100000
+#define	NOMINLA_THERMISTOR_VALUE	100000.0
 #define NOMINAL_TEMPERATURE			298.15		//kelvin, 25 Celsius
 
 void setup() {
@@ -45,10 +43,10 @@ double thermistor_measurment()
 	return thermistor_resistance_value;
 }
 
-double temperature_measurment()
+float temperature_measurment()
 {
 	double resistance;
-	double temperature;
+	float temperature;
 	resistance = thermistor_measurment();
 	temperature = (1.0/NOMINAL_TEMPERATURE) + ((1.0/BETA_PARAMETER) * log(resistance / NOMINLA_THERMISTOR_VALUE));
 	temperature = (1.0 / temperature) - 273.15;	//Celsius
