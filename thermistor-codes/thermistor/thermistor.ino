@@ -1,23 +1,28 @@
 #include <math.h>
 
-#define SERIES_RESISTOR		10000.0		//the value of the resistor in series with the thermistor in ohms
+#define SERIES_RESISTOR		97900.0		//the value of the resistor in series with the thermistor in ohms
 
-#define AVERGAE_SAMPLES		200			//used to hold the number of samples that are averaged
+#define AVERGAE_SAMPLES		20			//used to hold the number of samples that are averaged
 
 #define BETA_PARAMETER		3950.0	
 
 #define	NOMINLA_THERMISTOR_VALUE	100000.0
 #define NOMINAL_TEMPERATURE			298.15		//kelvin, 25 Celsius
 
-void setup() {
-  Serial.begin(115200);
+#define SERIAL_DEBUG	1
 
+void setup() {
+#if SERIAL_DEBUG
+  Serial.begin(115200);
+#endif
 }
 
 void loop() {
-	
+	float temp = temperature_measurment();
+	#if SERIAL_DEBUG
 	Serial.print("Thermistor temp :"); 
-	Serial.println(temperature_measurment());
+	Serial.println(temp);
+	#endif
   	delay(100);
 
 }
@@ -45,11 +50,12 @@ double thermistor_measurment()
 
 float temperature_measurment()
 {
-	double resistance;
 	float temperature;
-	resistance = thermistor_measurment();
-	temperature = (1.0/NOMINAL_TEMPERATURE) + ((1.0/BETA_PARAMETER) * log(resistance / NOMINLA_THERMISTOR_VALUE));
+	temperature = thermistor_measurment();
+	temperature = temperature / NOMINLA_THERMISTOR_VALUE;
+	temperature = log(temperature);
+	temperature = (1.0/BETA_PARAMETER) * temperature;
+	temperature = (1.0/NOMINAL_TEMPERATURE) + temperature;
 	temperature = (1.0 / temperature) - 273.15;	//Celsius
 	return temperature;
 }
-
