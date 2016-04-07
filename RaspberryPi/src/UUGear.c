@@ -369,3 +369,13 @@ char * stepper_status(UUGearDevice *dev)
 	return errorCode == 0 ? recieved : "-1";
 
 }
+
+char * temperature_status(UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_TEMPERATURE_STATUS, dev->clientId, dev->fd);
+	//recieve staus response
+	int errorCode = 0;
+	char * recieved = waitForString(dev, &errorCode);
+	return errorCode == 0 ? recieved : "-1";
+
+}

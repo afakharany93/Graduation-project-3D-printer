@@ -14,6 +14,7 @@
  */
 #include <EEPROM.h>
 #include "Stepper_3D.h"
+#include "Thermistor_3D.h"
 
 #define LCD_DEBUGGING 1   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
 
@@ -31,12 +32,16 @@
 
 //commands
 //when these commands are received within the command message from master in the command slot within the message, corresponding actions will be taken
+//stepper commands
 #define CMD_STEPPER_MOVE        0x60    //to move the stepper motor number of steps received within the same message 
 #define CMD_STEPPER_D_TIME      0x61    //for defining time between steps
 #define CMD_STEPPER_GO_HOME     0x62    //to tell the stepper motor to take the carriage to the home position
 #define CMD_STEPPER_STOP        0x63    //to force the motor to stop
 #define CMD_STEPPER_RESUME      0x64    //to resume the motor after stop
 #define CMD_STEPPER_STATUS      0x65    //to send the status of the stepper motor
+
+//temperature commands
+#define CMD_TEMPERATURE_STATUS    0x66    //to send the statuses of the temperature sensors
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -67,7 +72,7 @@ String cmdBuf = "";
 int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
 stepper_3d motor;
-
+Thermistor_3d thermistor(A0);
 
 // declare reset function
 void(* resetDevice) (void) = 0;
@@ -206,8 +211,12 @@ void processCommand(String cmd) {
       cmd_stepper_resume(cmd);
       break;
 
-     case CMD_STEPPER_STATUS:
+    case CMD_STEPPER_STATUS:
       cmd_stepper_status(cmd);
+      break;
+
+    case CMD_TEMPERATURE_STATUS:
+      cmd_temperature_status(cmd);
       break;
 
     case 0xFF:
@@ -342,6 +351,22 @@ void cmd_stepper_status(String cmd)
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
     Serial.print(motor.stepper_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_temperature_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    int x = 0;  //to hold the return value of sprintf
+    char buff[20];
+    x = sprintf(buff, "Temperature %f c",thermistor.temperature_measurment());
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(buff);
     Serial.print(RESPONSE_END_STRING);
   }
 }
