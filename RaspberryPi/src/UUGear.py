@@ -52,6 +52,9 @@ uugearlib.stepper_resume.argtypes = [POINTER(UUGearDeviceProfile)]
 uugearlib.stepper_status.restype = c_char_p
 uugearlib.stepper_status.argtypes = [POINTER(UUGearDeviceProfile)]
 
+uugearlib.temperature_status.restype = c_char_p
+uugearlib.temperature_status.argtypes = [POINTER(UUGearDeviceProfile)]
+
 
 
 class UUGearDevice(object):
@@ -124,6 +127,13 @@ class UUGearDevice(object):
 				buf = buf.replace("4", self.stepper_status_dict[4], 1)
 			elif buf.find("Status 5") != -1 :
 				buf = buf.replace("5", self.stepper_status_dict[5], 1)
+			return buf
+		else :
+			return -1
+
+	def temperature_status (self)	:
+		if self.isValid():
+			buf =  uugearlib.temperature_status(byref(self.devProfile))
 			return buf
 		else :
 			return -1

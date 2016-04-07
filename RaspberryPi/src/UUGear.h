@@ -59,3 +59,5 @@ extern int stepper_stop (UUGearDevice *dev);
 extern int stepper_resume (UUGearDevice *dev);
 
 extern char * stepper_status(UUGearDevice *dev);
+
+extern char * temperature_status(UUGearDevice *dev);

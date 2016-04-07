@@ -1,6 +1,6 @@
 /*
  * This is part of a graduation project solution aims to build a 3d printer,
- * made by students at the AASTMT sheraton, Mechatronics department, 2016
+ * made by students at the AASTMT Sheraton, Mechatronics department, 2016
  * https://github.com/afakharany93/Graduation-project-3D-printer
  *
  * Used UUgear for communication
@@ -474,6 +474,10 @@ int main(int argc, char **argv)
 
 					case MSG_STEPPER_STATUS:
 						sendCommandWithoutParameter(CMD_STEPPER_STATUS, clientId, targetFd);
+						break;
+						
+					case MSG_TEMPERATURE_STATUS:
+						sendCommandWithoutParameter(CMD_TEMPERATURE_STATUS, clientId, targetFd);
 						break;
 				}
 			}

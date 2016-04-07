@@ -55,6 +55,8 @@
 #define MSG_STEPPER_STOP        53
 #define MSG_STEPPER_RESUME      54
 #define MSG_STEPPER_STATUS      93
+//temperature messages
+#define MSG_TEMPERATURE_STATUS  56    //to get the temperature 
 
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
@@ -67,6 +69,8 @@
 #define CMD_STEPPER_STOP        0x63
 #define CMD_STEPPER_RESUME      0x64
 #define CMD_STEPPER_STATUS      0x65
+//temperature commands
+#define CMD_TEMPERATURE_STATUS  0x66    //to get the temperature 
 
 #define ASSERT_TRUE(x) \
     do { \
