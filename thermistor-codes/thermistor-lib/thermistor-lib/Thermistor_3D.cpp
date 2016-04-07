@@ -12,6 +12,7 @@
 *                               Analog Pin 
 * 
 * thermistor resistance = (series resistance * ADC value) / (1023 - ADC value) 
+* beta parameter equation: 1/T = (1/To) + ((1/B)*ln(R/Ro))   all temperatures in kelvin
 */
 
 

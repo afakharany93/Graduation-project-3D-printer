@@ -5,6 +5,7 @@
 Thermistor_3d therm(A0);
 
 void setup() {
+therm.average_samples = 200;
 #if SERIAL_DEBUG
   Serial.begin(115200);
 #endif
