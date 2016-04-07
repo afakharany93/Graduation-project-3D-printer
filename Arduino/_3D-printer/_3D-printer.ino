@@ -16,7 +16,7 @@
 #include "Stepper_3D.h"
 #include "Thermistor_3D.h"
 
-#define LCD_DEBUGGING 1   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
+#define LCD_DEBUGGING 0   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
 
 #define BAUD_RATE  115200
 
@@ -360,9 +360,20 @@ void cmd_temperature_status(String cmd)
   if (cmd.length() > 4) 
   {
     byte clientId = cmd.charAt(2);
+    float temp = thermistor.temperature_measurment();
+    char str_temp[6];
+    /* 4 is mininum width, 2 is precision; float value is copied onto str_temp*/
+    dtostrf(temp, 5, 2, str_temp);
+    #if LCD_DEBUGGING
+        LCD.print(temp);       //print command on screen
+        #endif
     int x = 0;  //to hold the return value of sprintf
     char buff[20];
-    x = sprintf(buff, "Temperature %f c",thermistor.temperature_measurment());
+    x = sprintf(buff, "bed temp %s c", str_temp);
+    #if LCD_DEBUGGING
+        LCD.setCursor(0, 1); //
+        LCD.print(buff);       //print command on screen
+        #endif
     //send the status
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
@@ -370,3 +381,7 @@ void cmd_temperature_status(String cmd)
     Serial.print(RESPONSE_END_STRING);
   }
 }
+
+
+
+
