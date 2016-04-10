@@ -12,14 +12,14 @@ void loop() {
 }
 
 void report() {
-uint8_t oldSREG = SREG;
-cli();
+//uint8_t oldSREG = SREG;
+//cli();
 //detachInterrupt(digitalPinToInterrupt(pin));
-//Serial.println(1-digitalRead(pin));
-delay(1);
+Serial.println(1-digitalRead(pin));
+//delay(1);
 //Serial.println(1-digitalRead(pin));
 
-if(!digitalRead(pin))
+//if(!digitalRead(pin))
 {
 	count ++;
 	//if((count%2))
@@ -27,8 +27,8 @@ if(!digitalRead(pin))
 		//Serial.print("press ");
 		//Serial.println(millis()); 
 		//Serial.println(count); 
-		Serial.println(1-digitalRead(pin));
+		//Serial.println(1-digitalRead(pin));
 	}
 }
- SREG = oldSREG;
+ //SREG = oldSREG;
 }
