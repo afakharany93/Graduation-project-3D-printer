@@ -3,9 +3,12 @@
 
 volatile int count= 0;	//to count the umber of interrupts
 void setup() {
-      Serial.begin(115200); 
-     PCICR |= 0b00000010;    // turn on port c change pin interrupt 
-     PCMSK1 |= 0b00000001;    // turn on pin PC0, which is PCINT8, physical pin A0
+      Serial.begin(115200);
+      /* turn on pin PCINT9 and PCINT10 p[in change interrupts, which is: 
+     		for NANO : PC1 and PC2, physical pin A1 and A2
+     		for MEGA : Pj0 and Pj1, physical pins 15 and 14*/ 
+     PCICR |= 0b00000010;    
+     PCMSK1 |= 0b00000110;    
 
 }
 
