@@ -107,6 +107,11 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
   motor.inside_ISR();
 }
 
+ISR(PCINT1_vect)
+{
+  motor.inside_endstop_ISR ();
+}
+
 void loop() {
 
   // listen to incoming commands

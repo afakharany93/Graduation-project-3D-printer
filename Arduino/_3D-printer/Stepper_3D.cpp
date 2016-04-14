@@ -302,7 +302,7 @@ char * stepper_3d::stepper_status()
 		{
 			steps =  stepper_steps* (-1);
 		}
-	char buff[115];
+	char buff[120];
 	x = sprintf(buff, "Status %d, t_bet_steps %lu, remain_steps %ld, endstops %u",status_var , time_bet_steps_us, steps, endstop_state);
 	return (char *) buff;
 }
