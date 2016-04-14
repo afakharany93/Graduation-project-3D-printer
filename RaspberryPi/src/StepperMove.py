@@ -16,6 +16,11 @@ if device.isValid():
 		status = device.stepper_status()
 		print status
 
+		for i in range(100) :
+			status = device.stepper_status()
+			print status
+			sleep(0.1)
+
 
 		device.detach()
 		device.stopDaemon()

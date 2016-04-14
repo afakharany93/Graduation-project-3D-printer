@@ -9,7 +9,7 @@ On the Arduino Mega we have 6 timers and 15 PWM outputs:
 
 Pins 4 and 13: controlled by timer0
 Pins 11 and 12: controlled by timer1
-Pins 9 and10: controlled by timer2
+Pins 9 and 10: controlled by timer2
 Pin 2, 3 and 5: controlled by timer 3
 Pin 6, 7 and 8: controlled by timer 4
 Pin 46, 45 and 44:: controlled by timer 5
@@ -19,7 +19,7 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define _STEPPER_3D_
 
 #include "Arduino.h"
-
+#include <avr/interrupt.h>
 
 
 //defining the direction of the change in states
@@ -31,24 +31,28 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define	SW_FORCE_STOP	3
 #define	RESUME_AF_STOP	4
 #define	FLOW			5
+//enstop states
+#define NOTHING_PRESSED	0
+#define HOME_PRESSED	1
+#define AWAY_PRESSED	2
 
-/*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resemnles one step,
+/*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resembles one step,
 it holds the output of the state and a pointer to the next state to use to step forward and
 a pointer to the previous step in case of backwards */
 
 typedef struct stepper_state_struct
 {
-	unsigned char out;						//used to hold the output values to all pins, this value needs to be inturpeted later
- 	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resmbles the next step on the stepper motor, used for forward motion
-	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previos state, used for backwards motion
+	unsigned char out;						//used to hold the output values to all pins, this value needs to be interpreted later
+ 	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resembles the next step on the stepper motor, used for forward motion
+	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previous state, used for backwards motion
 } stepper_state_struct;
 /* struct timer1_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
- to be able to operate with the timer1 asagile as possible */
+ to be able to operate with the timer1 as agile as possible */
 typedef struct timer1_value
 {
 	unsigned int prescale;				//to hold the value of the prescale
 	float time_per_tick_us;				//to hold the value of time needed to make one tick in the timer in micro seconds
-	unsigned long int max_period_us;	//to haold the max value the timer can hold in micro seconds
+	unsigned long int max_period_us;	//to hold the max value the timer can hold in micro seconds
 }timer1_value;
 
 class stepper_3d
@@ -76,6 +80,10 @@ class stepper_3d
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
 
+		//endstop states
+		unsigned char endstop_state = NOTHING_PRESSED;
+		
+
 		//pwm values
 		unsigned char max_pwm = 255;	//max speed and torque pwm value
 		unsigned char min_pwm = 0; //current limiting pwm value
@@ -84,7 +92,7 @@ class stepper_3d
 		unsigned long int time_bet_steps_us = 400 ;
 
 		//permission handler
-		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
+		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
 
 		//status holding variable
 		unsigned char status_var = END_MOVE;
@@ -119,7 +127,7 @@ class stepper_3d
 			Function name : stepper_flow
 		  	return : void
 		  	parameters : unsigned char direction_flow :- to determine the direction of motion
-		  	Method of operation : it is used to move the stepper motor in a very big nummber of steps that it seems it moves for infinityyyyy, but it doesn't, 
+		  	Method of operation : it is used to move the stepper motor in a very big number of steps that it seems it moves for infinityyyyy, but it doesn't, 
 		  						  best used for moving the stepper motor till a physical event happens to stop it
 		*/
 		void stepper_flow (unsigned char direction_flow);
@@ -127,9 +135,18 @@ class stepper_3d
 			Function name : inside_ISR
 		  	return : void
 		  	parameters :void
-		  	Functionality : this function is to be called inside the timer ISR function, it the function resposible for doing the motion everytime the ISR runs
+		  	Functionality : this function is to be called inside the timer ISR function, it the function responsible for doing the motion everytime the ISR runs
 		*/
 		void inside_ISR () ;
+		/*
+			Function name : inside_endstop_ISR
+		  	return : void
+		  	parameters :void
+		  	Functionality : this function is to be called inside the pin change ISR function, it the function responsible for handling the endstops 
+		  					home pin is the pin with the least value, away pin is the one with more value, for NANO : PC1 and PC2, physical pin A1 and A2
+     						for MEGA : Pj0 and Pj1, physical pins 15 and 14
+		*/
+		void inside_endstop_ISR () ;
 		/*
 			Function name : change_rotation_direction
 		  	return : void

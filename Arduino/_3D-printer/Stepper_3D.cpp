@@ -16,6 +16,12 @@ stepper_3d::stepper_3d()
 	digitalWrite(third, LOW);
 	digitalWrite(forth, LOW);
 
+	/* turn on pin PCINT9 and PCINT10 pin change interrupts, which is: 
+     		for NANO : PC1 and PC2, physical pin A1 and A2
+     		for MEGA : Pj0 and Pj1, physical pins 15 and 14*/ 
+     PCICR |= 0b00000010;    
+     PCMSK1 |= 0b00000110;   
+
 	interrupts();             // enable all interrupts
 }
 
@@ -297,6 +303,42 @@ char * stepper_3d::stepper_status()
 			steps =  stepper_steps* (-1);
 		}
 	char buff[110];
-	x = sprintf(buff, "Status %d, t_bet_steps %lu, remain_steps %ld",status_var , time_bet_steps_us, steps);
+	x = sprintf(buff, "Status %d, t_bet_steps %lu, remain_steps %ld, endstops %c",status_var , time_bet_steps_us, steps, endstop_state);
 	return (char *) buff;
+}
+
+/*
+	Function name : inside_endstop_ISR
+	return : void
+	parameters :void
+	Functionality : this function is to be called inside the pin change ISR function, it the function responsible for handling the endstops 
+					home pin is the pin with the least value, away pin is the one with more value, for NANO : PC1 and PC2, physical pin A1 and A2
+     				for MEGA : Pj0 and Pj1, physical pins 15 and 14
+*/
+void stepper_3d::inside_endstop_ISR ()
+{
+
+	#if defined(__AVR_ATmega328__)|| defined(__AVR_ATmega328P__)	//if arduino nano or uno is used
+		unsigned char home_pin_state = digitalRead(A1);
+		unsigned char away_pin_state = digitalRead(A2);		
+	#endif
+	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__)	//if arduino mega is used
+		unsigned char home_pin_state = digitalRead(14);
+		unsigned char away_pin_state = digitalRead(15);	
+	#endif
+
+	if(home_pin_state == LOW)
+	{
+		endstop_state = HOME_PRESSED;
+		stepper_stop();
+	}
+	else if(away_pin_state == LOW)
+	{
+		endstop_state = AWAY_PRESSED;
+		stepper_stop();
+	}
+	else if(away_pin_state == HIGH && home_pin_state == HIGH)
+	{
+		endstop_state = NOTHING_PRESSED;
+	}
 }
