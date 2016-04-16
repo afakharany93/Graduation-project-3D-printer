@@ -71,6 +71,8 @@ class UUGearDevice(object):
 		self.stepper_status_dict = {1 : 'Stepper is moving', 2 : 'Stepper has ended motion', 
 									3 : 'Stepper Stopped due to SW', 4 : 'Stepper resuming after stopping by SW' ,
 									5 : 'Stepper is flowing'}
+
+		self.endstop_status_dict = {0 : 'No endstops pressed', 1 : 'Home endstop pressed', 2 : 'Away endstop pressed'}
 		
 	def isValid(self):
 		return self.devProfile != None and self.devProfile.fd != -1
@@ -127,6 +129,14 @@ class UUGearDevice(object):
 				buf = buf.replace("4", self.stepper_status_dict[4], 1)
 			elif buf.find("Status 5") != -1 :
 				buf = buf.replace("5", self.stepper_status_dict[5], 1)
+
+			if buf.find("endstops 0") != -1 :
+				buf = buf.replace("endstops 0", self.endstop_status_dict[0], 1)
+			elif buf.find("endstops 1") != -1 :
+				buf = buf.replace("endstops 1", self.endstop_status_dict[1], 1)
+			elif buf.find("endstops 2") != -1 :
+				buf = buf.replace("endstops 2", self.endstop_status_dict[2], 1)
+
 			return buf
 		else :
 			return -1
