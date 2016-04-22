@@ -1,13 +1,13 @@
-#define DELAY_T 800
+#define DELAY_T 1500
 #define BLACK 9
 #define BLUE 11
 #define RED 10
-#define GREEN 8
+#define GREEN 6
 #define first GREEN
 #define second   RED
 #define third   BLACK 
 #define forth  BLUE
-
+#define PWMVal 255
 /*// global variables
 int first =  GREEN;
 int second =  RED; 
@@ -38,7 +38,8 @@ digitalWrite(13, LOW);
 }
 
 void loop() {
-digitalWrite(first, HIGH);
+
+analogWrite(first, PWMVal);
 
 digitalWrite(second, LOW);
 
@@ -53,7 +54,7 @@ delayMicroseconds(DELAY_T);
 
 digitalWrite(first, LOW);
 
-digitalWrite(second, HIGH);
+analogWrite(second, PWMVal);
 
 digitalWrite(third, LOW);
 
@@ -68,7 +69,7 @@ digitalWrite(first, LOW);
 
 digitalWrite(second, LOW);
 
-digitalWrite(third, HIGH);
+analogWrite(third, PWMVal);
 
 digitalWrite(forth, LOW);
 
@@ -83,7 +84,7 @@ digitalWrite(second, LOW);
 
 digitalWrite(third, LOW);
 
-digitalWrite(forth, HIGH);
+analogWrite(forth, PWMVal);
 
 digitalWrite(13,LOW);
 delayMicroseconds(DELAY_T);
