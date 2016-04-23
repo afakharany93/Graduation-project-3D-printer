@@ -9,7 +9,7 @@
 
 #include "fuzzy.h"
 
-fuzzy::fuzzy(unsigned char n)
+fuzzy::fuzzy(short int n)
 {
 	if(n%2 == 0)	//number of sets must be odd
 	{
@@ -19,50 +19,68 @@ fuzzy::fuzzy(unsigned char n)
 	{
 		_n_membr_sets = n;
 	}
+
+	set_point = 0;
+		
+	crisp_ip = 0;	//crisp input for fuzzy logic i.e. measured value  
+	ip_max = 0;
+	ip_min = 0;
+
+	op_max = 0;		//output max value
+	op_min = 0;		//output minimum value
+
+	error = 0;
+	error_max = 0;
+	error_min = 0;
+	error_p = 0;	//percentized error
+	error_p_1 = 0;	//old percentized error
+
+	ch_error_p = 0;
 }
 
 
-unsigned char fuzzy::percentizer (int val, int val_max, int val_min)
+short int fuzzy::percentizer (int val, int val_max, int val_min)
 {
-	return(((val -val_min)*100) / (val_max - val_min));
+	int res =  ((val -val_min)*100) / (val_max - val_min);
+	return((short int)res);
 }
 
-unsigned char fuzzy::depercentizer (int val, int val_max, int val_min)
+short int fuzzy::depercentizer (int val, int val_max, int val_min)
 {
 	return( ((val*(val_max - val_min))/100) + val_min );
 }
 
-unsigned char fuzzy::error_calc(int val)
+short int fuzzy::error_calc(int val)
 {
-	unsigned char res;
+	short int res;
 	error = set_point - crisp_ip;
-	error_max = set_point - op_min;
-	error_min = set_point - op_max;
+	error_max = set_point - ip_min;
+	error_min = set_point - ip_max;
 
 	res = percentizer (error, error_max, error_min);
 	return (res);
 }
 
-unsigned char fuzzy::ch_error_calc (unsigned char* en, unsigned char* en_1)	//calculate percentized change of error
+short int fuzzy::ch_error_calc (short int* en, short int* en_1)	//calculate percentized change of error
 {
-	unsigned char res;
+	short int res;
 	res = *en - *en_1 ;
 	*en_1 = *en;	//make current error old error for next round
 	return (res);
 }
 
-struct membr_set_val fuzzy::membership_determiner(unsigned char n, unsigned char val)
+struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 {
 	struct membr_set_val u = {UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER};	//used to hold membership values, initialized with undefined value
 
-	unsigned char count;
-	unsigned char b_range = 100/(n+1);
+	short int count;
+	short int b_range = 100/(n+1);
 
-	unsigned char a;
-	unsigned char b;
-	unsigned char c;
+	short int a;
+	short int b;
+	short int c;
 
-	unsigned char u_val;
+	short int u_val;
 
 	for (count = 0; count < n; count ++)	//loop all fuzzy sets, number of sets is determined by the user
 	{
@@ -103,7 +121,7 @@ struct membr_set_val fuzzy::membership_determiner(unsigned char n, unsigned char
 						u.set_1 = count;
 						u.deg_truth_1 = u_val;
 					}
-					else if (set_2 == UNDEFINED_SET_NUMBER) //if set_1 is taken and if set_2 is not taken, take it
+					else if (u.set_2 == UNDEFINED_SET_NUMBER) //if set_1 is taken and if set_2 is not taken, take it
 					{
 						u.set_2 = count;
 						u.deg_truth_2 = u_val;
@@ -120,7 +138,7 @@ struct membr_set_val fuzzy::membership_determiner(unsigned char n, unsigned char
 						u.set_1 = count;
 						u.deg_truth_1 = u_val;
 					}
-					else if (set_2 == UNDEFINED_SET_NUMBER)
+					else if (u.set_2 == UNDEFINED_SET_NUMBER)
 					{
 						u.set_2 = count;
 						u.deg_truth_2 = u_val;

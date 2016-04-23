@@ -14,43 +14,45 @@
 
 struct membr_set_val
 {
-	unsigned char set_1;
-	unsigned char deg_truth_1;
+	short int set_1;
+	short int deg_truth_1;
 
-	unsigned char set_2;
-	unsigned char deg_truth_2;
+	short int set_2;
+	short int deg_truth_2;
 };
 
 
 class fuzzy
 {
 	private:
-		unsigned char _n_membr_sets;
+		short int _n_membr_sets;
 	public:
-		int set_point = 0;
+		int set_point ;
 		
-		int crisp_ip = 0;	//crisp input for fuzzy logic i.e. measured value  
+		int crisp_ip ;	//crisp input for fuzzy logic i.e. measured value  
+		int ip_max ;
+		int ip_min ;
 
-		int op_max = 0;		//output max value
-		int op_min = 0;		//output minimum value
+		int op_max ;		//output max value
+		int op_min ;		//output minimum value
 
-		int error = 0;
-		int error_max = 0;
-		int error_min = 0;
-		unsigned char error_p = 0;	//percentized error
-		unsigned char error_p_1 = 0;	//old percentized error
+		int error ;
+		int error_max ;
+		int error_min ;
+		short int error_p ;	//percentized error
+		short int error_p_1 ;	//old percentized error
 
-		unsigned char ch_error_p = 0;
+		short int ch_error_p ;
 
-		fuzzy(unsigned char n);
+		fuzzy(short int n);
 
-		unsigned char percentizer	 (int val, int val_max, int val_min);
-		unsigned char depercentizer  (int val, int val_max, int val_min);
+		short int percentizer	 (int val, int val_max, int val_min);
+		short int depercentizer  (int val, int val_max, int val_min);
 		
 		/* calculates error percentized and saves value in error_p*/
-		unsigned char error_calc(int val);
-		unsigned char ch_error_calc (unsigned char* en, unsigned char* en_1);	//calculate percentized change of error
-		struct membr_set_val membership_determiner(unsigned char n, unsigned char val);	//used to determine membership values of a variable
+		short int error_calc(int val);
+		short int ch_error_calc (short int* en, short int* en_1);	//calculate percentized change of error
+		struct membr_set_val membership_determiner(short int n, short int val);	//used to determine membership values of a variable
 };
 
 #endif
