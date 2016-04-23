@@ -10,10 +10,15 @@
 #ifndef __FUZ_ZY__
 #define __FUZ_ZY__
 
+#define UNDEFINED_SET_NUMBER	150
+
 struct membr_set_val
 {
-	unsigned char set;
-	unsigned char deg_truth;
+	unsigned char set_1;
+	unsigned char deg_truth_1;
+
+	unsigned char set_2;
+	unsigned char deg_truth_2;
 };
 
 
@@ -45,6 +50,7 @@ class fuzzy
 		/* calculates error percentized and saves value in error_p*/
 		unsigned char error_calc(int val);
 		unsigned char ch_error_calc (unsigned char* en, unsigned char* en_1);	//calculate percentized change of error
+		struct membr_set_val membership_determiner(unsigned char n, unsigned char val);	//used to determine membership values of a variable
 };
 
 #endif
