@@ -9,6 +9,7 @@
 
 #include "fuzzy.h"
 
+
 fuzzy::fuzzy(short int n)
 {
 	if(n%2 == 0)	//number of sets must be odd
@@ -107,7 +108,8 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 			c = b + b_range;
 			if(val <= b && val > a) //if val is between both a and b
 			{
-				u_val = (val - a)/(b - a);
+				u_val = (val - a)*100/(b - a);
+
 				if(u_val > 0 && u_val <= 100)	//if the degree of truth is within range
 				{
 					if(u.set_1 == UNDEFINED_SET_NUMBER)	//if set_1 is not taken, take it
@@ -124,7 +126,7 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 			}
 			else if(val > b && val < c) //if val is between both c and b
 			{
-				u_val = (c - val) / (c - b);	//like before but with c and b
+				u_val = (c - val)*100 / (c - b);	//like before but with c and b
 				if(u_val > 0 && u_val <= 100)
 				{
 					if(u.set_1 == UNDEFINED_SET_NUMBER)
@@ -140,7 +142,7 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 				}
 			}
 		}
-		if(u.set_2 != UNDEFINED_SET_NUMBER && u.set_2 != UNDEFINED_SET_NUMBER)	//variable will have values in at most 2 sets, no need to continue looping if they are obtained
+		if(u.set_1 != UNDEFINED_SET_NUMBER && u.set_2 != UNDEFINED_SET_NUMBER)	//variable will have values in at most 2 sets, no need to continue looping if they are obtained
 		{
 			break;
 		}
