@@ -85,27 +85,21 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 	for (count = 0; count < n; count ++)	//loop all fuzzy sets, number of sets is determined by the user
 	{
 		b = b_range + (count * b_range);	//calculate center of every set, each set at a time
-		if (count == 0)						//if its the most negative set
-		{
-			if (val <= b)	//if its the most negative set and the value is less that the center of it, then its a full member of the most negative set and get out of the loop
-			{
-				u.set_1 = count;
-				u.deg_truth_1 = 100;
-				u.set_2 = UNDEFINED_SET_NUMBER;
-				u.deg_truth_2 = UNDEFINED_SET_NUMBER;
-				break;
-			}
+		if (count == 0 && val <= b)						//if its the most negative set & if its the most negative set and the value is less that the center of it, then its a full member of the most negative set and get out of the loop
+		{	
+			u.set_1 = count;
+			u.deg_truth_1 = 100;
+			u.set_2 = UNDEFINED_SET_NUMBER;
+			u.deg_truth_2 = UNDEFINED_SET_NUMBER;
+			break;
 		}
-		else if (count == (n-1))	//if it is the most +ve set
+		else if (count == (n-1) && val >= b)	//if it is the most +ve set & if it is the most +ve set and the value is more that the center, then its a full member of that set and get out of the loop 
 		{
-			if (val >= b)		//if it is the most +ve set and the value is more that the center, then its a full member of that set and get out of the loop 
-			{
-				u.set_1 = count;
-				u.deg_truth_1 = 100;
-				u.set_2 = UNDEFINED_SET_NUMBER;
-				u.deg_truth_2 = UNDEFINED_SET_NUMBER;
-				break;
-			}
+			u.set_1 = count;
+			u.deg_truth_1 = 100;
+			u.set_2 = UNDEFINED_SET_NUMBER;
+			u.deg_truth_2 = UNDEFINED_SET_NUMBER;
+			break;
 		}
 		else	//if value belongs to the rest of the sets
 		{
