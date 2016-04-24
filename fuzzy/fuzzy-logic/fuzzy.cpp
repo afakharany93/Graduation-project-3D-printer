@@ -55,9 +55,10 @@ short int fuzzy::error_calc(int val)
 {
 	short int res;
 	error = set_point - crisp_ip;
-	error_max = set_point - ip_min;
-	error_min = set_point - ip_max;
-
+	//error_max = set_point - ip_min;
+	//error_min = set_point - ip_max;
+	error_max = ip_max - ip_min;
+	error_min = ip_min - ip_max;
 	res = percentizer (error, error_max, error_min);
 	return (res);
 }
@@ -85,7 +86,7 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 
 	for (count = 0; count < n; count ++)	//loop all fuzzy sets, number of sets is determined by the user
 	{
-		b = b_range + (count * b_range);	//calculate center of every set, each set at a time
+		b = b_range + (count * b_range) + (count * 0.6667);	//calculate center of every set, each set at a time
 		if (count == 0 && val <= b)						//if its the most negative set & if its the most negative set and the value is less that the center of it, then its a full member of the most negative set and get out of the loop
 		{	
 			u.set_1 = count;

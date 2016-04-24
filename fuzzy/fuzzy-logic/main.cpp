@@ -9,7 +9,7 @@ int main()
 
 	magic.ip_max = 300;
 	magic.ip_min = 0;
-	magic.crisp_ip=150;
+	magic.crisp_ip=200;
 
 	magic.set_point = 200;
 
