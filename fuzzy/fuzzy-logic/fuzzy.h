@@ -37,21 +37,25 @@ class fuzzy
 		int op_min ;		//output minimum value
 
 		int error ;
+		int error_1 ;	//old error
 		int error_max ;
 		int error_min ;
 		short int error_p ;	//percentized error
-		short int error_p_1 ;	//old percentized error
+		
 
-		short int ch_error_p ;
-
-		fuzzy(short int n);
+		int ch_error ;
+		int ch_error_max ;
+		int ch_error_min ;
+		short int ch_error_p;
+		
+		fuzzy(short int n, int max, int min);
 
 		short int percentizer	 (int val, int val_max, int val_min);
 		short int depercentizer  (int val, int val_max, int val_min);
 		
 		/* calculates error percentized and saves value in error_p*/
-		short int error_calc(int val);
-		short int ch_error_calc (short int* en, short int* en_1);	//calculate percentized change of error
+		short int error_calc(int val, int set_val);
+		short int ch_error_calc (int en, int *en_1);	//calculate percentized change of error
 		struct membr_set_val membership_determiner(short int n, short int val);	//used to determine membership values of a variable
 };
 

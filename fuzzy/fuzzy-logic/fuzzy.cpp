@@ -10,7 +10,7 @@
 #include "fuzzy.h"
 
 
-fuzzy::fuzzy(short int n)
+fuzzy::fuzzy(short int n, int max, int min)
 {
 	if(n%2 == 0)	//number of sets must be odd
 	{
@@ -24,18 +24,22 @@ fuzzy::fuzzy(short int n)
 	set_point = 0;
 		
 	crisp_ip = 0;	//crisp input for fuzzy logic i.e. measured value  
-	ip_max = 0;
-	ip_min = 0;
+	ip_max = max;
+	ip_min = min;
 
 	op_max = 0;		//output max value
 	op_min = 0;		//output minimum value
 
 	error = 0;
-	error_max = 0;
-	error_min = 0;
+	error_1 = 0;	//old error
+	error_max = ip_max - ip_min;
+	error_min = ip_min - ip_max;
 	error_p = 0;	//percentized error
-	error_p_1 = 0;	//old percentized error
+	
 
+	ch_error = 0;
+	ch_error_max = error_max - error_min;
+	ch_error_min = error_min - error_max;
 	ch_error_p = 0;
 }
 
@@ -51,23 +55,21 @@ short int fuzzy::depercentizer (int val, int val_max, int val_min)
 	return( ((val*(val_max - val_min))/100) + val_min );
 }
 
-short int fuzzy::error_calc(int val)
+short int fuzzy::error_calc(int val, int set_val)
 {
 	short int res;
-	error = set_point - crisp_ip;
-	//error_max = set_point - ip_min;
-	//error_min = set_point - ip_max;
-	error_max = ip_max - ip_min;
-	error_min = ip_min - ip_max;
+	error = set_val - val;
 	res = percentizer (error, error_max, error_min);
 	return (res);
 }
 
-short int fuzzy::ch_error_calc (short int* en, short int* en_1)	//calculate percentized change of error
+//honey here is a mistake, don't calculate the change of error by using normalized en and en-1, calculate it before normalization
+short int fuzzy::ch_error_calc (int en, int *en_1)	//calculate percentized change of error
 {
 	short int res;
-	res = *en - *en_1 ;
-	*en_1 = *en;	//make current error old error for next round
+	ch_error = en - *en_1;
+	*en_1 = en;	//make current error old error for next round
+	res = percentizer (ch_error, ch_error_max, ch_error_min);
 	return (res);
 }
 
@@ -86,7 +88,7 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 
 	for (count = 0; count < n; count ++)	//loop all fuzzy sets, number of sets is determined by the user
 	{
-		b = b_range + (count * b_range) + (count * 0.6667);	//calculate center of every set, each set at a time
+		b = b_range + (count * b_range);	//calculate center of every set, each set at a time
 		if (count == 0 && val <= b)						//if its the most negative set & if its the most negative set and the value is less that the center of it, then its a full member of the most negative set and get out of the loop
 		{	
 			u.set_1 = count;
