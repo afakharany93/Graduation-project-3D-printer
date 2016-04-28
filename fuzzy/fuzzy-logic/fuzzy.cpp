@@ -10,7 +10,7 @@
 #include "fuzzy.h"
 
 
-fuzzy::fuzzy(short int n, int max, int min)
+fuzzy::fuzzy(short int n, int imax, int imin)
 {
 	if(n%2 == 0)	//number of sets must be odd
 	{
@@ -24,8 +24,8 @@ fuzzy::fuzzy(short int n, int max, int min)
 	set_point = 0;
 		
 	crisp_ip = 0;	//crisp input for fuzzy logic i.e. measured value  
-	ip_max = max;
-	ip_min = min;
+	ip_max = imax;
+	ip_min = imin;
 
 	op_max = 0;		//output max value
 	op_min = 0;		//output minimum value
@@ -267,4 +267,44 @@ struct op_membr_val fuzzy::ch_op_determiner(short int n, struct membr_set_val ip
 	}
 
 	return (u);
+}
+
+short int fuzzy::defuzzifier (short int n, struct op_membr_val u)
+{
+	short int dia_n = (2*n)-1;	//number of diagonals in the table, which is also the number of ch op sets, always an odd number
+	
+	short int b_range = 100/(dia_n+1);
+	short int b;
+	
+	int den = 0;
+	int nom = 0;
+
+	short int res = 0;
+
+	if(u.set_1 != UNDEFINED_SET_NUMBER)
+	{
+		b = b_range + (u.set_1 * b_range);
+		nom = nom + (b * u.deg_truth_1);
+		den = den + u.deg_truth_1;	
+	}
+	if(u.set_2 != UNDEFINED_SET_NUMBER)
+	{
+		b = b_range + (u.set_2 * b_range);
+		nom = nom + (b * u.deg_truth_2);
+		den = den + u.deg_truth_2;	
+	}
+	if(u.set_3 != UNDEFINED_SET_NUMBER)
+	{
+		b = b_range + (u.set_3 * b_range);
+		nom = nom + (b * u.deg_truth_3);
+		den = den + u.deg_truth_3;	
+	}
+
+	res = nom / den;
+	return (res);
+}
+
+short int fuzzy_controller(int input, int s_point)
+{
+
 }

@@ -8,7 +8,8 @@ int main()
 	fuzzy magic(MEMBERS, 300, 0);
 	struct membr_set_val x, y;
 	struct op_membr_val z;
-
+	short int cop;
+	short int co_p;
 	
 	magic.set_point = 200;
 for(int i=0; i < 10; i++)
@@ -16,6 +17,7 @@ for(int i=0; i < 10; i++)
 	std::cout << i+1 << ") "  << std::endl;
 
 	magic.crisp_ip=27*i;
+
 	std::cout << "input: " << magic.crisp_ip << std::endl;
 	std::cout << "set point: " << magic.set_point << std::endl;
 
@@ -61,6 +63,19 @@ for(int i=0; i < 10; i++)
 	std::cout << "ch output 2nd set u: " << z.deg_truth_2 << std::endl;
 	std::cout << "ch output 3rd set: " << z.set_3 << std::endl;
 	std::cout << "ch output 3rd set u: " << z.deg_truth_3 << std::endl;
+
+	std::cout << " " << std::endl;
+
+	cop = magic.defuzzifier (MEMBERS, z);
+	std::cout << "b1 : " << (100/(2*MEMBERS))+(z.set_1 * (100/(2*MEMBERS))) << std::endl;
+	std::cout << "b2 : " << (100/(2*MEMBERS))+(z.set_2 * (100/(2*MEMBERS))) << std::endl;
+	std::cout << "b3 : " << (100/(2*MEMBERS))+(z.set_3 * (100/(2*MEMBERS))) << std::endl;
+	std::cout << "ch output percentized: " << cop << std::endl;
+
+	std::cout << " " << std::endl;
+
+	co_p = magic.depercentizer (cop, 255, -255);
+	std::cout << "ch output : " << co_p << std::endl;
 
 	std::cout << "***********************************" << std::endl;
 }

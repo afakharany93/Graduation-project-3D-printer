@@ -59,7 +59,7 @@ class fuzzy
 		int ch_error_min ;
 		short int ch_error_p;
 		
-		fuzzy(short int n, int max, int min);
+		fuzzy(short int n, int imax, int imin);
 
 		short int percentizer	 (int val, int val_max, int val_min);
 		short int depercentizer  (int val, int val_max, int val_min);
@@ -69,6 +69,7 @@ class fuzzy
 		short int ch_error_calc (int en, int *en_1);	//calculate percentized change of error
 		struct membr_set_val membership_determiner(short int n, short int val);	//used to determine membership values of a variable
 		struct op_membr_val ch_op_determiner(short int n, struct membr_set_val ip_mem_1, struct membr_set_val ip_mem_2);
+		short int defuzzifier (short int n, struct op_membr_val u);
 };
 
 #endif
