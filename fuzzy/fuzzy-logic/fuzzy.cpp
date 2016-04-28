@@ -152,3 +152,119 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 	}
 	return (u);
 }
+
+struct op_membr_val fuzzy::ch_op_determiner(short int n, struct membr_set_val ip_mem_1, struct membr_set_val ip_mem_2)
+{
+	//short int dia_n = (2*n)-1;	//number of diagonals in the table, which is also the number of ch op sets, always an odd number
+	short int dia = 0;	//used to hold the number of the current diagonal
+	short int dia_val = 0;
+
+	struct op_membr_val u = {UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER};
+
+	if((ip_mem_1.set_1 != UNDEFINED_SET_NUMBER) && (ip_mem_2.set_1 != UNDEFINED_SET_NUMBER))
+	{
+		dia = ip_mem_1.set_1 + ip_mem_2.set_1;
+		if(ip_mem_1.deg_truth_1 < ip_mem_2.deg_truth_1)
+		{
+			dia_val = ip_mem_1.deg_truth_1;
+		}
+		else
+		{
+			dia_val = ip_mem_2.deg_truth_1;
+		}
+
+		u.set_1 = dia;
+		u.deg_truth_1 = dia_val;
+	}
+	if((ip_mem_1.set_1 != UNDEFINED_SET_NUMBER) && (ip_mem_2.set_2 != UNDEFINED_SET_NUMBER))
+	{
+		dia = ip_mem_1.set_1 + ip_mem_2.set_2;
+		if(ip_mem_1.deg_truth_1 < ip_mem_2.deg_truth_2)
+		{
+			dia_val = ip_mem_1.deg_truth_1;
+		}
+		else
+		{
+			dia_val = ip_mem_2.deg_truth_2;
+		}
+
+		if(dia == u.set_1)
+		{
+			if(dia_val > u.deg_truth_1)
+			{
+				u.deg_truth_1 = dia_val;
+			}
+		}
+		else
+		{
+			u.set_2 = dia;
+			u.deg_truth_2 = dia_val;
+		}
+	}
+	if((ip_mem_1.set_2 != UNDEFINED_SET_NUMBER) && (ip_mem_2.set_1 != UNDEFINED_SET_NUMBER))
+	{
+		dia = ip_mem_1.set_2 + ip_mem_2.set_1;
+		if(ip_mem_1.deg_truth_2 < ip_mem_2.deg_truth_1)
+		{
+			dia_val = ip_mem_1.deg_truth_2;
+		}
+		else
+		{
+			dia_val = ip_mem_2.deg_truth_1;
+		}
+
+		if(dia == u.set_1)
+		{
+			if(dia_val > u.deg_truth_1)
+			{
+				u.deg_truth_1 = dia_val;
+			}
+		}
+		else if(dia == u.set_2)
+		{
+			if(dia_val > u.deg_truth_2)
+			{
+				u.deg_truth_2 = dia_val;
+			}
+		}
+		else
+		{
+			u.set_3 = dia;
+			u.deg_truth_3 = dia_val;
+		}
+	}
+	if((ip_mem_1.set_2 != UNDEFINED_SET_NUMBER) && (ip_mem_2.set_2 != UNDEFINED_SET_NUMBER))
+	{
+		dia = ip_mem_1.set_2 + ip_mem_2.set_2;
+		if(ip_mem_1.deg_truth_2 < ip_mem_2.deg_truth_2)
+		{
+			dia_val = ip_mem_1.deg_truth_2;
+		}
+		else
+		{
+			dia_val = ip_mem_2.deg_truth_2;
+		}
+
+		if(dia == u.set_1)
+		{
+			if(dia_val > u.deg_truth_1)
+			{
+				u.deg_truth_1 = dia_val;
+			}
+		}
+		else if(dia == u.set_2)
+		{
+			if(dia_val > u.deg_truth_2)
+			{
+				u.deg_truth_2 = dia_val;
+			}
+		}
+		else
+		{
+			u.set_3 = dia;
+			u.deg_truth_3 = dia_val;
+		}
+	}
+
+	return (u);
+}

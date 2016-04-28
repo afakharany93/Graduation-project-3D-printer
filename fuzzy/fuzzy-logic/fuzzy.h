@@ -21,6 +21,17 @@ struct membr_set_val
 	short int deg_truth_2;
 };
 
+struct op_membr_val
+{
+	short int set_1;
+	short int deg_truth_1;
+
+	short int set_2;
+	short int deg_truth_2;
+
+	short int set_3;
+	short int deg_truth_3;
+};
 
 class fuzzy
 {
@@ -57,6 +68,7 @@ class fuzzy
 		short int error_calc(int val, int set_val);
 		short int ch_error_calc (int en, int *en_1);	//calculate percentized change of error
 		struct membr_set_val membership_determiner(short int n, short int val);	//used to determine membership values of a variable
+		struct op_membr_val ch_op_determiner(short int n, struct membr_set_val ip_mem_1, struct membr_set_val ip_mem_2);
 };
 
 #endif

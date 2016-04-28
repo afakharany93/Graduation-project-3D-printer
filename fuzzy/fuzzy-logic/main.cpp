@@ -1,10 +1,13 @@
 #include <iostream>
 #include "fuzzy.h"
 
+#define MEMBERS		9
+
 int main()
 {
-	fuzzy magic(9, 300, 0);
-	struct membr_set_val x;
+	fuzzy magic(MEMBERS, 300, 0);
+	struct membr_set_val x, y;
+	struct op_membr_val z;
 
 	
 	magic.set_point = 200;
@@ -33,7 +36,7 @@ for(int i=0; i < 10; i++)
 	
 	std::cout << " " << std::endl;
 	
-	x = magic.membership_determiner(9, magic.error_p);
+	x = magic.membership_determiner(MEMBERS, magic.error_p);
 	std::cout << "1st set: " << x.set_1 << std::endl;
 	std::cout << "1st set u: " << x.deg_truth_1 << std::endl;
 	std::cout << "2nd set: " << x.set_2 << std::endl;
@@ -41,11 +44,19 @@ for(int i=0; i < 10; i++)
 
 	std::cout << " " << std::endl;
 	
-	x = magic.membership_determiner(9, magic.ch_error_p);
+	y = magic.membership_determiner(MEMBERS, magic.ch_error_p);
 	std::cout << "ch 1st set: " << x.set_1 << std::endl;
 	std::cout << "ch 1st set u: " << x.deg_truth_1 << std::endl;
 	std::cout << "ch 2nd set: " << x.set_2 << std::endl;
 	std::cout << "ch 2nd set u: " << x.deg_truth_2 << std::endl;
+
+	z = magic.ch_op_determiner(MEMBERS, x, y);
+	std::cout << "ch output 1st set: " << z.set_1 << std::endl;
+	std::cout << "ch output 1st set u: " << z.deg_truth_1 << std::endl;
+	std::cout << "ch output 2nd set: " << z.set_2 << std::endl;
+	std::cout << "ch output 2nd set u: " << z.deg_truth_2 << std::endl;
+	std::cout << "ch output 3rd set: " << z.set_3 << std::endl;
+	std::cout << "ch output 3rd set u: " << z.deg_truth_3 << std::endl;
 
 	std::cout << "***********************************" << std::endl;
 }
