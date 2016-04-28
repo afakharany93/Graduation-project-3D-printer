@@ -10,7 +10,7 @@
 #include "fuzzy.h"
 
 
-fuzzy::fuzzy(short int n, int imax, int imin)
+fuzzy::fuzzy(short int n, int imax, int imin, int omax, int omin)
 {
 	if(n%2 == 0)	//number of sets must be odd
 	{
@@ -41,6 +41,11 @@ fuzzy::fuzzy(short int n, int imax, int imin)
 	ch_error_max = error_max - error_min;
 	ch_error_min = error_min - error_max;
 	ch_error_p = 0;
+
+	ch_op_max = omax - omin;
+	ch_op_min = omin - omax;
+	ch_op = 0;
+	ch_op_p = 0;
 }
 
 
@@ -304,7 +309,22 @@ short int fuzzy::defuzzifier (short int n, struct op_membr_val u)
 	return (res);
 }
 
-short int fuzzy_controller(int input, int s_point)
+int fuzzy::fuzzy_controller(int input, int s_point)
 {
+	set_point = s_point;
+	crisp_ip = input;
 
+	error_p = error_calc(crisp_ip, set_point);
+	ch_error_p = ch_error_calc(error, &error_1);
+
+	err_set = membership_determiner(_n_membr_sets, error_p);
+	ch_err_set = membership_determiner(_n_membr_sets, ch_error_p);
+
+	ch_op_set = ch_op_determiner(_n_membr_sets, err_set, ch_err_set);
+
+	ch_op_p = defuzzifier(_n_membr_sets, ch_op_set);
+
+	ch_op = depercentizer(ch_op_p, ch_op_max, ch_op_min);	
+
+	return (ch_op);
 }
