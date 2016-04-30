@@ -31,10 +31,10 @@ fuzzy::fuzzy(short int n, int imax, int imin, int omax, int omin)
 	op_min = 0;		//output minimum value
 
 	error = 0;
-	error_1 = 0;	//old error
 	error_max = ip_max - ip_min;
 	error_min = ip_min - ip_max;
 	error_p = 0;	//percentized error
+	error_1 = error_min;	//old error
 	
 
 	ch_error = 0;
@@ -51,13 +51,30 @@ fuzzy::fuzzy(short int n, int imax, int imin, int omax, int omin)
 
 short int fuzzy::percentizer (int val, int val_max, int val_min)
 {
-	short int res =  ((val -val_min)*100) / (val_max - val_min);
+	long nem = val - val_min;
+	nem = nem * 100;
+	long den = (val_max - val_min);
+	short int res =   nem / den;
+	/*Serial.print( "val:  ");
+  	Serial.println(val);
+  	Serial.print( "val_min:  ");
+  	Serial.println(val_min);
+  	Serial.print( "val - val_min:  ");
+  	Serial.println((val - val_min));
+	Serial.print( "nem:  ");
+  	Serial.println(nem);
+  	Serial.print( "den:  ");
+  	Serial.println(den);*/
 	return(res);
 }
 
-short int fuzzy::depercentizer (int val, int val_max, int val_min)
+int fuzzy::depercentizer (int val, int val_max, int val_min)
 {
-	return( ((val*(val_max - val_min))/100) + val_min );
+	long nem = val_max - val_min;
+	nem = nem * val;
+	int res = nem / 100;
+	res = res + val_min;
+	return( res );
 }
 
 short int fuzzy::error_calc(int val, int set_val)
@@ -91,9 +108,13 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 
 	short int u_val;
 
+	int den = 0;
+	int nem = 0;
+
 	for (count = 0; count < n; count ++)	//loop all fuzzy sets, number of sets is determined by the user
 	{
-		b = b_range + (count * b_range);	//calculate center of every set, each set at a time
+		b =  (count * b_range);	//calculate center of every set, each set at a time
+		b = b + b_range;
 		if (count == 0 && val <= b)						//if its the most negative set & if its the most negative set and the value is less that the center of it, then its a full member of the most negative set and get out of the loop
 		{	
 			u.set_1 = count;
@@ -116,8 +137,11 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 			c = b + b_range;
 			if(val <= b && val > a) //if val is between both a and b
 			{
-				u_val = (val - a)*100/(b - a);
-
+				//u_val = (val - a)*100/(b - a);
+				den = b -a;
+				nem = val - a;
+				nem = nem * 100;
+				u_val = nem / den;
 				if(u_val > 0 && u_val <= 100)	//if the degree of truth is within range
 				{
 					if(u.set_1 == UNDEFINED_SET_NUMBER)	//if set_1 is not taken, take it
@@ -134,7 +158,11 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 			}
 			else if(val > b && val < c) //if val is between both c and b
 			{
-				u_val = (c - val)*100 / (c - b);	//like before but with c and b
+				//u_val = (c - val)*100 / (c - b);	//like before but with c and b
+				den = c - b;
+				nem = c - val;
+				nem = nem * 100;
+				u_val = nem / den;
 				if(u_val > 0 && u_val <= 100)
 				{
 					if(u.set_1 == UNDEFINED_SET_NUMBER)
@@ -276,35 +304,54 @@ struct op_membr_val fuzzy::ch_op_determiner(short int n, struct membr_set_val ip
 
 short int fuzzy::defuzzifier (short int n, struct op_membr_val u)
 {
-	short int dia_n = (2*n)-1;	//number of diagonals in the table, which is also the number of ch op sets, always an odd number
-	
-	short int b_range = 100/(dia_n+1);
+	short int dia_n = (2*n);	//number of diagonals in the table, which is also the number of ch op sets, always an odd number
+	dia_n = dia_n - 1;
+	short int b_range = (dia_n+1);
+	b_range = 100 / b_range;
 	short int b;
 	
 	int den = 0;
 	int nom = 0;
 
+	int temp;
 	short int res = 0;
 
 	if(u.set_1 != UNDEFINED_SET_NUMBER)
 	{
-		b = b_range + (u.set_1 * b_range);
-		nom = nom + (b * u.deg_truth_1);
+		b = (u.set_1 * b_range);
+		b = b + b_range;
+		/*Serial.print("b1: ");
+  		Serial.println(b);*/
+		temp = (b * u.deg_truth_1);
+		nom = nom + temp;
 		den = den + u.deg_truth_1;	
 	}
 	if(u.set_2 != UNDEFINED_SET_NUMBER)
 	{
-		b = b_range + (u.set_2 * b_range);
-		nom = nom + (b * u.deg_truth_2);
+		b = (u.set_2 * b_range);
+		b = b + b_range;
+		/*Serial.print("b2: ");
+  		Serial.println(b);*/
+		temp = (b * u.deg_truth_2);
+		nom = nom + temp;
 		den = den + u.deg_truth_2;	
 	}
 	if(u.set_3 != UNDEFINED_SET_NUMBER)
 	{
-		b = b_range + (u.set_3 * b_range);
-		nom = nom + (b * u.deg_truth_3);
+		b = (u.set_3 * b_range);
+		b = b + b_range;
+		/*Serial.print("b3: ");
+  		Serial.println(b);*/
+		temp = (b * u.deg_truth_3);
+		nom = nom + temp;
 		den = den + u.deg_truth_3;	
 	}
 
+	
+  		/*Serial.print("nom: ");
+  		Serial.println(nom);
+  		Serial.print("den: ");
+  		Serial.println(den);*/
 	res = nom / den;
 	return (res);
 }

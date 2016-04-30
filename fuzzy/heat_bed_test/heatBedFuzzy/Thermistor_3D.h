@@ -29,7 +29,7 @@ class Thermistor_3d
 		float temperature_measurment();
 
 		float series_resistor = 98100.0;		//used to hold the value of the series resistor in ohms
-		unsigned char average_samples = 100;		//variable used to hold the number of samples taken to calculate the average
+		unsigned char average_samples = 200;		//variable used to hold the number of samples taken to calculate the average
 		float beta = 3950.0;					//used to hold the value of the beta parameter -from thermistor datasheet- to calculate temperature 
 		float nom_thermistor_resistance = 100000.0;	//used to hold the nominal value of the thermistor resistance @ 25 c
 		float nom_temperature = 298.15;		//kelvin, 25 Celsius

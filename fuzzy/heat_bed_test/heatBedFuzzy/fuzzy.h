@@ -10,6 +10,8 @@
 #ifndef __FUZ_ZY__
 #define __FUZ_ZY__
 
+#include "Arduino.h"
+
 #define UNDEFINED_SET_NUMBER	150
 
 struct membr_set_val
@@ -72,7 +74,7 @@ class fuzzy
 		fuzzy(short int n, int imax, int imin, int omax, int omin);
 
 		short int percentizer	 (int val, int val_max, int val_min);
-		short int depercentizer  (int val, int val_max, int val_min);
+		int depercentizer  (int val, int val_max, int val_min);
 		
 		/* calculates error percentized and saves value in error_p*/
 		short int error_calc(int val, int set_val);
