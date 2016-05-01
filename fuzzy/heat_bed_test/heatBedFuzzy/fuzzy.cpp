@@ -49,12 +49,12 @@ fuzzy::fuzzy(short int n, int imax, int imin, int omax, int omin)
 }
 
 
-short int fuzzy::percentizer (int val, int val_max, int val_min)
+float fuzzy::percentizer (int val, int val_max, int val_min)
 {
 	long nem = val - val_min;
 	nem = nem * 100;
 	long den = (val_max - val_min);
-	short int res =   nem / den;
+	float res =   nem / den;
 	/*Serial.print( "val:  ");
   	Serial.println(val);
   	Serial.print( "val_min:  ");
@@ -68,27 +68,27 @@ short int fuzzy::percentizer (int val, int val_max, int val_min)
 	return(res);
 }
 
-int fuzzy::depercentizer (int val, int val_max, int val_min)
+float fuzzy::depercentizer (int val, int val_max, int val_min)
 {
 	long nem = val_max - val_min;
 	nem = nem * val;
-	int res = nem / 100;
+	float res = nem / 100;
 	res = res + val_min;
 	return( res );
 }
 
-short int fuzzy::error_calc(int val, int set_val)
+float fuzzy::error_calc(int val, int set_val)
 {
-	short int res;
+	float res;
 	error = set_val - val;
 	res = percentizer (error, error_max, error_min);
 	return (res);
 }
 
 //honey here is a mistake, don't calculate the change of error by using normalized en and en-1, calculate it before normalization
-short int fuzzy::ch_error_calc (int en, int *en_1)	//calculate percentized change of error
+float fuzzy::ch_error_calc (int en, int *en_1)	//calculate percentized change of error
 {
-	short int res;
+	float res;
 	ch_error = en - *en_1;
 	*en_1 = en;	//make current error old error for next round
 	res = percentizer (ch_error, ch_error_max, ch_error_min);
@@ -100,16 +100,16 @@ struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
 	struct membr_set_val u = {UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER};	//used to hold membership values, initialized with undefined value
 
 	short int count;
-	short int b_range = 100/(n+1);
+	float b_range = 100/(n+1);
 
-	short int a;
-	short int b;
-	short int c;
+	float a;
+	float b;
+	float c;
 
-	short int u_val;
+	float u_val;
 
-	int den = 0;
-	int nem = 0;
+	float den = 0;
+	float nem = 0;
 
 	for (count = 0; count < n; count ++)	//loop all fuzzy sets, number of sets is determined by the user
 	{
@@ -190,7 +190,7 @@ struct op_membr_val fuzzy::ch_op_determiner(short int n, struct membr_set_val ip
 {
 	//short int dia_n = (2*n)-1;	//number of diagonals in the table, which is also the number of ch op sets, always an odd number
 	short int dia = 0;	//used to hold the number of the current diagonal
-	short int dia_val = 0;
+	float dia_val = 0;
 
 	struct op_membr_val u = {UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER};
 
@@ -302,19 +302,19 @@ struct op_membr_val fuzzy::ch_op_determiner(short int n, struct membr_set_val ip
 	return (u);
 }
 
-short int fuzzy::defuzzifier (short int n, struct op_membr_val u)
+float fuzzy::defuzzifier (short int n, struct op_membr_val u)
 {
 	short int dia_n = (2*n);	//number of diagonals in the table, which is also the number of ch op sets, always an odd number
 	dia_n = dia_n - 1;
-	short int b_range = (dia_n+1);
+	float b_range = (dia_n+1);
 	b_range = 100 / b_range;
-	short int b;
+	float b;
 	
-	int den = 0;
-	int nom = 0;
+	float den = 0;
+	float nom = 0;
 
-	int temp;
-	short int res = 0;
+	float temp;
+	float res = 0;
 
 	if(u.set_1 != UNDEFINED_SET_NUMBER)
 	{

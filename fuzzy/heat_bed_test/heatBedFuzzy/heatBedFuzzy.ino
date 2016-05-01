@@ -2,7 +2,7 @@
 #include "fuzzy.h"
 
 Thermistor_3d temp(A0);
-fuzzy magic(11, 120, 0, 220, 0);
+fuzzy magic(9, 120, 0, 220, 0);
 
 int st_point = 60;
 int input = 0;
