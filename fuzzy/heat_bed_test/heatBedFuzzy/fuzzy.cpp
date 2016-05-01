@@ -33,19 +33,19 @@ fuzzy::fuzzy(short int n, int imax, int imin, int omax, int omin)
 	error = 0;
 	error_max = ip_max - ip_min;
 	error_min = ip_min - ip_max;
-	error_p = 0;	//percentized error
+	error_p = 0.0;	//percentized error
 	error_1 = error_min;	//old error
 	
 
 	ch_error = 0;
 	ch_error_max = error_max - error_min;
 	ch_error_min = error_min - error_max;
-	ch_error_p = 0;
+	ch_error_p = 0.0;
 
 	ch_op_max = omax - omin;
 	ch_op_min = omin - omax;
 	ch_op = 0;
-	ch_op_p = 0;
+	ch_op_p = 0.0;
 }
 
 
@@ -68,9 +68,9 @@ float fuzzy::percentizer (int val, int val_max, int val_min)
 	return(res);
 }
 
-float fuzzy::depercentizer (int val, int val_max, int val_min)
+float fuzzy::depercentizer (float val, int val_max, int val_min)
 {
-	long nem = val_max - val_min;
+	float nem = val_max - val_min;
 	nem = nem * val;
 	float res = nem / 100;
 	res = res + val_min;
@@ -95,7 +95,7 @@ float fuzzy::ch_error_calc (int en, int *en_1)	//calculate percentized change of
 	return (res);
 }
 
-struct membr_set_val fuzzy::membership_determiner(short int n, short int val)
+struct membr_set_val fuzzy::membership_determiner(short int n, float val)
 {
 	struct membr_set_val u = {UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER, UNDEFINED_SET_NUMBER};	//used to hold membership values, initialized with undefined value
 
