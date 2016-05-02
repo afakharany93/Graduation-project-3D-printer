@@ -4,7 +4,7 @@
 Thermistor_3d temp(A0);
 fuzzy magic(9, 120, 0, 220, 0);
 
-int st_point = 60;
+int st_point = 100;
 int input = 0;
 int op = 0;
 
@@ -13,7 +13,8 @@ float t;
 void setup() {
   // put your setup code here, to run once:
 	Serial.begin(115200);
-
+  Serial.flush();
+  Serial.println("time\ttemp\te\tep\tce\tcop\top\tsetP");
 
 }
 
@@ -33,12 +34,27 @@ void loop() {
   }
   analogWrite(9, op);
   
-  Serial.print("temp: ");
+
+  
+  Serial.print(millis());
+  Serial.print("\t");
+  Serial.print(input);
+  Serial.print("\t");
+  Serial.print(magic.error);
+  Serial.print("\t");
+  Serial.print(magic.error_p);
+  Serial.print("\t");
+  Serial.print(magic.ch_error);
+  Serial.print("\t");
+  Serial.print(magic.ch_op);
+  Serial.print("\t");
+  Serial.print(op);
+  Serial.print("\t");
+  Serial.println(st_point);
+  /*  Serial.print("temp: ");
   Serial.println(input);
 
   Serial.println(" ");
-
-  Serial.print("error: ");
   Serial.println(magic.error);
   Serial.print("error max: " );
   Serial.println(magic.error_max);
@@ -109,6 +125,6 @@ Serial.println(" ");
   Serial.println(input);
    Serial.print("time: ");
   Serial.println(millis());
-  Serial.println("***********************************");
+  Serial.println("***********************************");*/
   delay(500);
 }
