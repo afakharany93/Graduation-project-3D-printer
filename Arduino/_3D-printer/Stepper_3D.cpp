@@ -190,7 +190,7 @@ unsigned int stepper_3d::ctc_value_determination (struct timer1_value *timer1_va
 */
 void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned long int time_bet_steps)
 {
-	//temporary varu=iables to hold the values returned from the functions
+	//temporary variables to hold the values returned from the functions
 	struct timer1_value *timer1_value_lookup_table_ptr_temp;
 	unsigned int ctc_value;
 
@@ -201,8 +201,20 @@ void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_pt
   	TCCR1B = 0;
   	TCNT1  = 0;
   	TIMSK1 = 0;
-
-  	OCR1A =  ctc_value;		//set the ctct value in the OCR1A register
+	if(stepper_accel_required_check(time_bet_steps))
+	{
+		//Acceleration is required
+		//PLACEHOLDER_ACCELERATION FEATURE
+		accel_active=1;
+		ctc_value = ctc_value_determination(timer1_value_lookup_table_ptr_temp , minimum_initial_step_delay);
+		OCR1A = ctc_value;
+	}
+	else
+	{ 
+		//acceleration is not required and motion can be performed naturally
+		OCR1A =  ctc_value;		//set the ctc value in the OCR1A register
+	}
+  
   	TCCR1B |= (1 << WGM12);   // CTC mode
   	//prescale setting
   	if ( (timer1_value_lookup_table_ptr_temp->prescale) == 1 )
@@ -342,3 +354,34 @@ void stepper_3d::inside_endstop_ISR ()
 		endstop_state = NOTHING_PRESSED;
 	}
 }
+/*
+	Function name: stepper_accel_required_check
+	return type : bool
+	parameters : unsigned long int target_time_bet_steps_stepper : holds the target time between steps for the stepper motor 
+	Functionality: This function checks if the target time between steps can overcome the motor's inertia from an initial state of rest it returns true if
+				   the motor needs to be accelerated and false if it needs to be decelerated.
+*/
+bool stepper_3d::stepper_accel_required_check (unsigned long int target_time_bet_steps_stepper )
+{
+//The following section checks if The motor is an XY motor or a Z motor to determine the smallest starting speed possible for it to overcome its own inertia
+	#if defined(__AVR_ATmega328__)|| defined(__AVR_ATmega328P__)	//if arduino nano or uno is used
+		minimum_initial_step_delay=XYMOTOR_INITIAL_SPEED;	
+	#endif
+	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__)	//if arduino mega is used
+		minimum_initial_step_delay=ZMOTOR_INITIAL_SPEED;
+	#endif
+//The following section checks if acceleration is required.	
+	if(target_time_bet_steps_stepper<minimum_initial_step_delay)
+	{//Acceleration is then required
+		return true;
+	}
+	else
+	{//Acceleration is not required
+		return false;
+	}
+}
+
+// i need to check if acceleration is required , if indeed it is required i need to make it so that stepper move starts at an initial speed and then changes the value
+// of the OCR1A (Capture compare value ) after every step. during which the status is STEPPER_ACCEL, this needs to be functional in both acceleration and deceleration. 
+// I need a state known as AcceleratedMotion, if the motor is in this state it cannot Stop normally it needs to be Decelerated then stopped.
+//The Deceleration should start when stepper_steps= the_minimum_amount_of_Steps_required_to_decelerate

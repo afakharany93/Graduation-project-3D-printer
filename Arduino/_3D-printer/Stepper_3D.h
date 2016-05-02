@@ -31,10 +31,14 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define	SW_FORCE_STOP	3
 #define	RESUME_AF_STOP	4
 #define	FLOW			5
-//enstop states
+#define ACCEL_MOVE		6
+//endstop states
 #define NOTHING_PRESSED	0
 #define HOME_PRESSED	1
 #define AWAY_PRESSED	2
+//Minimum initial stepper delays to overcome their inertia
+#define ZMOTOR_INITIAL_SPEED 1000
+#define XYMOTOR_INITIAL_SPEED 800
 
 /*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resembles one step,
 it holds the output of the state and a pointer to the next state to use to step forward and
@@ -90,7 +94,10 @@ class stepper_3d
 
 		//time variable
 		unsigned long int time_bet_steps_us = 400 ;
-
+		//acceleration Activation flag
+		unsigned char accel_active=0;
+		//minimum initial step delay to overcome motor inertia
+		unsigned int minimum_initial_step_delay=0;
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
 
@@ -153,6 +160,14 @@ class stepper_3d
 		  	parameters :void
 		  	Functionality : if the motor rotates in the other direction than the one specified - given to a function - in all times and all calls, just use 
 		  					this function to correct the rotation direction
+		*/
+		bool stepper_accel_required_check (unsigned long int target_time_bet_steps_stepper );
+		/*
+			Function name: stepper_accel_required_check
+			return type : bool
+			parameters : unsigned long int target_time_bet_steps_stepper : holds the target time between steps for the stepper motor 
+			Functionality: This function checks if the target time between steps can overcome the motor's inertia from an initial state of rest it returns true if
+						   the motor needs to be accelerated and false if it needs to be decelerated.
 		*/
 		void change_rotation_direction_mapping();
 		/*
