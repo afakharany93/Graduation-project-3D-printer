@@ -35,7 +35,6 @@ void loop() {
   analogWrite(9, op);
   
 
-  
   Serial.print(millis());
   Serial.print("\t");
   Serial.print(input);
