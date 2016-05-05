@@ -1,5 +1,9 @@
 #include "heatbed_3D.h"
 
+unsigned long ot = 0;
+unsigned long ct;
+unsigned long d;
+
 heatbed bed ;
 void setup() {
   // put your setup code here, to run once:
@@ -9,7 +13,22 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-	bed.heatbed_control(105);
+	ct = millis();
+	d = ct - ot;
+	if(d <= 300000)
+	{
+		
+		bed.heatbed_control(60);
+	}
+	else if (d <= 900000)
+	{
+		
+		bed.heatbed_control(50);
+	}
+	else 
+	{
+		
+		bed.heatbed_control(70);
+	}
 
 }

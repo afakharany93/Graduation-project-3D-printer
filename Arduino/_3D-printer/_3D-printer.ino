@@ -15,6 +15,7 @@
 #include <EEPROM.h>
 #include "Stepper_3D.h"
 #include "Thermistor_3D.h"
+#include "heatbed_3D.h"
 
 #define LCD_DEBUGGING 0   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
 
@@ -42,6 +43,9 @@
 
 //temperature commands
 #define CMD_TEMPERATURE_STATUS    0x66    //to send the statuses of the temperature sensors
+//heatbed commands
+#define CMD_SET_HEATBED         0x70    //to set heatbed temperature
+#define CMD_HEATBED_STATUS      0x71
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -72,8 +76,10 @@ String cmdBuf = "";
 int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
 stepper_3d motor;
-Thermistor_3d thermistor(A0);
+Thermistor_3d thermistor(A3);
+heatbed bed;
 
+unsigned char heatbed_temp = 0;
 // declare reset function
 void(* resetDevice) (void) = 0;
 
@@ -114,6 +120,7 @@ ISR(PCINT1_vect)
 
 void loop() {
 
+  bed.heatbed_control(heatbed_temp);
   // listen to incoming commands
   int len = Serial.available();
   for (int i = 0; i < len; i ++) {
@@ -222,6 +229,14 @@ void processCommand(String cmd) {
 
     case CMD_TEMPERATURE_STATUS:
       cmd_temperature_status(cmd);
+      break;
+
+    case CMD_HEATBED_STATUS:
+      cmd_heatbed_status(cmd);
+      break;
+
+    case CMD_SET_HEATBED:
+      cmd_set_heatbed(cmd);
       break;
 
     case 0xFF:
@@ -387,6 +402,29 @@ void cmd_temperature_status(String cmd)
   }
 }
 
+void cmd_heatbed_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(bed.heatbed_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
 
 
-
+void cmd_set_heatbed(String cmd) {
+  if (cmd.length() > 5) {
+    bed.heatbed_permission();
+    heatbed_temp = cmd.charAt(2);
+    byte clientId = cmd.charAt(3);
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}

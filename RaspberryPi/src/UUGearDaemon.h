@@ -57,6 +57,9 @@
 #define MSG_STEPPER_STATUS      93
 //temperature messages
 #define MSG_TEMPERATURE_STATUS  56    //to get the temperature 
+//heatbed messages
+#define MSG_SET_HEATBED         60      //to set heatbed temperature
+#define MSG_HEATBED_STATUS      61
 
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
@@ -71,6 +74,9 @@
 #define CMD_STEPPER_STATUS      0x65
 //temperature commands
 #define CMD_TEMPERATURE_STATUS  0x66    //to get the temperature 
+//heatbed commands
+#define CMD_SET_HEATBED         0x70    //to set heatbed temperature
+#define CMD_HEATBED_STATUS      0x71
 
 #define ASSERT_TRUE(x) \
     do { \

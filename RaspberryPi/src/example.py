@@ -3,14 +3,16 @@ from UUGear import *
 
 UUGearDevice.setShowLogs(0)
 
-device = UUGearDevice('UUGear-Arduino-3167-3008')
+device = UUGearDevice('UUGear-Arduino-1239-9170')
 
 if device.isValid():
-		for i in range(5):
-			status = device.temperature_status()
+		r = device.heatbed_set_temp(60);
+		print r
+		for i in range(50):
+			status = device.heatbed_status()
 			print status
 
-			sleep(0.5)
+			sleep(0.1)
 
 		device.detach()
 		device.stopDaemon()
