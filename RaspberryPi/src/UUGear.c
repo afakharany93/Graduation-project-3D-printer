@@ -392,7 +392,7 @@ char * heatbed_status(UUGearDevice *dev)
 
 int heatbed_set_temp (UUGearDevice *dev, int temp)
 {
-	sendMessageWithParameter(dev->in, MSG_SET_HEATBED, dev->clientId, dev->fd, val);
+	sendMessageWithParameter(dev->in, MSG_SET_HEATBED, dev->clientId, dev->fd, temp);
 	//recieve akhnolodgment procedure
 	int errorCode = 0;
 	int recieved = waitForInteger(dev, &errorCode);
