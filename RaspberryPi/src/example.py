@@ -14,7 +14,7 @@ if device.isValid():
 
 			sleep(0.1)
 
-		r = device.heatbed_set_temp(0);
+		r = device.heatbed_set_temp(1);
 		print r
 		status = device.heatbed_status()
 		print status

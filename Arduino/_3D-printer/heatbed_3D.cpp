@@ -45,7 +45,7 @@ void heatbed::heatbed_control(unsigned char set_temp)
 		diff = _current_time - _old_time;
 		if(diff >= samp_time)
 		{
-			if (set_temp == 0)
+			if (set_temp <= 1)
 			{
 				digitalWrite(op_pin, LOW);
 				_permission = STOP_HB;
@@ -90,7 +90,7 @@ void heatbed::heatbed_control(unsigned char set_temp)
 char * heatbed::heatbed_status()
 {
 	int x = 0;	//to hold the return value of sprintf
-	char buff[100];
+	char buff[75];
 	x = sprintf(buff, "Status %u, temp(c) %d",_permission , input);
 	return (char *) buff;
 }
