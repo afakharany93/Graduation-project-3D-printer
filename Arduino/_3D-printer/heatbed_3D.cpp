@@ -90,7 +90,7 @@ void heatbed::heatbed_control(unsigned char set_temp)
 char * heatbed::heatbed_status()
 {
 	int x = 0;	//to hold the return value of sprintf
-	char buff[50];
+	char buff[100];
 	x = sprintf(buff, "Status %u, temp(c) %d",_permission , input);
 	return (char *) buff;
 }
