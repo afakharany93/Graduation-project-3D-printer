@@ -32,6 +32,8 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define	RESUME_AF_STOP	4
 #define	FLOW			5
 #define ACCEL_MOVE		6
+#define ACCELERATING	7
+#define DECELERATING	8
 //endstop states
 #define NOTHING_PRESSED	0
 #define HOME_PRESSED	1
@@ -94,6 +96,7 @@ class stepper_3d
 
 		//time variable
 		unsigned long int time_bet_steps_us = 400 ;
+		unsigned long int time_bet_steps_us_accel=0; // how much time between each step will be accelerated
 		//acceleration Activation flag
 		unsigned char accel_active=0;
 		//minimum initial step delay to overcome motor inertia
@@ -208,9 +211,10 @@ class stepper_3d
 		};
 
 		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
+		unsigned long int 	stepper_steps_total = 0;	//This variable holds the total number of steps/Stepper_move() for the sake of acceleraton calculations.
 		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
 		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
-
+		unsigned long int 	accel_steps=0;		//This variable holds the amount of steps in which acceleration is to be achieved.
 		/*Function name : stepper_output
 		  return : void
 		  parameters :  struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state

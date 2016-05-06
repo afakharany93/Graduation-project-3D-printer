@@ -160,7 +160,7 @@ struct timer1_value * stepper_3d::prescale_determination (struct timer1_value *t
 	unsigned char counter;		//just a counter for the loop
 	for (counter = 0; counter < 5 ; counter++)	//a loop to search the timer1_value_lookup_table array
 	{
-		if ( (timer1_value_lookup_table_ptr_for_prescale[counter].max_period_us) > time_bet_steps_for_prescale)	//if a prescale is found 
+		if ( ( (timer1_value_lookup_table_ptr_for_prescale[counter].max_period_us) > time_bet_steps_for_prescale) && ( (timer1_value_lookup_table_ptr_for_prescale[counter].max_period_us) > minimum_initial_step_delay ) )	//if a prescale is found 
 		{
 			break;
 		}
@@ -251,27 +251,60 @@ void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_pt
 */
 void stepper_3d::inside_ISR () 
 {
-	if(stepper_steps > 0)	//if there are any remaining number of steps
+	switch(accel_active)
 	{
-		if (direction == NEXT)
-		{			
-			stepper_output (&current_state , max_pwm);	//ouput the current state
-			next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
-		}
-		else if (direction == PREVIOUS)
+		case 0://Acceleration is not needed so normal funcitonality is performed
+		if(stepper_steps > 0)	//if there are any remaining number of steps
 		{
-			stepper_output (&current_state , max_pwm);	//ouput the current state
-			previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
+			if (direction == NEXT)
+			{			
+				stepper_output (&current_state , max_pwm);	//ouput the current state
+				next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
+			}
+			else if (direction == PREVIOUS)
+			{
+				stepper_output (&current_state , max_pwm);	//ouput the current state
+				previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
+			}
+			stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
 		}
-		stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
-	}
-	else
-	{
-		stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
-		stepper_steps = 0;	//just for safety
-		TIMSK1 = 0;	//disable timer compare interrupt
-		TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
-		status_var = END_MOVE;	//setting status to indicate that the motion ended
+		else
+		{
+			stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+			stepper_steps = 0;	//just for safety
+			TIMSK1 = 0;	//disable timer compare interrupt
+			TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
+			status_var = END_MOVE;	//setting status to indicate that the motion ended
+		}
+		break;
+		case 1: //Acceleration is required
+			if(stepper_steps > 0)	//if there are any remaining number of steps
+			{
+				if (direction == NEXT)
+				{			
+					stepper_output (&current_state , max_pwm);	//ouput the current state
+					next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
+				}
+				else if (direction == PREVIOUS)
+				{
+					stepper_output (&current_state , max_pwm);	//ouput the current state
+					previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
+				}
+				stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
+				unsigned int ctc_value_new;
+				ctc_value_new=ctc_value_determination(timer1_value_lookup_table_ptr_temp , );
+				OCR1A =
+			}
+			else
+			{
+				stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+				stepper_steps = 0;	//just for safety
+				TIMSK1 = 0;	//disable timer compare interrupt
+				TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
+				status_var = END_MOVE;	//setting status to indicate that the motion ended
+		}
+		break;
+		default:break;
 	}
 }
 
@@ -380,7 +413,12 @@ bool stepper_3d::stepper_accel_required_check (unsigned long int target_time_bet
 		return false;
 	}
 }
+void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_steps_stepper )
+{
+	accel_steps= stepper_steps_total/5;
+	time_bet_steps_us_accel=(time_bet_steps_us - target_time_bet_steps_stepper)/accel_steps;
 
+}
 // i need to check if acceleration is required , if indeed it is required i need to make it so that stepper move starts at an initial speed and then changes the value
 // of the OCR1A (Capture compare value ) after every step. during which the status is STEPPER_ACCEL, this needs to be functional in both acceleration and deceleration. 
 // I need a state known as AcceleratedMotion, if the motor is in this state it cannot Stop normally it needs to be Decelerated then stopped.
