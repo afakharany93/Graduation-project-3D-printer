@@ -2,7 +2,7 @@
 #include "fuzzy.h"
 
 Thermistor_3d temp(A0);
-fuzzy magic(9, 120, 0, 220, 0);
+fuzzy magic(11, 120, 0, 220, 0);
 
 int st_point = 100;
 int input = 0;
@@ -125,5 +125,5 @@ Serial.println(" ");
    Serial.print("time: ");
   Serial.println(millis());
   Serial.println("***********************************");*/
-  delay(500);
+  delay(10);
 }

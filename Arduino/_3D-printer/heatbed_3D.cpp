@@ -39,30 +39,31 @@ void heatbed::heatbed_control(unsigned char set_temp)
 {
 	unsigned long diff;
 
-	if (_permission == START_HB)
+	if (set_temp < 2)
+	{
+		digitalWrite(op_pin, LOW);
+		_permission = STOP_HB;
+		t = temp.temperature_measurment();
+		input = (int) t;
+	}
+	else if (_permission == START_HB)
 	{
 		_current_time = millis();
 		diff = _current_time - _old_time;
 		if(diff >= samp_time)
 		{
-			if (set_temp <= 1)
-			{
-				digitalWrite(op_pin, LOW);
-				_permission = STOP_HB;
-			}
-
-			t = temp.temperature_measurment();
-			input = (int) t;
-			op = op + magic.fuzzy_controller(input, set_temp);
-			if(op > 220)
-			{
-				op = 220;
-			}
-			else if (op < 0)
-			{
-				op = 0;
-			}
-			analogWrite(op_pin, op);
+				t = temp.temperature_measurment();
+				input = (int) t;
+				op = op + magic.fuzzy_controller(input, set_temp);
+				if(op > 220)
+				{
+					op = 220;
+				}
+				else if (op < 0)
+				{
+					op = 0;
+				}
+				analogWrite(op_pin, op);
 			#if DEBUG
 			  Serial.print(millis());
 			  Serial.print("\t");

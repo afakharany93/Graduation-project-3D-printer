@@ -418,7 +418,10 @@ void cmd_heatbed_status(String cmd)
 
 void cmd_set_heatbed(String cmd) {
   if (cmd.length() > 5) {
-    bed.heatbed_permission();
+    if(cmd.charAt(2) > 1)
+    {
+      bed.heatbed_permission();
+    }
     heatbed_temp = cmd.charAt(2);
     byte clientId = cmd.charAt(3);
     //notify master with the recieve
