@@ -85,7 +85,7 @@ class stepper_3d
 		unsigned char anticlockwise = NEXT;
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
-
+		struct timer1_value *timer1_value_LT_PTR;
 		//endstop states
 		unsigned char endstop_state = NOTHING_PRESSED;
 		
@@ -239,21 +239,20 @@ class stepper_3d
 
 		/*
 			Function name : prescale_determination
-		  	return : struct timer1_value * :- pointer to the element of the timer1_value_lookup_table with the right prescale
+		  	return : void
 		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the timer1_value_lookup_table array
 		  				 unsigned long int time_bet_steps_for_prescale :- used to hold the time between each step in microseconds
 		  	Method of operation : it searches the timer1_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
 		*/
-		struct timer1_value * prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
+		void prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
 
 		/*
 			Function name : ctc_value_determination
 		  	return : unsigned int:- used to return the value needed for the OCR1A register in ctc mode
-		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
-		  				 unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
+		  	parameters : unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
 		  	Method of operation : it calculates the value neede to be in the OCR1A register for the isr to work in the right perioo of time
 		*/
-		unsigned int ctc_value_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc);
+		unsigned int ctc_value_determination (unsigned long int time_bet_steps_for_ctc);
 
 		/*
 			Function name : timer1_setup

@@ -96,6 +96,7 @@ void stepper_3d::stepper_move (long int steps, unsigned long int time_bet_steps_
 	}
 }
 
+
 /*
 	Function name : stepper_stop
   	return : void
@@ -150,12 +151,12 @@ void stepper_3d::stepper_flow (unsigned char direction_flow)
 
 /*
 	Function name : prescale_determination
-  	return : struct timer1_value * :- pointer to the element of the timer1_value_lookup_table with the right prescale
+  	return : void
   	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the timer1_value_lookup_table array
   				 unsigned long int time_bet_steps_for_prescale :- used to hold the time between each step in microseconds
   	Method of operation : it searches the timer1_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
 */
-struct timer1_value * stepper_3d::prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale)
+void stepper_3d::prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale)
 {
 	unsigned char counter;		//just a counter for the loop
 	for (counter = 0; counter < 5 ; counter++)	//a loop to search the timer1_value_lookup_table array
@@ -165,20 +166,19 @@ struct timer1_value * stepper_3d::prescale_determination (struct timer1_value *t
 			break;
 		}
 	}
-	
-	return &timer1_value_lookup_table_ptr_for_prescale[counter] ;	//return the address of the suitable array member
+	timer1_value_LT_PTR=&timer1_value_lookup_table_ptr_for_prescale[counter];//puts the address of the suitable array member in the class' global timer1_value_LT_PTR
+
 }
 
 /*
 	Function name : ctc_value_determination
   	return : unsigned int:- used to return the value needed for the OCR1A register in ctc mode
-  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
-  				 unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
+  	parameters : unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
   	Method of operation : it calculates the value neede to be in the OCR1A register for the isr to work in the right perioo of time
 */
-unsigned int stepper_3d::ctc_value_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc)
+unsigned int stepper_3d::ctc_value_determination (unsigned long int time_bet_steps_for_ctc)
 {
-	return (time_bet_steps_for_ctc / (timer1_value_lookup_table_ptr_for_ctc-> time_per_tick_us));
+	return (time_bet_steps_for_ctc / (timer1_value_LT_PTR->time_per_tick_us));
 }
 
 /*
@@ -190,12 +190,10 @@ unsigned int stepper_3d::ctc_value_determination (struct timer1_value *timer1_va
 */
 void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned long int time_bet_steps)
 {
-	//temporary variables to hold the values returned from the functions
-	struct timer1_value *timer1_value_lookup_table_ptr_temp;
 	unsigned int ctc_value;
 
-	timer1_value_lookup_table_ptr_temp = prescale_determination (timer1_value_lookup_table_ptr , time_bet_steps);	//determine the prescale
-	ctc_value = ctc_value_determination(timer1_value_lookup_table_ptr_temp , time_bet_steps);	//determine the ctc value
+	prescale_determination (timer1_value_lookup_table_ptr , time_bet_steps);	//determine the prescale
+	ctc_value = ctc_value_determination(time_bet_steps);	//determine the ctc value
 	//registers initialization
 	TCCR1A = 0;
   	TCCR1B = 0;
@@ -206,7 +204,7 @@ void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_pt
 		//Acceleration is required
 		//PLACEHOLDER_ACCELERATION FEATURE
 		accel_active=1;
-		ctc_value = ctc_value_determination(timer1_value_lookup_table_ptr_temp , minimum_initial_step_delay);
+		ctc_value = ctc_value_determination(minimum_initial_step_delay);
 		OCR1A = ctc_value;
 	}
 	else
@@ -217,24 +215,24 @@ void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_pt
   
   	TCCR1B |= (1 << WGM12);   // CTC mode
   	//prescale setting
-  	if ( (timer1_value_lookup_table_ptr_temp->prescale) == 1 )
+  	if ( (timer1_value_LT_PTR->prescale) == 1 )
   	{
   	 TCCR1B |= (1 << CS10);   
 	}
-	else if ( (timer1_value_lookup_table_ptr_temp->prescale) == 8 )
+	else if ( (timer1_value_LT_PTR->prescale) == 8 )
   	{
   	 TCCR1B |= (1 << CS11);   
 	}
-	else if ( (timer1_value_lookup_table_ptr_temp->prescale) == 64 )
+	else if ( (timer1_value_LT_PTR->prescale) == 64 )
   	{
   	 TCCR1B |= (1 << CS10);   
   	 TCCR1B |= (1 << CS11);   
 	}
-	else if ( (timer1_value_lookup_table_ptr_temp->prescale) == 256 )
+	else if ( (timer1_value_LT_PTR->prescale) == 256 )
   	{
   	 TCCR1B |= (1 << CS12);   
 	}
-	else if ( (timer1_value_lookup_table_ptr_temp->prescale) == 1024 )
+	else if ( (timer1_value_LT_PTR->prescale) == 1024 )
   	{
   	 TCCR1B |= (1 << CS10);   
   	 TCCR1B |= (1 << CS12);   
@@ -292,8 +290,8 @@ void stepper_3d::inside_ISR ()
 				}
 				stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
 				unsigned int ctc_value_new;
-				ctc_value_new=ctc_value_determination(timer1_value_lookup_table_ptr_temp , );
-				OCR1A =
+				ctc_value_new=ctc_value_determination(time_bet_steps_us_accel);
+				OCR1A = OCR1A - ctc_value_new;
 			}
 			else
 			{
@@ -415,7 +413,7 @@ bool stepper_3d::stepper_accel_required_check (unsigned long int target_time_bet
 }
 void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_steps_stepper )
 {
-	accel_steps= stepper_steps_total/5;
+	accel_steps= stepper_steps_total/5;// for now accelerates for the first 20% of total steps
 	time_bet_steps_us_accel=(time_bet_steps_us - target_time_bet_steps_stepper)/accel_steps;
 
 }
@@ -423,3 +421,5 @@ void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_st
 // of the OCR1A (Capture compare value ) after every step. during which the status is STEPPER_ACCEL, this needs to be functional in both acceleration and deceleration. 
 // I need a state known as AcceleratedMotion, if the motor is in this state it cannot Stop normally it needs to be Decelerated then stopped.
 //The Deceleration should start when stepper_steps= the_minimum_amount_of_Steps_required_to_decelerate
+
+// timer
