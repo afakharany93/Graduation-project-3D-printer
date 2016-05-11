@@ -209,7 +209,7 @@ class stepper_3d
 			{256  	, 16	 			, 1048560	   },
 			{1024 	, 64 				, 4194240	   }
 		};
-
+		unsigned long int current_time_bet_steps;
 		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
 		unsigned long int 	stepper_steps_total = 0;	//This variable holds the total number of steps/Stepper_move() for the sake of acceleraton calculations.
 		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
@@ -253,7 +253,13 @@ class stepper_3d
 		  	Method of operation : it calculates the value neede to be in the OCR1A register for the isr to work in the right perioo of time
 		*/
 		unsigned int ctc_value_determination (unsigned long int time_bet_steps_for_ctc);
-
+		/*
+			Function name : prescale_setter
+		  	return : void
+		  	parameters : void
+		  	Method of operation :checks the timer1_value_LT_PTR and sets the appropriate Prescale
+		*/
+		void prescale_setter();
 		/*
 			Function name : timer1_setup
 		  	return : void

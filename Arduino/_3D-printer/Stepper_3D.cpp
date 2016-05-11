@@ -204,18 +204,32 @@ void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_pt
 		//Acceleration is required
 		//PLACEHOLDER_ACCELERATION FEATURE
 		accel_active=1;
+		current_time_bet_steps=minimum_initial_step_delay;
 		ctc_value = ctc_value_determination(minimum_initial_step_delay);
 		OCR1A = ctc_value;
 	}
 	else
 	{ 
 		//acceleration is not required and motion can be performed naturally
+		accel_active=0;
 		OCR1A =  ctc_value;		//set the ctc value in the OCR1A register
 	}
   
   	TCCR1B |= (1 << WGM12);   // CTC mode
   	//prescale setting
-  	if ( (timer1_value_LT_PTR->prescale) == 1 )
+  	prescale_setter();
+
+	TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt
+}
+/*
+	Function name : prescale_setter
+	return : void
+	parameters : void
+ 	Method of operation :checks the timer1_value_LT_PTR and sets the appropriate Prescale
+*/
+void stepper_3d::prescale_setter()
+{
+	if ( (timer1_value_LT_PTR->prescale) == 1 )
   	{
   	 TCCR1B |= (1 << CS10);   
 	}
@@ -238,7 +252,6 @@ void stepper_3d::timer1_setup (struct timer1_value *timer1_value_lookup_table_pt
   	 TCCR1B |= (1 << CS12);   
 	}
 
-	TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt
 }
 
 /*
@@ -264,6 +277,7 @@ void stepper_3d::inside_ISR ()
 				stepper_output (&current_state , max_pwm);	//ouput the current state
 				previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
 			}
+			current_time_bet_steps=time_bet_steps_us;
 			stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
 		}
 		else
@@ -289,9 +303,10 @@ void stepper_3d::inside_ISR ()
 					previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
 				}
 				stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
+				current_time_bet_steps=current_time_bet_steps - time_bet_steps_us_accel;
 				unsigned int ctc_value_new;
-				ctc_value_new=ctc_value_determination(time_bet_steps_us_accel);
-				OCR1A = OCR1A - ctc_value_new;
+				ctc_value_new=ctc_value_determination(current_time_bet_steps);
+				OCR1A = ctc_value_new;
 			}
 			else
 			{
@@ -392,7 +407,7 @@ void stepper_3d::inside_endstop_ISR ()
 	Functionality: This function checks if the target time between steps can overcome the motor's inertia from an initial state of rest it returns true if
 				   the motor needs to be accelerated and false if it needs to be decelerated.
 */
-bool stepper_3d::stepper_accel_required_check (unsigned long int target_time_bet_steps_stepper )
+void stepper_3d::stepper_accel_required_check ()
 {
 //The following section checks if The motor is an XY motor or a Z motor to determine the smallest starting speed possible for it to overcome its own inertia
 	#if defined(__AVR_ATmega328__)|| defined(__AVR_ATmega328P__)	//if arduino nano or uno is used
@@ -402,19 +417,50 @@ bool stepper_3d::stepper_accel_required_check (unsigned long int target_time_bet
 		minimum_initial_step_delay=ZMOTOR_INITIAL_SPEED;
 	#endif
 //The following section checks if acceleration is required.	
-	if(target_time_bet_steps_stepper<minimum_initial_step_delay)
-	{//Acceleration is then required
-		return true;
+	if(time_bet_steps_us<minimum_initial_step_delay&&time_bet_steps_us<current_time_bet_steps)
+	{//Accelerating
+		status_var=ACCELERATING;
+		
 	}
-	else
-	{//Acceleration is not required
-		return false;
+	else if(current_time_bet_steps<minimum_initial_step_delay)
+	{// Accelerated Motion
+		status_var=ACCELERATED;
+	}
+	else if(current_time_bet_steps<time_bet_steps_us && current_time_bet_steps<minimum_initial_step_delay)
+	{
+		//Decelerating
+		status_var=DECELERATING;
+
 	}
 }
-void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_steps_stepper )
+void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_steps)
 {
-	accel_steps= stepper_steps_total/5;// for now accelerates for the first 20% of total steps
-	time_bet_steps_us_accel=(time_bet_steps_us - target_time_bet_steps_stepper)/accel_steps;
+	if(status_var!=ACCELERATING)
+	{
+		accel_steps= stepper_steps_total/5;// for now accelerates for the first 20% of total steps
+		time_bet_steps_us_accel=(current_time_bet_steps - target_time_bet_steps)/accel_steps;
+	}
+}
+void stepper_3d::AccelerationHandler()
+{
+	stepper_accel_required_check();
+	if(status_var==ACCELERATING)
+	{
+		//Accelerates Timer1
+		current_time_bet_steps=current_time_bet_steps - time_bet_steps_us_accel;	
+		OCR1A =ctc_value_determination(current_time_bet_steps);
+	}
+	else if(status_var==ACCELERATED)
+	{
+
+	}
+	else if(status_var==DECELERATING)
+	{
+		//Decelerates Timer1
+		current_time_bet_steps=current_time_bet_steps -time_bet_steps_us_accel;			
+		OCR1A = ctc_value_determination(current_time_bet_steps);
+	}
+
 
 }
 // i need to check if acceleration is required , if indeed it is required i need to make it so that stepper move starts at an initial speed and then changes the value
