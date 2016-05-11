@@ -22,7 +22,7 @@ heatbed::heatbed()
 	op_pin = 9;
 	_old_time = 0;
 	_current_time = millis();
-	samp_time = 500;	//milliseconds
+	samp_time = 10;	//milliseconds
 	input = 0;
 	op = 0;
 	#if DEBUG
@@ -67,6 +67,7 @@ void heatbed::heatbed_control(unsigned char set_temp)
 			  Serial.print(millis());
 			  Serial.print("\t");
 			  Serial.print(input);
+			  //Serial.print(t);
 			  Serial.print("\t");
 			  Serial.print(magic.error);
 			  Serial.print("\t");
@@ -78,7 +79,9 @@ void heatbed::heatbed_control(unsigned char set_temp)
 			  Serial.print("\t");
 			  Serial.print(op);
 			  Serial.print("\t");
-			  Serial.println(set_temp);
+			  Serial.print(set_temp);
+			  Serial.print("\t");
+			  Serial.println(temp.res_debug_val);
 			#endif
 
 

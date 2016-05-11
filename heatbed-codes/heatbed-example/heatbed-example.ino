@@ -9,26 +9,11 @@ void setup() {
   // put your setup code here, to run once:
   bed.heatbed_permission();
   Serial.begin(115200);
-  Serial.println("time\ttemp\te\tep\tce\tcop\top\tsetP");
+  Serial.println("time\ttemp\te\tep\tce\tcop\top\tsetP\tres");
 }
 
-void loop() {
-	ct = millis();
-	d = ct - ot;
-	if(d <= 300000)
-	{
-		
-		bed.heatbed_control(60);
-	}
-	else if (d <= 900000)
-	{
-		
-		bed.heatbed_control(50);
-	}
-	else 
-	{
-		
-		bed.heatbed_control(70);
-	}
-
+void loop() 
+{
+	bed.heatbed_control(100);
+	
 }
