@@ -34,6 +34,7 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define ACCEL_MOVE		6
 #define ACCELERATING	7
 #define DECELERATING	8
+#define ACCELERATED 	9
 //endstop states
 #define NOTHING_PRESSED	0
 #define HOME_PRESSED	1
@@ -96,7 +97,7 @@ class stepper_3d
 
 		//time variable
 		unsigned long int time_bet_steps_us = 400 ;
-		unsigned long int time_bet_steps_us_accel=0; // how much time between each step will be accelerated
+		signed long int time_bet_steps_us_accel=0; // how much time between each step will be accelerated
 		//acceleration Activation flag
 		unsigned char accel_active=0;
 		//minimum initial step delay to overcome motor inertia
@@ -164,11 +165,11 @@ class stepper_3d
 		  	Functionality : if the motor rotates in the other direction than the one specified - given to a function - in all times and all calls, just use 
 		  					this function to correct the rotation direction
 		*/
-		bool stepper_accel_required_check (unsigned long int target_time_bet_steps_stepper );
+		void stepper_accel_required_check ();
 		/*
 			Function name: stepper_accel_required_check
-			return type : bool
-			parameters : unsigned long int target_time_bet_steps_stepper : holds the target time between steps for the stepper motor 
+			return type : void
+			parameters : void
 			Functionality: This function checks if the target time between steps can overcome the motor's inertia from an initial state of rest it returns true if
 						   the motor needs to be accelerated and false if it needs to be decelerated.
 		*/
@@ -211,7 +212,6 @@ class stepper_3d
 		};
 		unsigned long int current_time_bet_steps;
 		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
-		unsigned long int 	stepper_steps_total = 0;	//This variable holds the total number of steps/Stepper_move() for the sake of acceleraton calculations.
 		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
 		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
 		unsigned long int 	accel_steps=0;		//This variable holds the amount of steps in which acceleration is to be achieved.
@@ -268,6 +268,10 @@ class stepper_3d
 		  	Method of operation : it sets the registers for timer 1 to the right prescale value and ctc value and enables the timer one ctc interrupt
 		*/
 		void timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned long int time_bet_steps);
+		/*
+		Placeholder Documentation
+		*/
+		void AccelerationHandler();
 };
 
 

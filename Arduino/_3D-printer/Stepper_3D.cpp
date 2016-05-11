@@ -262,9 +262,7 @@ void stepper_3d::prescale_setter()
 */
 void stepper_3d::inside_ISR () 
 {
-	switch(accel_active)
-	{
-		case 0://Acceleration is not needed so normal funcitonality is performed
+	AccelerationHandler();
 		if(stepper_steps > 0)	//if there are any remaining number of steps
 		{
 			if (direction == NEXT)
@@ -288,37 +286,7 @@ void stepper_3d::inside_ISR ()
 			TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
 			status_var = END_MOVE;	//setting status to indicate that the motion ended
 		}
-		break;
-		case 1: //Acceleration is required
-			if(stepper_steps > 0)	//if there are any remaining number of steps
-			{
-				if (direction == NEXT)
-				{			
-					stepper_output (&current_state , max_pwm);	//ouput the current state
-					next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
-				}
-				else if (direction == PREVIOUS)
-				{
-					stepper_output (&current_state , max_pwm);	//ouput the current state
-					previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
-				}
-				stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
-				current_time_bet_steps=current_time_bet_steps - time_bet_steps_us_accel;
-				unsigned int ctc_value_new;
-				ctc_value_new=ctc_value_determination(current_time_bet_steps);
-				OCR1A = ctc_value_new;
-			}
-			else
-			{
-				stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
-				stepper_steps = 0;	//just for safety
-				TIMSK1 = 0;	//disable timer compare interrupt
-				TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
-				status_var = END_MOVE;	//setting status to indicate that the motion ended
-		}
-		break;
-		default:break;
-	}
+
 }
 
 /*
@@ -419,25 +387,34 @@ void stepper_3d::stepper_accel_required_check ()
 //The following section checks if acceleration is required.	
 	if(time_bet_steps_us<minimum_initial_step_delay&&time_bet_steps_us<current_time_bet_steps)
 	{//Accelerating
+		stepper_accel_calculation(time_bet_steps_us);
 		status_var=ACCELERATING;
 		
-	}
-	else if(current_time_bet_steps<minimum_initial_step_delay)
-	{// Accelerated Motion
-		status_var=ACCELERATED;
 	}
 	else if(current_time_bet_steps<time_bet_steps_us && current_time_bet_steps<minimum_initial_step_delay)
 	{
 		//Decelerating
+		stepper_accel_calculation(time_bet_steps_us);
 		status_var=DECELERATING;
 
 	}
+	else if(current_time_bet_steps<minimum_initial_step_delay)
+	{
+		// Accelerated Motion
+		status_var=ACCELERATED;
+	}
+
 }
 void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_steps)
 {
-	if(status_var!=ACCELERATING)
+	unsigned long int total_steps=0;
+	if(status_var!=ACCELERATING||status_var!=DECELERATING)
 	{
-		accel_steps= stepper_steps_total/5;// for now accelerates for the first 20% of total steps
+		total_steps=stepper_steps;
+		if(total_steps!=0)// this calculation is to be done once at the start of accelerated motion when stepper_Steps is = total number of steps
+		{
+			accel_steps= stepper_steps/5;// for now accelerates for the first 20% of total steps
+		}
 		time_bet_steps_us_accel=(current_time_bet_steps - target_time_bet_steps)/accel_steps;
 	}
 }
@@ -450,8 +427,10 @@ void stepper_3d::AccelerationHandler()
 		current_time_bet_steps=current_time_bet_steps - time_bet_steps_us_accel;	
 		OCR1A =ctc_value_determination(current_time_bet_steps);
 	}
-	else if(status_var==ACCELERATED)
+	else if(status_var==ACCELERATED||stepper_steps==(accel_steps+1))
 	{
+		//if nearing the end of the Move command and Deceleration is required to stop
+		time_bet_steps_us=minimum_initial_step_delay; //set Target Time between steps to be equal to minimum amount of time to overcome inertia.
 
 	}
 	else if(status_var==DECELERATING)
