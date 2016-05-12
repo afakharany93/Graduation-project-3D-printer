@@ -22,7 +22,7 @@ heatbed::heatbed()
 	op_pin = 9;
 	_old_time = 0;
 	_current_time = millis();
-	samp_time = 10;	//milliseconds
+	samp_time = 50;	//milliseconds
 	input = 0;
 	op = 0;
 	#if DEBUG
@@ -39,35 +39,35 @@ void heatbed::heatbed_control(unsigned char set_temp)
 {
 	unsigned long diff;
 
-	if (_permission == START_HB)
+	if (set_temp < 2)
+	{
+		digitalWrite(op_pin, LOW);
+		_permission = STOP_HB;
+		t = temp.temperature_measurment();
+		input = (int) t;
+	}
+	else if (_permission == START_HB)
 	{
 		_current_time = millis();
 		diff = _current_time - _old_time;
 		if(diff >= samp_time)
 		{
-			if (set_temp == 0)
-			{
-				digitalWrite(op_pin, LOW);
-				_permission = STOP_HB;
-			}
-
-			t = temp.temperature_measurment();
-			input = (int) t;
-			op = op + magic.fuzzy_controller(input, set_temp);
-			if(op > 220)
-			{
-				op = 220;
-			}
-			else if (op < 0)
-			{
-				op = 0;
-			}
-			analogWrite(op_pin, op);
+				t = temp.temperature_measurment();
+				input = (int) t;
+				op = op + magic.fuzzy_controller(input, set_temp);
+				if(op > 220)
+				{
+					op = 220;
+				}
+				else if (op < 0)
+				{
+					op = 0;
+				}
+				analogWrite(op_pin, op);
 			#if DEBUG
 			  Serial.print(millis());
 			  Serial.print("\t");
 			  Serial.print(input);
-			  //Serial.print(t);
 			  Serial.print("\t");
 			  Serial.print(magic.error);
 			  Serial.print("\t");
@@ -79,9 +79,7 @@ void heatbed::heatbed_control(unsigned char set_temp)
 			  Serial.print("\t");
 			  Serial.print(op);
 			  Serial.print("\t");
-			  Serial.print(set_temp);
-			  Serial.print("\t");
-			  Serial.println(temp.res_debug_val);
+			  Serial.println(set_temp);
 			#endif
 
 
@@ -93,7 +91,7 @@ void heatbed::heatbed_control(unsigned char set_temp)
 char * heatbed::heatbed_status()
 {
 	int x = 0;	//to hold the return value of sprintf
-	char buff[50];
+	char buff[75];
 	x = sprintf(buff, "Status %u, temp(c) %d",_permission , input);
 	return (char *) buff;
 }
