@@ -4,7 +4,7 @@
 Thermistor_3d temp(A0);
 fuzzy magic(9, 300, 0, 255, 0);
 
-int st_point = 230;
+int st_point = 214;
 int input = 0;
 int op = 0;
 
