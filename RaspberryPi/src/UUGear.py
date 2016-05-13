@@ -55,6 +55,12 @@ uugearlib.stepper_status.argtypes = [POINTER(UUGearDeviceProfile)]
 uugearlib.temperature_status.restype = c_char_p
 uugearlib.temperature_status.argtypes = [POINTER(UUGearDeviceProfile)]
 
+uugearlib.heatbed_status.restype = c_char_p
+uugearlib.heatbed_status.argtypes = [POINTER(UUGearDeviceProfile)]
+
+uugearlib.heatbed_set_temp.restype = c_int
+uugearlib.heatbed_set_temp.argtypes = [POINTER(UUGearDeviceProfile), c_int]
+
 
 
 class UUGearDevice(object):
@@ -147,3 +153,17 @@ class UUGearDevice(object):
 			return buf
 		else :
 			return -1
+
+	def heatbed_status (self)	:
+		if self.isValid():
+			buf =  uugearlib.heatbed_status(byref(self.devProfile))
+			return buf
+		else :
+			return -1
+
+	def heatbed_set_temp(self, temp):
+		if self.isValid():
+			return uugearlib.heatbed_set_temp(byref(self.devProfile), temp)
+		else :
+			return -1
+

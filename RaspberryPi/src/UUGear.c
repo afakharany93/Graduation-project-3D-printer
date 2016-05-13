@@ -170,17 +170,17 @@ void sendMessageWithoutParameter(mqd_t in, int msgType, int clientId, int fd)
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
-void sendMessage(mqd_t in, int msgType, int clientId, int fd, int pin)
+void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int val)
 {
 	char buffer[MAX_MSG_SIZE + 1];
-	sprintf (buffer,"%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, pin);
+	sprintf (buffer,"%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, val);
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
-void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int pin, int parameter)
+void sendMessageWith2Parameter(mqd_t in, int msgType, int clientId, int fd, int val, int parameter)
 {
 	char buffer[MAX_MSG_SIZE + 1];
-	sprintf (buffer,"%d%s%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, pin, MSG_PART_SEPARATOR, parameter);
+	sprintf (buffer,"%d%s%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, val, MSG_PART_SEPARATOR, parameter);
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
@@ -379,3 +379,23 @@ char * temperature_status(UUGearDevice *dev)
 	return errorCode == 0 ? recieved : "-1";
 
 }
+
+char * heatbed_status(UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_HEATBED_STATUS, dev->clientId, dev->fd);
+	//recieve staus response
+	int errorCode = 0;
+	char * recieved = waitForString(dev, &errorCode);
+	return errorCode == 0 ? recieved : "-1";
+
+}
+
+int heatbed_set_temp (UUGearDevice *dev, int temp)
+{
+	sendMessageWithParameter(dev->in, MSG_SET_HEATBED, dev->clientId, dev->fd, temp);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
