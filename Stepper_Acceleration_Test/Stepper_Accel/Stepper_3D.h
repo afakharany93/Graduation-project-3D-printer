@@ -99,7 +99,7 @@ class stepper_3d
 		signed long int time_bet_steps_us_accel=0; // how much time between each step will be accelerated
 		//acceleration Activation flag
 		//minimum initial step delay to overcome motor inertia
-		unsigned int minimum_initial_step_delay=2000;
+		unsigned int minimum_initial_step_delay=1000;
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
 

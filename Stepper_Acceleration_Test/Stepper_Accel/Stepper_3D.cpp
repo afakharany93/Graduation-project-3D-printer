@@ -125,6 +125,7 @@ void stepper_3d::stepper_resume ()
 void stepper_3d::Step_SetTime(unsigned long int targettime)
 {
 	time_bet_steps_us=targettime;
+	//current_time_bet_steps=time_bet_steps_us;
 	timer1_setup();
 
 }
@@ -222,7 +223,7 @@ void stepper_3d::timer1_setup ()
 		current_time_bet_steps=time_bet_steps_us;
 		OCR1A =  ctc_value;		//set the ctc value in the OCR1A register
 	}
-  
+  	
   	TCCR1B |= (1 << WGM12);   // CTC mode
   	//prescale setting
   	prescale_setter();
@@ -283,7 +284,6 @@ void stepper_3d::inside_ISR ()
 				stepper_output (&current_state , max_pwm);	//ouput the current state
 				previous_step(&current_state);		//point to the previous state so that it can be outputed the next call of the isr
 			}
-			current_time_bet_steps=time_bet_steps_us;
 			stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
 		}
 		else
