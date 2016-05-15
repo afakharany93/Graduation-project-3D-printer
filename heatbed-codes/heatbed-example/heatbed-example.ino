@@ -9,7 +9,7 @@ void setup() {
   // put your setup code here, to run once:
   bed.heatbed_permission();
   Serial.begin(115200);
-  Serial.println("time\ttemp\te\tep\tce\tcop\top\tsetP\tres");
+  Serial.println("time\ttemp\te\tep\tce\tcop\top\tsetP\tres\tst");
 }
 
 void loop() 

@@ -9,12 +9,13 @@ int input = 0;
 int op = 0;
 
 float t;
+int st;
 
 void setup() 
 {
 	Serial.begin(115200);
   	Serial.flush();
- 	Serial.println("time\ttemp\te\tep\tce\tcop\top\tsetP\tres");
+ 	Serial.println("time\ttemp\te\tep\tce\tcop\top\tsetP\tres\tst");
 }
 
 void loop() 
@@ -38,7 +39,9 @@ void loop()
 		op = 0;
 	}
 	analogWrite(9, op);
-	  
+
+
+	st = magic.sample_t_det ();  
 
 	Serial.print(millis());
 	Serial.print("\t");
@@ -56,7 +59,9 @@ void loop()
 	Serial.print("\t");
 	Serial.print(st_point);
 	Serial.print("\t");
-	Serial.println(temp.res_debug_val);
+	Serial.print(temp.res_debug_val);
+	Serial.print("\t");
+	Serial.println(st);
 
-	delay(50);
+	delay(st);
 }
