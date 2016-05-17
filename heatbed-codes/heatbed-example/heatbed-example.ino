@@ -14,6 +14,6 @@ void setup() {
 
 void loop() 
 {
-	bed.heatbed_control(100);
+	bed.heatbed_control(60);
 	
 }
