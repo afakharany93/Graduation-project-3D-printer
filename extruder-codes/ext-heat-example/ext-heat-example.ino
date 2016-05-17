@@ -1,8 +1,12 @@
 #include "Thermistor_3D.h"
 #include "fuzzy.h"
+#include "ext_Stepper_3D.h"
 
-Thermistor_3d temp(A0);
+
+Thermistor_3d temp(A8);
 fuzzy magic(9, 300, 0, 255, 0);
+ext_stepper_3d extruder;
+
 
 int st_point = 214;
 int input = 0;
@@ -11,8 +15,16 @@ int op = 0;
 float t;
 int st;
 
+/* the ISR function is the one that does the moving of the stepper motor, it outputs the step at the time required */
+ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
+{
+  extruder.inside_ISR();
+}
+
+
 void setup() 
 {
+	extruder.permission = 1;
 	Serial.begin(115200);
   	Serial.flush();
  	Serial.println("time\ttemp\te\tep\tce\tcop\top\tsetP\tres\tst");
@@ -39,6 +51,11 @@ void loop()
 		op = 0;
 	}
 	analogWrite(9, op);
+
+	if(input >= 205)
+	{
+		extruder.stepper_move(3032,18500);
+	}
 
 
 	st = magic.sample_t_det ();  
