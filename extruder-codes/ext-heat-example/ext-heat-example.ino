@@ -3,12 +3,12 @@
 #include "ext_Stepper_3D.h"
 
 
-Thermistor_3d temp(A8);
+Thermistor_3d temp(A0);
 fuzzy magic(9, 300, 0, 255, 0);
 ext_stepper_3d extruder;
 
 
-int st_point = 214;
+int st_point = 100;
 int input = 0;
 int op = 0;
 
@@ -16,7 +16,7 @@ float t;
 int st;
 
 /* the ISR function is the one that does the moving of the stepper motor, it outputs the step at the time required */
-ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
+ISR(TIMER5_COMPA_vect)          // timer compare interrupt service routine
 {
   extruder.inside_ISR();
 }
@@ -50,11 +50,11 @@ void loop()
 	{
 		op = 0;
 	}
-	analogWrite(9, op);
+	analogWrite(3, op);
 
-	if(input >= 205)
+	if(input >= st_point)
 	{
-		extruder.stepper_move(3032,18500);
+		extruder.stepper_flow(extruder.anticlockwise);
 	}
 
 

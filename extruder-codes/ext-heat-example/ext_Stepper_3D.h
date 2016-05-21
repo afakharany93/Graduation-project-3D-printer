@@ -2,13 +2,13 @@
 The Arduino has 3Timers and 6 PWM output pins. The relation between timers and PWM outputs is:
 
 Pins 5 and 6: controlled by timer0
-Pins 9 and 10: controlled by timer1
+Pins 9 and 10: controlled by timer5
 Pins 11 and 3: controlled by timer2
 
 On the Arduino Mega we have 6 timers and 15 PWM outputs:
 
 Pins 4 and 13: controlled by timer0
-Pins 11 and 12: controlled by timer1
+Pins 11 and 12: controlled by timer5
 Pins 9 and 10: controlled by timer2
 Pin 2, 3 and 5: controlled by timer 3
 Pin 6, 7 and 8: controlled by timer 4
@@ -46,14 +46,14 @@ typedef struct stepper_state_struct
  	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resembles the next step on the stepper motor, used for forward motion
 	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previous state, used for backwards motion
 } stepper_state_struct;
-/* struct timer1_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
- to be able to operate with the timer1 as agile as possible */
-typedef struct timer1_value
+/* struct timer5_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
+ to be able to operate with the timer5 as agile as possible */
+typedef struct timer5_value
 {
 	unsigned int prescale;				//to hold the value of the prescale
 	float time_per_tick_us;				//to hold the value of time needed to make one tick in the timer in micro seconds
 	unsigned long int max_period_us;	//to hold the max value the timer can hold in micro seconds
-}timer1_value;
+}timer5_value;
 
 class ext_stepper_3d
 {
@@ -61,10 +61,10 @@ class ext_stepper_3d
 		ext_stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 5;
-		unsigned char blue  = 11;
-		unsigned char red   = 6;
-		unsigned char green = 3;
+		unsigned char black = 4;
+		unsigned char blue  = 7;
+		unsigned char red   = 8;
+		unsigned char green = 12;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -80,8 +80,7 @@ class ext_stepper_3d
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
 
-		//endstop states
-		unsigned char endstop_state = NOTHING_PRESSED;
+		
 		
 
 		//time variable
@@ -165,8 +164,8 @@ class ext_stepper_3d
 		/*6*/	 {0x08 , &stepper_states[0] , &stepper_states[2] } ,
 		};
 
-		/* timer1_value_lookup_table is an array that holds the values of the prescales and the time per tick and the max time value for each prescale */
-		struct timer1_value timer1_value_lookup_table[5] = 
+		/* timer5_value_lookup_table is an array that holds the values of the prescales and the time per tick and the max time value for each prescale */
+		struct timer5_value timer5_value_lookup_table[5] = 
 		{
 		 //{prescale , time_per_tick_us , max_period_us}
 			{1 	  	, 0.0625  			, 4096   	   },
@@ -204,30 +203,30 @@ class ext_stepper_3d
 
 		/*
 			Function name : prescale_determination
-		  	return : struct timer1_value * :- pointer to the element of the timer1_value_lookup_table with the right prescale
-		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the timer1_value_lookup_table array
+		  	return : struct timer5_value * :- pointer to the element of the timer5_value_lookup_table with the right prescale
+		  	parameters : struct timer5_value *timer5_value_lookup_table_ptr_for_prescale :- pointer to the timer5_value_lookup_table array
 		  				 unsigned long int time_bet_steps_for_prescale :- used to hold the time between each step in microseconds
-		  	Method of operation : it searches the timer1_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
+		  	Method of operation : it searches the timer5_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
 		*/
-		struct timer1_value * prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
+		struct timer5_value * prescale_determination (struct timer5_value *timer5_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
 
 		/*
 			Function name : ctc_value_determination
 		  	return : unsigned int:- used to return the value needed for the OCR1A register in ctc mode
-		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
+		  	parameters : struct timer5_value *timer5_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer5_value_lookup_table array
 		  				 unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
 		  	Method of operation : it calculates the value neede to be in the OCR1A register for the isr to work in the right perioo of time
 		*/
-		unsigned int ctc_value_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc);
+		unsigned int ctc_value_determination (struct timer5_value *timer5_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc);
 
 		/*
-			Function name : timer1_setup
+			Function name : timer5_setup
 		  	return : void
-		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
+		  	parameters : struct timer5_value *timer5_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer5_value_lookup_table array
 		  				 unsigned long int time_bet_steps :- used to hold the time between each step in microseconds
 		  	Method of operation : it sets the registers for timer 1 to the right prescale value and ctc value and enables the timer one ctc interrupt
 		*/
-		void timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned long int time_bet_steps);
+		void timer5_setup (struct timer5_value *timer5_value_lookup_table_ptr , unsigned long int time_bet_steps);
 };
 
 
