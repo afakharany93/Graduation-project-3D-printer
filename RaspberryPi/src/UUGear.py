@@ -65,7 +65,7 @@ uugearlib.ext_heat_status.restype = c_char_p
 uugearlib.ext_heat_status.argtypes = [POINTER(UUGearDeviceProfile)]
 
 uugearlib.ext_heat_set_temp.restype = c_int
-uugearlib.ext_heat_set_temp.argtypes = [POINTER(UUGearDeviceProfile), c_int]
+uugearlib.ext_heat_set_temp.argtypes = [POINTER(UUGearDeviceProfile), c_ushort]
 
 
 

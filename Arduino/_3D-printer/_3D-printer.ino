@@ -463,13 +463,25 @@ void cmd_ext_heat_status(String cmd)
 
 
 void cmd_set_ext_heat(String cmd) {
-  if (cmd.length() > 5) {
-    if(cmd.charAt(2) > 2)
+   if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    unsigned int data = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    if(data > 2)
     {
       extHeat.ext_heat_permission();
     }
-    ext_heat_temp = cmd.charAt(2);
-    byte clientId = cmd.charAt(3);
+    ext_heat_temp = data;
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);

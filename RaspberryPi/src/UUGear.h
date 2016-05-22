@@ -68,4 +68,4 @@ extern int heatbed_set_temp (UUGearDevice *dev, int temp);
 
 extern char * ext_heat_status(UUGearDevice *dev);
 
-extern int ext_heat_set_temp (UUGearDevice *dev, int temp);
+extern int ext_heat_set_temp (UUGearDevice *dev, unsigned short temp);
