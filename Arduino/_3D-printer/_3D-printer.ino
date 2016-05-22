@@ -485,7 +485,7 @@ void cmd_set_ext_heat(String cmd) {
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
-    Serial.print(data);
+    Serial.print(REPOND_WITH_RECIEVED);
     Serial.print(RESPONSE_END_STRING);
   }
 }
