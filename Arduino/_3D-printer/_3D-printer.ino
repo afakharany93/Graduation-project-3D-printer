@@ -85,7 +85,7 @@ heatbed bed;
 ext_heat extHeat;
 
 unsigned char heatbed_temp = 0;
-unsigned char ext_heat_temp = 0;
+unsigned int ext_heat_temp = 0;
 // declare reset function
 void(* resetDevice) (void) = 0;
 
@@ -485,7 +485,7 @@ void cmd_set_ext_heat(String cmd) {
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
-    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(data);
     Serial.print(RESPONSE_END_STRING);
   }
 }
