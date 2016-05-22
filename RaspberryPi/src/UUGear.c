@@ -399,3 +399,23 @@ int heatbed_set_temp (UUGearDevice *dev, int temp)
 	return errorCode == 0 ? recieved : -1;
 }
 
+char * ext_heat_status(UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_EXT_HEAT_STATUS, dev->clientId, dev->fd);
+	//recieve staus response
+	int errorCode = 0;
+	char * recieved = waitForString(dev, &errorCode);
+	return errorCode == 0 ? recieved : "-1";
+
+}
+
+int ext_heat_set_temp (UUGearDevice *dev, int temp)
+{
+	sendMessageWithParameter(dev->in, MSG_SET_EXT_HEAT, dev->clientId, dev->fd, temp);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
+

@@ -486,6 +486,13 @@ int main(int argc, char **argv)
 						sendCommandWithParameter(CMD_SET_HEATBED, clientId, targetFd,
 							count > 3 ? (atoi (parts[3]) & 0xFF) : -1);
 						break;
+					case MSG_EXT_HEAT_STATUS:
+						sendCommandWithoutParameter(CMD_EXT_HEAT_STATUS, clientId, targetFd);
+						break;
+					case MSG_SET_EXT_HEAT:
+						sendCommandWithParameter(CMD_SET_EXT_HEAT, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1);
+						break;
 				}
 			}
         }

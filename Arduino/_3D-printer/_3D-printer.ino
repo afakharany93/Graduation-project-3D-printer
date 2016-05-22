@@ -16,6 +16,7 @@
 #include "Stepper_3D.h"
 #include "Thermistor_3D.h"
 #include "heatbed_3D.h"
+#include "ext_heat_3D.h"
 
 #define LCD_DEBUGGING 0   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
 
@@ -46,6 +47,9 @@
 //heatbed commands
 #define CMD_SET_HEATBED         0x70    //to set heatbed temperature
 #define CMD_HEATBED_STATUS      0x71
+//extruder heat commands
+#define CMD_SET_EXT_HEAT         0x75    //to set heatbed temperature
+#define CMD_EXT_HEAT_STATUS      0x76
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -78,8 +82,10 @@ int cmdEndStrLen = strlen(COMMAND_END_STRING);
 stepper_3d motor;
 Thermistor_3d thermistor(A3);
 heatbed bed;
+ext_heat extHeat;
 
 unsigned char heatbed_temp = 0;
+unsigned char ext_heat_temp = 0;
 // declare reset function
 void(* resetDevice) (void) = 0;
 
@@ -121,6 +127,7 @@ ISR(PCINT1_vect)
 void loop() {
 
   bed.heatbed_control(heatbed_temp);
+  extHeat.ext_heat_control(ext_heat_temp);
   // listen to incoming commands
   int len = Serial.available();
   for (int i = 0; i < len; i ++) {
@@ -238,6 +245,15 @@ void processCommand(String cmd) {
     case CMD_SET_HEATBED:
       cmd_set_heatbed(cmd);
       break;
+
+    case CMD_EXT_HEAT_STATUS:
+      cmd_ext_heat_status(cmd);
+      break;
+
+    case CMD_SET_EXT_HEAT:
+      cmd_set_ext_heat(cmd);
+      break;
+
 
     case 0xFF:
       resetDevice();
@@ -418,11 +434,41 @@ void cmd_heatbed_status(String cmd)
 
 void cmd_set_heatbed(String cmd) {
   if (cmd.length() > 5) {
-    if(cmd.charAt(2) > 1)
+    if(cmd.charAt(2) > 2)
     {
       bed.heatbed_permission();
     }
     heatbed_temp = cmd.charAt(2);
+    byte clientId = cmd.charAt(3);
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_heat_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(extHeat.ext_heat_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+
+void cmd_set_ext_heat(String cmd) {
+  if (cmd.length() > 5) {
+    if(cmd.charAt(2) > 2)
+    {
+      extHeat.ext_heat_permission();
+    }
+    ext_heat_temp = cmd.charAt(2);
     byte clientId = cmd.charAt(3);
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);

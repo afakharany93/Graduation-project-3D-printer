@@ -60,6 +60,10 @@
 //heatbed messages
 #define MSG_SET_HEATBED         60      //to set heatbed temperature
 #define MSG_HEATBED_STATUS      61
+ //extruder heat MESSAGES
+#define MSG_SET_EXT_HEAT        65   //to set heatbed temperature
+#define MSG_EXT_HEAT_STATUS     66
+
 
 /* Commands between daemon and UUGear device */
 #define CMD_GET_DEVICE_ID  		0x30
@@ -77,6 +81,9 @@
 //heatbed commands
 #define CMD_SET_HEATBED         0x70    //to set heatbed temperature
 #define CMD_HEATBED_STATUS      0x71
+//extruder heat commands
+#define CMD_SET_EXT_HEAT         0x75    //to set heatbed temperature
+#define CMD_EXT_HEAT_STATUS      0x76
 
 #define ASSERT_TRUE(x) \
     do { \

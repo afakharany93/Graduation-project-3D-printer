@@ -10,81 +10,81 @@
 
 
 
-#include "heatbed_3D.h"
+#include "ext_heat_3D.h"
 
-Thermistor_3d temp(A0);
-fuzzy magic(9, 120, 0, 220, 0);
+Thermistor_3d ext_temp(A4);
+fuzzy ext_fuzzy(9, 300, 0, 255, 0);
 
 
-heatbed::heatbed()
+ext_heat::ext_heat()
 {
-	_permission = STOP_HB;
-	op_pin = 9;
+	_permission = STOP_EXT_H;
+	op_pin = 3;
 	_old_time = 0;
 	_current_time = millis();
 	samp_time = 50;	//milliseconds
 	input = 0;
 	op = 0;
-	magic.max_st = 2000;
-	magic.zero_st = 100;
-	#if DEBUG
+	ext_fuzzy.max_st = 500;
+	ext_fuzzy.zero_st = 10;
+	#if DEBUG_EXT_H
 		
 	#endif
 }
 
-void heatbed::heatbed_permission()
+void ext_heat::ext_heat_permission()
 {
-	_permission = START_HB;
+	_permission = START_EXT_H;
 }
 
-void heatbed::heatbed_control(unsigned char set_temp)
+void ext_heat::ext_heat_control(unsigned int set_ext_temp)
 {
 	unsigned long diff;
 
-	if (set_temp < 2)
+	if (set_ext_temp < 2)
 	{
 		digitalWrite(op_pin, LOW);
-		_permission = STOP_HB;
-		t = temp.temperature_measurment();
+		_permission = STOP_EXT_H;
+		t = ext_temp.temperature_measurment();
 		input = (int) t;
 	}
-	else if (_permission == START_HB)
+	else if (_permission == START_EXT_H)
 	{
 		_current_time = millis();
 		diff = _current_time - _old_time;
-		samp_time = magic.sample_t_det ();
+		samp_time = ext_fuzzy.sample_t_det ();
 		if(diff >= samp_time)
 		{
-				t = temp.temperature_measurment();
+				t = ext_temp.temperature_measurment();
 				input = (int) t;
-				op = op + magic.fuzzy_controller(input, set_temp);
-				if(op > 220)
+				op = op + ext_fuzzy.fuzzy_controller(input, set_ext_temp);
+				if(op > 255)
 				{
-					op = 220;
+					op = 255;
 				}
 				else if (op < 0)
 				{
 					op = 0;
 				}
 				analogWrite(op_pin, op);
-			#if DEBUG
+			#if DEBUG_EXT_H
 			  Serial.print(millis());
 			  Serial.print("\t");
 			  Serial.print(input);
 			  Serial.print("\t");
-			  Serial.print(magic.error);
+			  Serial.print(ext_fuzzy.error);
 			  Serial.print("\t");
-			  Serial.print(magic.error_p);
+			  Serial.print(ext_fuzzy.error_p);
 			  Serial.print("\t");
-			  Serial.print(magic.ch_error);
+			  Serial.print(ext_fuzzy.ch_error);
 			  Serial.print("\t");
-			  Serial.print(magic.ch_op);
+			  Serial.print(ext_fuzzy.ch_op);
 			  Serial.print("\t");
 			  Serial.print(op);
 			  Serial.print("\t");
-			  Serial.print(set_temp);
+			  Serial.print(set_ext_temp);
 			  Serial.print("\t");
-			  Serial.print(temp.res_debug_val);
+			  Serial.print(ext_temp.res_debug_val);
 			  Serial.print("\t");
 			  Serial.println(samp_time);
 			#endif
@@ -95,10 +95,10 @@ void heatbed::heatbed_control(unsigned char set_temp)
 	}
 }
 
-char * heatbed::heatbed_status()
+char * ext_heat::ext_heat_status()
 {
 	int x = 0;	//to hold the return value of sprintf
 	char buff[75];
-	x = sprintf(buff, "Status %u, temp(c) %d",_permission , input);
+	x = sprintf(buff, "Status %u, ext_temp(c) %d",_permission , input);
 	return (char *) buff;
 }
