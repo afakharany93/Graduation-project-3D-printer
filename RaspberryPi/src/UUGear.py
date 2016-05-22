@@ -175,13 +175,13 @@ class UUGearDevice(object):
 
 	def ext_heat_status (self)	:
 		if self.isValid():
-			buf =  uugearlib.heatbed_status(byref(self.devProfile))
+			buf =  uugearlib.ext_heat_status(byref(self.devProfile))
 			return buf
 		else :
 			return -1
 
 	def ext_heat_set_temp(self, temp):
 		if self.isValid():
-			return uugearlib.heatbed_set_temp(byref(self.devProfile), temp)
+			return uugearlib.ext_heat_set_temp(byref(self.devProfile), temp)
 		else :
 			return -1
