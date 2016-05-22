@@ -8,11 +8,11 @@ device = UUGearDevice('UUGear-Arduino-4713-9982')
 if device.isValid():
 		r = device.ext_heat_set_temp(60);
 		print r
-		for i in range(50):
+		for i in range(200):
 			status = device.ext_heat_status()
 			print status
 
-			sleep(0.1)
+			sleep(0.2)
 
 		r = device.ext_heat_set_temp(1);
 		print r
