@@ -23,12 +23,12 @@ ext_stepper_3d::ext_stepper_3d()
 //stepper functions :
 /*Function name : stepper_output
   return : void
-  parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
-  Method of operation : to interpert and output the out member of the stepper_state_struct variable holding currrent state information
+  parameters : struct ext_stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+  Method of operation : to interpert and output the out member of the ext_stepper_state_struct variable holding currrent state information
  */
-void ext_stepper_3d::stepper_output (struct stepper_state_struct *current_state)
+void ext_stepper_3d::stepper_output (struct ext_stepper_state_struct *current_state)
 {
-	digitalWrite(first  , ((current_state->out) & 0x01));		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
+	digitalWrite(first  , ((current_state->out) & 0x01));		/*if bit one in the out member of the ext_stepper_state_struct variable holding currrent state information is one
 															then the pin mapped to first will be high, if not it will be zero	*/				
 	digitalWrite(second , ((current_state->out) & 0x02));		//same as the line above but with bit 2 and pin mapped to second
 	digitalWrite(third  , ((current_state->out) & 0x04));		//same as the line above but with bit 3 and pin mapped to third
@@ -38,11 +38,11 @@ void ext_stepper_3d::stepper_output (struct stepper_state_struct *current_state)
 /*
 	Function name : next_step
   	return : void
-  	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
-  	Method of operation : to change the current state variable to the variable pointed at with the pointer member nxt in the stepper_state_struct, i.e. to put the current 
+  	parameters : struct ext_stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+  	Method of operation : to change the current state variable to the variable pointed at with the pointer member nxt in the ext_stepper_state_struct, i.e. to put the current 
   						  state in next state and take the next step, used for going forwards
 */
-void ext_stepper_3d::next_step (struct stepper_state_struct *current_state)
+void ext_stepper_3d::next_step (struct ext_stepper_state_struct *current_state)
 {
 	*current_state = *current_state->nxt;
 }
@@ -50,11 +50,11 @@ void ext_stepper_3d::next_step (struct stepper_state_struct *current_state)
 /*
 	Function name : previos_step
   	return : void
-  	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
-  	Method of operation : to change the current state variable to the variable pointed at with the pointer member prev in the stepper_state_struct, i.e. to put the current 
+  	parameters : struct ext_stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+  	Method of operation : to change the current state variable to the variable pointed at with the pointer member prev in the ext_stepper_state_struct, i.e. to put the current 
   						  state in previos state and take the previos step, used for going backwards
 */
-void ext_stepper_3d::previos_step (struct stepper_state_struct *current_state)
+void ext_stepper_3d::previos_step (struct ext_stepper_state_struct *current_state)
 {
 	*current_state = *current_state->prev;
 }

@@ -17,6 +17,7 @@
 #include "Thermistor_3D.h"
 #include "heatbed_3D.h"
 #include "ext_heat_3D.h"
+#include "ext_Stepper_3D.h"
 
 #define LCD_DEBUGGING 0   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
 
@@ -50,6 +51,12 @@
 //extruder heat commands
 #define CMD_SET_EXT_HEAT         0x75    //to set heatbed temperature
 #define CMD_EXT_HEAT_STATUS      0x76
+//stepper commands
+#define CMD_EXT_STEPPER_MOVE        0x40
+#define CMD_EXT_STEPPER_D_TIME      0x41    //for delay time between steps
+#define CMD_EXT_STEPPER_STOP        0x42
+#define CMD_EXT_STEPPER_RESUME      0x43
+#define CMD_EXT_STEPPER_STATUS      0x44
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -83,6 +90,7 @@ stepper_3d motor;
 Thermistor_3d thermistor(A3);
 heatbed bed;
 ext_heat extHeat;
+ext_stepper_3d extStp;
 
 unsigned char heatbed_temp = 0;
 unsigned int ext_heat_temp = 0;
@@ -254,6 +262,24 @@ void processCommand(String cmd) {
       cmd_set_ext_heat(cmd);
       break;
 
+    case CMD_EXT_STEPPER_MOVE:
+      cmd_ext_stepper_move(cmd);
+      break;
+    case CMD_EXT_STEPPER_D_TIME:
+      cmd_ext_stepper_d_time(cmd);
+      break;
+
+    case CMD_EXT_STEPPER_STOP:
+      cmd_ext_stepper_stop(cmd);
+      break;
+      
+    case CMD_EXT_STEPPER_RESUME:
+      cmd_ext_stepper_resume(cmd);
+      break;
+
+    case CMD_EXT_STEPPER_STATUS:
+      cmd_ext_stepper_status(cmd);
+      break;
 
     case 0xFF:
       resetDevice();
@@ -486,6 +512,107 @@ void cmd_set_ext_heat(String cmd) {
     Serial.write(RESPONSE_START_CHAR);
     Serial.write(clientId);
     Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_move(String cmd) {
+  if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    int steps = ((((int) most_significant_byte) << 8 ) | 0x00FF) & (((int) least_significant_byte) | 0xFF00);
+    #if LCD_DEBUGGING
+    LCD.setCursor(0, 1); //
+    LCD.print(steps);   //print number of steps received
+    #endif
+    extStp.permission = 1;
+    extStp.stepper_move(steps, extStp.time_bet_steps_us);
+
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_d_time(String cmd) {
+  if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    extStp.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    #if LCD_DEBUGGING
+    LCD.setCursor(0, 1); // 
+    LCD.print(extStp.time_bet_steps_us); //print the received time between steps
+    #endif
+
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_stop(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    extStp.permission = 1;
+    extStp.stepper_stop ();
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_resume(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    extStp.permission = 1;
+    extStp.stepper_resume ();
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(extStp.stepper_status());
     Serial.print(RESPONSE_END_STRING);
   }
 }

@@ -495,6 +495,32 @@ int main(int argc, char **argv)
 							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
 							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
 						break;
+
+					case MSG_EXT_STEPPER_MOVE:
+						send_command_with_3_data_bytes(CMD_EXT_STEPPER_MOVE, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
+							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
+							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
+						break;
+
+					case MSG_EXT_STEPPER_D_TIME:
+						send_command_with_3_data_bytes(CMD_EXT_STEPPER_D_TIME, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
+							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
+							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
+						break;
+
+					case MSG_EXT_STEPPER_STOP:
+						sendCommandWithoutParameter(CMD_EXT_STEPPER_STOP, clientId, targetFd);
+						break;
+						
+					case MSG_EXT_STEPPER_RESUME:
+						sendCommandWithoutParameter(CMD_EXT_STEPPER_RESUME, clientId, targetFd);
+						break;
+
+					case MSG_EXT_STEPPER_STATUS:
+						sendCommandWithoutParameter(CMD_EXT_STEPPER_STATUS, clientId, targetFd);
+						break;
 				}
 			}
         }
