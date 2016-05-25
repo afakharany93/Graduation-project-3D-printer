@@ -25,6 +25,8 @@ heatbed::heatbed()
 	samp_time = 50;	//milliseconds
 	input = 0;
 	op = 0;
+	magic.max_st = 2000;
+	magic.zero_st = 100;
 	#if DEBUG
 		
 	#endif
@@ -50,6 +52,7 @@ void heatbed::heatbed_control(unsigned char set_temp)
 	{
 		_current_time = millis();
 		diff = _current_time - _old_time;
+		samp_time = magic.sample_t_det ();
 		if(diff >= samp_time)
 		{
 				t = temp.temperature_measurment();
@@ -79,7 +82,11 @@ void heatbed::heatbed_control(unsigned char set_temp)
 			  Serial.print("\t");
 			  Serial.print(op);
 			  Serial.print("\t");
-			  Serial.println(set_temp);
+			  Serial.print(set_temp);
+			  Serial.print("\t");
+			  Serial.print(temp.res_debug_val);
+			  Serial.print("\t");
+			  Serial.println(samp_time);
 			#endif
 
 

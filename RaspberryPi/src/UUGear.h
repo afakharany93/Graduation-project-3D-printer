@@ -65,3 +65,18 @@ extern char * temperature_status(UUGearDevice *dev);
 extern char * heatbed_status(UUGearDevice *dev);
 
 extern int heatbed_set_temp (UUGearDevice *dev, int temp);
+
+extern char * ext_heat_status(UUGearDevice *dev);
+
+extern int ext_heat_set_temp (UUGearDevice *dev, unsigned short temp);
+
+extern int ext_stepper_move(UUGearDevice *dev, short steps );
+
+extern int ext_stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us );
+
+extern int ext_stepper_stop (UUGearDevice *dev);
+
+extern int ext_stepper_resume (UUGearDevice *dev);
+
+extern char * ext_stepper_status(UUGearDevice *dev);
+

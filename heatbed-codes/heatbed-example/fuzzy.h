@@ -11,6 +11,7 @@
 #define __FUZ_ZY__
 
 #include "Arduino.h"
+#include <math.h>
 
 #define UNDEFINED_SET_NUMBER	150
 
@@ -66,6 +67,9 @@ class fuzzy
 		int ch_op;
 		float ch_op_p;
 
+		int max_st ;	//maximum sampling time milliseconds
+		int zero_st;	//sampling time when error equals zero
+
 		struct membr_set_val err_set;
 		struct membr_set_val ch_err_set;
 
@@ -87,6 +91,8 @@ class fuzzy
 		float defuzzifier (short int n, struct op_membr_val u);
 
 		int fuzzy_controller(int input, int s_point);
+
+		int sample_t_det ();
 };
 
 #endif

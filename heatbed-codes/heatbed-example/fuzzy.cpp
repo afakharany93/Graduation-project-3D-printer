@@ -46,6 +46,9 @@ fuzzy::fuzzy(short int n, int imax, int imin, int omax, int omin)
 	ch_op_min = omin - omax;
 	ch_op = 0;
 	ch_op_p = 0.0;
+
+	//max_st = 500;	//maximum sampling time milliseconds
+	//zero_st = 10;	//sampling time when error equals zero
 }
 
 
@@ -374,4 +377,20 @@ int fuzzy::fuzzy_controller(int input, int s_point)
 	ch_op = depercentizer(ch_op_p, ch_op_max, ch_op_min);	
 
 	return (ch_op);
+}
+
+int fuzzy::sample_t_det ()
+{
+	float r;
+	float st;
+	r = log(max_st);
+	r = r - log(zero_st);
+	r = r / error_max;
+
+	st = r * error;
+	st = exp(st);
+	st = st*zero_st;
+
+	return ((int) st);
+
 }

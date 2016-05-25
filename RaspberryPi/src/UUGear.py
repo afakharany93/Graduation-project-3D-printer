@@ -61,6 +61,27 @@ uugearlib.heatbed_status.argtypes = [POINTER(UUGearDeviceProfile)]
 uugearlib.heatbed_set_temp.restype = c_int
 uugearlib.heatbed_set_temp.argtypes = [POINTER(UUGearDeviceProfile), c_int]
 
+uugearlib.ext_heat_status.restype = c_char_p
+uugearlib.ext_heat_status.argtypes = [POINTER(UUGearDeviceProfile)]
+
+uugearlib.ext_heat_set_temp.restype = c_int
+uugearlib.ext_heat_set_temp.argtypes = [POINTER(UUGearDeviceProfile), c_ushort]
+
+uugearlib.ext_stepper_move.restype = c_int
+uugearlib.ext_stepper_move.argtypes = [POINTER(UUGearDeviceProfile), c_short]
+
+uugearlib.ext_stepper_time_bet_steps.restype = c_int
+uugearlib.ext_stepper_time_bet_steps.argtypes = [POINTER(UUGearDeviceProfile), c_ushort]
+
+uugearlib.ext_stepper_stop.restype = c_int
+uugearlib.ext_stepper_stop.argtypes = [POINTER(UUGearDeviceProfile)]
+
+uugearlib.ext_stepper_resume.restype = c_int
+uugearlib.ext_stepper_resume.argtypes = [POINTER(UUGearDeviceProfile)]
+
+uugearlib.ext_stepper_status.restype = c_char_p
+uugearlib.ext_stepper_status.argtypes = [POINTER(UUGearDeviceProfile)]
+
 
 
 class UUGearDevice(object):
@@ -167,3 +188,58 @@ class UUGearDevice(object):
 		else :
 			return -1
 
+	def ext_heat_status (self)	:
+		if self.isValid():
+			buf =  uugearlib.ext_heat_status(byref(self.devProfile))
+			return buf
+		else :
+			return -1
+
+	def ext_heat_set_temp(self, temp):
+		if self.isValid():
+			return uugearlib.ext_heat_set_temp(byref(self.devProfile), temp)
+		else :
+			return -1
+
+	def ext_stepper_move(self, steps):
+		if self.isValid():
+			return uugearlib.ext_stepper_move(byref(self.devProfile), steps)
+		else :
+			return -1
+
+	def ext_stepper_time_bet_steps(self, time_us):
+		if self.isValid():
+			time_us = time_us / 95
+			return uugearlib.ext_stepper_time_bet_steps(byref(self.devProfile), time_us)
+		else :
+			return -1
+
+	def ext_stepper_stop (self) :
+		if self.isValid():
+			return uugearlib.ext_stepper_stop(byref(self.devProfile))
+		else :
+			return -1
+
+	def ext_stepper_resume (self) :
+		if self.isValid():
+			return uugearlib.ext_stepper_resume(byref(self.devProfile))
+		else :
+			return -1
+
+	def ext_stepper_status (self)	:
+		if self.isValid():
+			buf =  uugearlib.ext_stepper_status(byref(self.devProfile))
+			if buf.find("Status 1") != -1 :
+				buf = buf.replace("1", self.stepper_status_dict[1], 1)
+			elif buf.find("Status 2") != -1 :
+				buf = buf.replace("2", self.stepper_status_dict[2], 1)
+			elif buf.find("Status 3") != -1 :
+				buf = buf.replace("3", self.stepper_status_dict[3], 1)
+			elif buf.find("Status 4") != -1 :
+				buf = buf.replace("4", self.stepper_status_dict[4], 1)
+			elif buf.find("Status 5") != -1 :
+				buf = buf.replace("5", self.stepper_status_dict[5], 1)
+
+			return buf
+		else :
+			return -1
