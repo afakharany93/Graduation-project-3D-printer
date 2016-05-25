@@ -19,6 +19,7 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define _EXT_STEPPER_3D_
 
 #include "Arduino.h"
+#include "Stepper_3D.h"
 #include <avr/interrupt.h>
 
 
@@ -36,16 +37,16 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define HOME_PRESSED	1
 #define AWAY_PRESSED	2
 
-/*struct ext_stepper_state_struct is a struct used to hold the info concerning the states, each state resembles one step,
+/*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resembles one step,
 it holds the output of the state and a pointer to the next state to use to step forward and
 a pointer to the previous step in case of backwards */
 
-typedef struct ext_stepper_state_struct
+/*typedef struct stepper_state_struct
 {
 	unsigned char out;						//used to hold the output values to all pins, this value needs to be interpreted later
- 	struct ext_stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resembles the next step on the stepper motor, used for forward motion
-	struct ext_stepper_state_struct	*prev;		//pointer used to hold the address to the previous state, used for backwards motion
-} ext_stepper_state_struct;
+ 	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resembles the next step on the stepper motor, used for forward motion
+	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previous state, used for backwards motion
+} stepper_state_struct;*/
 /* struct timer5_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
  to be able to operate with the timer5 as agile as possible */
 typedef struct timer5_value
@@ -155,7 +156,7 @@ class ext_stepper_3d
 
 	private:	//stuff under the hood, the user shouldn't bither himself with
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
-		struct ext_stepper_state_struct stepper_states[8] = 
+		struct stepper_state_struct stepper_states[8] = 
 		{
 		//states {out  , next state         , previos state      }
 		/*0*/	 {0x01 , &stepper_states[1] , &stepper_states[3] } ,
@@ -175,31 +176,31 @@ class ext_stepper_3d
 			{1024 	, 64 				, 4194240	   }
 		};
 
-		struct ext_stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
+		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
 		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
 		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
 
 		/*Function name : stepper_output
 		  return : void
-		  -	parameters : struct ext_stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  -	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
 	
 		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previos_step functions, runs after next_step or previos_step
 		 */
-		void stepper_output (struct ext_stepper_state_struct *current_state);
+		void stepper_output (struct stepper_state_struct *current_state);
 		/*
 			Function name : next_step
 		  	return : void
-		  	parameters : struct ext_stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
 		  	Functionality : To make resdy the stepper to take the next step in a direction
 		*/
-		void next_step (struct ext_stepper_state_struct *current_state);
+		void next_step (struct stepper_state_struct *current_state);
 		/*
 			Function name : previos_step
 		  	return : void
-		  	parameters : struct ext_stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
 		  	Functionality : to ready the stepper to take the previous step in a direction opposite to that of next_step function
 		*/
-		void previos_step (struct ext_stepper_state_struct *current_state);
+		void previos_step (struct stepper_state_struct *current_state);
 
 		/*
 			Function name : prescale_determination

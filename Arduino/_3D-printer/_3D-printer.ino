@@ -127,6 +127,11 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
   motor.inside_ISR();
 }
 
+ISR(TIMER5_COMPA_vect)          // timer compare interrupt service routine
+{
+  extStp.inside_ISR();
+}
+
 ISR(PCINT1_vect)
 {
   motor.inside_endstop_ISR ();
@@ -561,6 +566,7 @@ void cmd_ext_stepper_d_time(String cmd) {
       least_significant_byte = 0;
     }
     extStp.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    extStp.time_bet_steps_us = extStp.time_bet_steps_us * 95;
     #if LCD_DEBUGGING
     LCD.setCursor(0, 1); // 
     LCD.print(extStp.time_bet_steps_us); //print the received time between steps

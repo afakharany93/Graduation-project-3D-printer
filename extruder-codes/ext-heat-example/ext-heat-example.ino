@@ -31,7 +31,7 @@ void loop()
 
 	if(eh.input >= st_point)
 	{
-		extruder.stepper_flow(extruder.clockwise);
+		extruder.stepper_move (1000, 164933 );
 	}
 
 
