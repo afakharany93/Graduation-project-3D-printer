@@ -27,6 +27,10 @@ class Gcode :
 		self.ty_steps = 0
 		self.tz_steps = 0
 		self.te_steps = 0
+		#heatbed variable
+		self.bed_t = 0
+		#extruder heater variable
+		self.ext_t = 0
 
 
 	def motion_parser(self, Gline) :
@@ -47,8 +51,8 @@ class Gcode :
 			elif "E" in parameter :
 				parameter = parameter[1:]
 				self.e = float(parameter)
-		print Glist
-		print "f ",self.f,"\tx ", self.x,"\ty ", self.y,"\tz " ,self.z,"\te " ,self.e
+		#print Glist
+		#print "f ",self.f,"\tx ", self.x,"\ty ", self.y,"\tz " ,self.z,"\te " ,self.e
 
 	def motion_calc (self) :
 		#calculate the deltas
@@ -73,19 +77,19 @@ class Gcode :
 		self.e_steps = de / self.dex
 		#calculate time between stepes per axis
 		if self.x_steps != 0 :
-			self.tx_steps = (self.d / fdx)*1000000
+			self.tx_steps = abs((self.d / fdx)*1000000)
 		else :
 			self.tx_steps = 0
 		if self.y_steps != 0 :
-			self.ty_steps = (self.d / fdy)*1000000
+			self.ty_steps = abs((self.d / fdy)*1000000)
 		else :
 			self.ty_steps = 0
 		if self.z_steps != 0 :
-			self.tz_steps = (self.d / fdz)*1000000/95
+			self.tz_steps = abs((self.d / fdz)*1000000/95)	#devide by 95 to make it sendable, will multiply by 95 on the arduino side
 		else :
 			self.tz_steps = 0
 		if self.e_steps != 0 :
-			self.te_steps = (self.dex / fde)*1000000/95
+			self.te_steps = abs((self.dex / fde)*1000000/95)		#devide by 95 to make it sendable, will multiply by 95 on the arduino side
 		else :
 			self.te_steps = 0
 		#ready for next calculation
@@ -94,8 +98,44 @@ class Gcode :
 		self.oldz = self.z
 		self.olde = self.e
 
-		print "dx ", dx,"\tdy ", dy,"\tdz ", dz, "\tde ", de,"\th " , h,"\tt ",t
-		print "fdx ",fdx,"\tfdy",fdy,"\tfdz",fdz,"\tfde",fde
-		print "x steps ",self.x_steps ,"\ty steps ",self.y_steps,"\tz steps ",self.z_steps,"\te steps ",self.e_steps
-		print "tx ",self.tx_steps,"\tty ",self.ty_steps,"\ttz ",self.tz_steps,"\tte ",self.te_steps,"\n"
-		
+		#print "dx ", dx,"\tdy ", dy,"\tdz ", dz, "\tde ", de,"\th " , h,"\tt ",t
+		#print "fdx ",fdx,"\tfdy",fdy,"\tfdz",fdz,"\tfde",fde
+		#print "x steps ",self.x_steps ,"\ty steps ",self.y_steps,"\tz steps ",self.z_steps,"\te steps ",self.e_steps
+		#print "tx ",self.tx_steps,"\tty ",self.ty_steps,"\ttz ",self.tz_steps,"\tte ",self.te_steps,"\n"
+
+	def heatbed_parser(self,Gline) :
+		Glist = Gline.split()
+		for parameter in Glist :
+			if "S" in parameter :
+				parameter = parameter[1:]
+				self.bed_t = float(parameter)
+		#print Glist
+		#print "s ",self.bed_t
+
+	def extheat_parser(self,Gline) :
+		Glist = Gline.split()
+		for parameter in Glist :
+			if "S" in parameter :
+				parameter = parameter[1:]
+				self.ext_t = float(parameter)
+		#print Glist
+		#print "ext s ",self.ext_t
+
+	def get_X_req(self) :
+		return [int(round(self.x_steps)) , int(round(self.tx_steps))]
+
+	def get_Y_req(self) :
+		return [int(round(self.y_steps)) , int(round(self.ty_steps))]
+
+	def get_Z_req(self) :
+		return [int(round(self.z_steps)) , int(round(self.tz_steps))]
+
+	def get_E_req(self) :
+		return [int(round(self.e_steps)) , int(round(self.te_steps))]
+
+	def get_heatbed_req(self) :
+		return int(round(self.bed_t))
+
+	def get_EXTheat_req(self) :
+		return int(round(self.ext_t))
+
