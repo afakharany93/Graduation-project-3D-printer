@@ -28,7 +28,7 @@ cp example.py $TARGET_DIR/example.py
 cp gcode.py $TARGET_DIR/gcode.py
 cp Gcode.py $TARGET_DIR/Gcode.py
 cp MidMan.py $TARGET_DIR/MidMan.py
-cp gcode-ex.py $TARGET_DIR/gcode-ex.py
+cp gcode-ex $TARGET_DIR/gcode-ex
 
 echo "Copying shared object file to /usr/lib/..."
 
