@@ -30,12 +30,12 @@ if M.is_valid():
 				elif line.find("M104") != -1:
 					G.extheat_parser(line)
 
-				print G.get_X_req()
-				print G.get_Y_req()
-				print G.get_Z_req()
-				print G.get_E_req()
-				print G.get_heatbed_req()
-				print G.get_EXTheat_req()
+				M.fill_Xdata( G.get_X_req() )
+				M.fill_Ydata( G.get_Y_req() )
+				M.fill_Zdata( G.get_Z_req() )
+				M.fill_Edata( G.get_E_req() )
+				M.fill_heatbed_data( G.get_heatbed_req() )
+				M.fill_ext_heat_data( G.get_EXTheat_req() )
 else :
-	print "Error"			
+	print "Error, won't print"			
 

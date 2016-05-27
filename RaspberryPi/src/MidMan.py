@@ -10,7 +10,14 @@ class MidMan :
 
 	def __init__(self):
 		self.valid = 1
-		
+
+		self.Xlist = []
+		self.Ylist = []
+		self.Zlist = []
+		self.Elist = []
+		self.heatbed_t = 0
+		self.ext_heat = 0
+		#check validity
 		if MidMan.X.isValid() :
 			self.valid = self.valid * self.valid
 		else :
@@ -31,3 +38,21 @@ class MidMan :
 
 	def is_valid (self) :
 		return self.valid
+
+	def fill_Xdata(self, lst) :
+		self.Xlist = lst
+
+	def fill_Ydata(self, lst) :
+		self.Ylist = lst
+
+	def fill_Zdata(self, lst) :
+		self.Zlist = lst
+
+	def fill_Edata(self, lst) :
+		self.Elist = lst
+
+	def fill_heatbed_data(self, var) :
+		self.heatbed_t = var
+
+	def fill_ext_heat_data(self, var) :
+		self.ext_heat = var
