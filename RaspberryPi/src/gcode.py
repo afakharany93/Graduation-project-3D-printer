@@ -18,6 +18,7 @@ G = Gcode()
 if M.is_valid():
 	with open("gcode-ex","r") as f:
 		for line in f:
+			print line
 			if accepted_line(line):
 				if line.find("G0") != -1 :
 					G.motion_parser(line)
@@ -43,7 +44,7 @@ if M.is_valid():
 				else :
 					print "smth wrong"
 
-				M.Detach()
+				M.Detach_machine()
 else :
 	print "Error, won't print"			
 

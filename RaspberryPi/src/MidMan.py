@@ -86,10 +86,11 @@ class MidMan :
 		else :
 			return False
 
-	def Detach(self) :
+	def Detach_machine(self) :
 		MidMan.X.detach()
 		MidMan.Y.detach()
 		MidMan.Z.detach()
 		MidMan.X.stopDaemon()
 		MidMan.Y.stopDaemon()
 		MidMan.Z.stopDaemon()
+		
