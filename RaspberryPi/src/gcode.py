@@ -43,6 +43,7 @@ if M.is_valid():
 					print "cool"
 				else :
 					print "smth wrong"
+					break
 
 		M.Detach_machine()
 else :
