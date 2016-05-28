@@ -47,5 +47,6 @@ if M.is_valid():
 
 		M.Detach_machine()
 else :
-	print "Error, won't print"			
+	print "Error, won't print"	
+	M.Detach_machine()		
 

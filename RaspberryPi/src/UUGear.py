@@ -209,7 +209,6 @@ class UUGearDevice(object):
 
 	def ext_stepper_time_bet_steps(self, time_us):
 		if self.isValid():
-			time_us = time_us / 95
 			return uugearlib.ext_stepper_time_bet_steps(byref(self.devProfile), time_us)
 		else :
 			return -1

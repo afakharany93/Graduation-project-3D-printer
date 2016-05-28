@@ -127,22 +127,22 @@ class MidMan :
 	def send_Edata(self) :
 		if self.Elist[0] != 0 :
 			#send time between steps
-			res = MidMan.Z.stepper_time_bet_steps(self.Elist[1])
+			res = MidMan.Z.ext_stepper_time_bet_steps(self.Elist[1])
 			#if no valid response try again
 			if res == -1 or res != 47 :
-				res = MidMan.Z.stepper_time_bet_steps(self.Elist[1])
+				res = MidMan.Z.ext_stepper_time_bet_steps(self.Elist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in E axis"
+					print "Error sending ext_stepper_time_bet_steps. Hint: check if stepper module is properly defined in E axis"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
-			res1 = MidMan.Z.stepper_move(self.Elist[0])
+			res1 = MidMan.Z.ext_stepper_move(self.Elist[0])
 			#if no valid response try again
 			if res1 == -1 or res1 != 47 :
-				res1 = MidMan.Z.stepper_move(self.Elist[0])
+				res1 = MidMan.Z.ext_stepper_move(self.Elist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending stepper_move. Hint: check if stepper module is properly defined in E axis"
+					print "Error sending ext_stepper_move. Hint: check if stepper module is properly defined in E axis"
 					return False
 		return True
 
