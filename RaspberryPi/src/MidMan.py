@@ -73,7 +73,7 @@ class MidMan :
 				res1 = MidMan.X.stepper_move(self.Xlist[0])
 				#if no valid response try again
 				if res1 == -1 or res1 != 47 :
-				res1 = MidMan.X.stepper_move(self.Xlist[0])
+					res1 = MidMan.X.stepper_move(self.Xlist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
 					print "Error sending stepper_move. Hint: check if stepper module is properly defined in X axis"
