@@ -44,7 +44,7 @@ if M.is_valid():
 				else :
 					print "smth wrong"
 
-				M.Detach_machine()
+		M.Detach_machine()
 else :
 	print "Error, won't print"			
 
