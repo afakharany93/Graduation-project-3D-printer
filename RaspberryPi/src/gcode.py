@@ -18,8 +18,8 @@ G = Gcode()
 if M.is_valid():
 	with open("gcode-ex","r") as f:
 		for line in f:
-			print line
 			if accepted_line(line):
+				print line
 				if line.find("G0") != -1 :
 					G.motion_parser(line)
 					G.motion_calc()
