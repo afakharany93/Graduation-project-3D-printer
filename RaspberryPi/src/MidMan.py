@@ -85,3 +85,11 @@ class MidMan :
 			return True
 		else :
 			return False
+
+	def Detach(self) :
+		MidMan.X.detach()
+		MidMan.Y.detach()
+		MidMan.Z.detach()
+		MidMan.X.stopDaemon()
+		MidMan.Y.stopDaemon()
+		MidMan.z.stopDaemon()

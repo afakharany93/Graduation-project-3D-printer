@@ -42,6 +42,8 @@ if M.is_valid():
 					print "cool"
 				else :
 					print "smth wrong"
+
+				M.Detach()
 else :
 	print "Error, won't print"			
 
