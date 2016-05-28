@@ -80,8 +80,52 @@ class MidMan :
 					return False
 		return True
 
+	def send_Ydata(self) :
+		if self.Ylist[0] != 0 :
+			#send time between steps
+			res = MidMan.Y.stepper_time_bet_steps(self.Ylist[1])
+			#if no valid response try again
+			if res == -1 or res != 47 :
+				res = MidMan.Y.stepper_time_bet_steps(self.Ylist[1])
+				#if again no valid response, flag an error
+				if res == -1 or res != 47 :
+					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Y axis"
+					return False
+			#if time between steps is sent properly then proceed to send the number of steps
+			res1 = MidMan.Y.stepper_move(self.Ylist[0])
+			#if no valid response try again
+			if res1 == -1 or res1 != 47 :
+				res1 = MidMan.Y.stepper_move(self.Ylist[0])
+				#if again no valid response, flag an error
+				if res1 == -1 or res1 != 47 :
+					print "Error sending stepper_move. Hint: check if stepper module is properly defined in Y axis"
+					return False
+		return True
+
+	def send_Zdata(self) :
+		if self.Zlist[0] != 0 :
+			#send time between steps
+			res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
+			#if no valid response try again
+			if res == -1 or res != 47 :
+				res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
+				#if again no valid response, flag an error
+				if res == -1 or res != 47 :
+					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Z axis"
+					return False
+			#if time between steps is sent properly then proceed to send the number of steps
+			res1 = MidMan.Z.stepper_move(self.Zlist[0])
+			#if no valid response try again
+			if res1 == -1 or res1 != 47 :
+				res1 = MidMan.Z.stepper_move(self.Zlist[0])
+				#if again no valid response, flag an error
+				if res1 == -1 or res1 != 47 :
+					print "Error sending stepper_move. Hint: check if stepper module is properly defined in Z axis"
+					return False
+		return True
+
 	def machine_control(self) :
-		if self.send_Xdata() :
+		if self.send_Xdata() and self.send_Ydata() and self.send_Zdata() :
 			return True
 		else :
 			return False
