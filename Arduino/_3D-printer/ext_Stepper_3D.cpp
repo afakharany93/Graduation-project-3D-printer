@@ -1,6 +1,7 @@
 #include "ext_Stepper_3D.h"
 #include "Arduino.h"
 
+#if EXTRUDER
 
 ext_stepper_3d::ext_stepper_3d()
 {
@@ -300,3 +301,4 @@ char * ext_stepper_3d::stepper_status()
 	return (char *) buff;
 }
 
+#endif

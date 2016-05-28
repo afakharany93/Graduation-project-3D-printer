@@ -18,6 +18,10 @@ Pin 46, 45 and 44:: controlled by timer 5
 #ifndef _EXT_STEPPER_3D_
 #define _EXT_STEPPER_3D_
 
+#define EXTRUDER  0
+
+#if EXTRUDER
+
 #include "Arduino.h"
 #include "Stepper_3D.h"
 #include <avr/interrupt.h>
@@ -230,6 +234,6 @@ class ext_stepper_3d
 		void timer5_setup (struct timer5_value *timer5_value_lookup_table_ptr , unsigned long int time_bet_steps);
 };
 
-
+#endif
 
 #endif 

@@ -36,6 +36,12 @@ if M.is_valid():
 				M.fill_Edata( G.get_E_req() )
 				M.fill_heatbed_data( G.get_heatbed_req() )
 				M.fill_ext_heat_data( G.get_EXTheat_req() )
+
+				machine = M.machine_control()
+				if machine :
+					print "cool"
+				else :
+					print "smth wrong"
 else :
 	print "Error, won't print"			
 

@@ -4,36 +4,37 @@ from UUGear import *
 UUGearDevice.setShowLogs(0)
 
 class MidMan :
-	X = UUGearDevice('UUGear-Arduino-4713-9982')
-	Y = UUGearDevice('UUGear-Arduino-4713-9982')
-	Z = UUGearDevice('UUGear-Arduino-4713-9982')
+	X = UUGearDevice('UUGear-Arduino-1239-9170')
+	Y = UUGearDevice('UUGear-Arduino-3167-3008')
+	Z = UUGearDevice('UUGear-Arduino-5658-7598')
 
 	def __init__(self):
 		self.valid = 1
 
-		self.Xlist = []
-		self.Ylist = []
-		self.Zlist = []
-		self.Elist = []
+		self.Xlist = [0,0]
+		self.Ylist = [0,0]
+		self.Zlist = [0,0]
+		self.Elist = [0,0]
 		self.heatbed_t = 0
 		self.ext_heat = 0
+		self.exec_time = 0
 		#check validity
 		if MidMan.X.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "X axis isn't correctly initialized"
+			print "X axis isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 		if MidMan.Y.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "Y axis isn't correctly initialized"
+			print "Y axis isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 		if MidMan.Z.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "Z axis isn't correctly initialized"
+			print "Z axis isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 	def is_valid (self) :
@@ -56,3 +57,31 @@ class MidMan :
 
 	def fill_ext_heat_data(self, var) :
 		self.ext_heat = var
+
+	def send_Xdata(self) :
+		if self.Xlist[0] != 0 :
+			#send time between steps
+			res = MidMan.X.stepper_time_bet_steps(self.Xlist[1])
+			#if no valid response try again
+			if res == -1 or res != 47 :
+				res = MidMan.X.stepper_time_bet_steps(self.Xlist[1])
+				#if again no valid response, flag an error
+				if res == -1 or res != 47 :
+					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in X axis"
+					return False
+			else : #if time between steps is sent properly then proceed to send the number of steps
+				res1 = MidMan.X.stepper_move(self.Xlist[0])
+				#if no valid response try again
+				if res1 == -1 or res1 != 47 :
+				res1 = MidMan.X.stepper_move(self.Xlist[0])
+				#if again no valid response, flag an error
+				if res1 == -1 or res1 != 47 :
+					print "Error sending stepper_move. Hint: check if stepper module is properly defined in X axis"
+					return False
+		return True
+
+	def machine_control(self) :
+		if self.send_Xdata() :
+			return True
+		else :
+			return False

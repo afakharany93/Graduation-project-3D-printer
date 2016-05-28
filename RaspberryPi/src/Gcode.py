@@ -4,6 +4,7 @@ class Gcode :
 	def __init__(self):
 		
 		self.f = 0.0	#mm/sec
+		self.t = 0.0	#sec
 		#current absolute values
 		self.x = 0.0	#mm
 		self.y = 0.0	#mm
@@ -64,12 +65,12 @@ class Gcode :
 		h = math.pow(dx,2) + math.pow(dy,2) + math.pow(dz,2)
 		h = math.sqrt(h)
 		#calculate time of motion
-		t = h / self.f		#sec
+		self.t = h / self.f		#sec
 		#calculate feed on every axis
-		fdx = dx / t		#mm/sec
-		fdy = dy / t		#mm/sec
-		fdz = dz / t		#mm/sec
-		fde = de / t		#mm/sec
+		fdx = dx / self.t		#mm/sec
+		fdy = dy / self.t		#mm/sec
+		fdz = dz / self.t		#mm/sec
+		fde = de / self.t		#mm/sec
 		#calculate number of steps per axis
 		self.x_steps = dx / self.d
 		self.y_steps = dy / self.d 
@@ -138,4 +139,7 @@ class Gcode :
 
 	def get_EXTheat_req(self) :
 		return int(round(self.ext_t))
+
+	def get_exec_time(self) :
+		return int(round(self.t * 1000)) #millisecond
 
