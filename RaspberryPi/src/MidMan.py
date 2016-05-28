@@ -92,4 +92,4 @@ class MidMan :
 		MidMan.Z.detach()
 		MidMan.X.stopDaemon()
 		MidMan.Y.stopDaemon()
-		MidMan.z.stopDaemon()
+		MidMan.Z.stopDaemon()
