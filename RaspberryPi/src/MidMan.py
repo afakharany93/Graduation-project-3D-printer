@@ -4,9 +4,9 @@ from UUGear import *
 UUGearDevice.setShowLogs(0)
 
 class MidMan :
-	X = UUGearDevice('UUGear-Arduino-1239-9170')
-	Y = UUGearDevice('UUGear-Arduino-3167-3008')
-	Z = UUGearDevice('UUGear-Arduino-5658-7598')
+	X = UUGearDevice('UUGear-Arduino-1239-9170')	#X axis stepper and extruder heater
+	Y = UUGearDevice('UUGear-Arduino-3167-3008')	#Y axis stepper and heatbed
+	Z = UUGearDevice('UUGear-Arduino-5658-7598')	#Z axis stepper and extruder stepper
 
 	def __init__(self):
 		self.valid = 1
@@ -16,7 +16,9 @@ class MidMan :
 		self.Zlist = [0,0]
 		self.Elist = [0,0]
 		self.heatbed_t = 0
+		self.old_heatbed_t = 0
 		self.ext_heat = 0
+		self.old_ext_heat = 0
 		self.exec_time = 0
 		#check validity
 		if MidMan.X.isValid() :
@@ -142,12 +144,40 @@ class MidMan :
 				res1 = MidMan.Z.ext_stepper_move(self.Elist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending ext_stepper_move. Hint: check if stepper module is properly defined in E axis"
+					print "Error sending ext_stepper_move. Hint: check if stepper module is properly defined in Z axis"
 					return False
 		return True
 
+	def send_heatbed_t(self) :
+		if (self.heatbed_t - self.old_heatbed_t) != 0 :
+			#send heatbed temperature
+			res = MidMan.Y.heatbed_set_temp(self.heatbed_t)
+			#if no valid response try again
+			if res == -1 or res != 47 :
+				res = MidMan.Y.heatbed_set_temp(self.heatbed_t)
+				#if again no valid response, flag an error
+				if res == -1 or res != 47 :
+					print "Error sending heatbed_set_temp. Hint: check if heatbed module is properly defined in Y axis"
+					return False
+		self.old_heatbed_t = self.heatbed_t
+		return True
+
+	def send_ext_t(self) :
+		if (self.ext_heat - self.old_ext_heat) != 0 :
+			#send heatbed temperature
+			res = MidMan.X.ext_heat_set_temp(self.ext_heat)
+			#if no valid response try again
+			if res == -1 or res != 47 :
+				res = MidMan.X.ext_heat_set_temp(self.ext_heat)
+				#if again no valid response, flag an error
+				if res == -1 or res != 47 :
+					print "Error sending ext_heat_set_temp. Hint: check if extruder heat module is properly defined in X axis"
+					return False
+		self.old_ext_heat = self.ext_heat
+		return True
+
 	def machine_control(self) :
-		if self.send_Xdata() and self.send_Ydata() and self.send_Zdata() and self.send_Edata() :
+		if self.send_Xdata() and self.send_Ydata() and self.send_Zdata() and self.send_Edata() and self.send_heatbed_t() and self.send_ext_t() :
 			return True
 		else :
 			return False

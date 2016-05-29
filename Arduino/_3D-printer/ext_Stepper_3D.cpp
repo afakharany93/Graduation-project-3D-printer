@@ -2,7 +2,7 @@
 #include "Arduino.h"
 
 #if EXTRUDER
-
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__)	//if arduino mega is used
 ext_stepper_3d::ext_stepper_3d()
 {
 	current_state = stepper_states[0];
@@ -300,5 +300,5 @@ char * ext_stepper_3d::stepper_status()
 	x = sprintf(buff, "Status %d, t_bet_steps %lu, remain_steps %ld",status_var , time_bet_steps_us, steps);
 	return (char *) buff;
 }
-
+#endif
 #endif
