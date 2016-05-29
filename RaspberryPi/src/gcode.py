@@ -1,5 +1,7 @@
 from MidMan import *
 from Gcode import *
+import atexit
+
 
 def accepted_line(txt) :
 	if txt.find("G0") != -1 :
@@ -15,6 +17,7 @@ def accepted_line(txt) :
 
 M = MidMan()
 G = Gcode()
+atexit.register(M.Detach_machine())
 if M.is_valid():
 	with open("gcode-ex","r") as f:
 		for line in f:
@@ -45,8 +48,6 @@ if M.is_valid():
 					print "smth wrong"
 					break
 
-		M.Detach_machine()
 else :
 	print "Error, won't print"	
-	M.Detach_machine()		
 
