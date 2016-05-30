@@ -3,6 +3,7 @@ from Gcode import *
 import os
 fileName = "gcode-ex"
 fileSize = os.path.getsize(fileName)
+print fileSize
 
 def accepted_line(txt) :
 	if txt.find("G0") != -1 :

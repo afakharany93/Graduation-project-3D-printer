@@ -210,16 +210,17 @@ class MidMan :
 					print "Error Away endstop pressed in X axis. Hint: check print space dimensions in the slicer software"
 					return False
 				if "remain_steps" in parameter :
+					print "aha"
 					lst = parameter.split()
 					self.Xremain_steps = int(lst[1])
 				if "t_bet_steps" in parameter :
 					lst = parameter.split()
 					self.Xt_bet_steps_stat = int(lst[1])
-				if 'Stepper is moving' in parameter :
-					return True
-				if 'Stepper has ended motion' in parameter :
-					return True
-
+				#if 'Stepper is moving' in parameter :
+					
+				#if 'Stepper has ended motion' in parameter :
+					
+			return True
 
 		else :
 			return True
