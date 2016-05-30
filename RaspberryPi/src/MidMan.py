@@ -333,7 +333,7 @@ class MidMan :
 		#get heatbed status
 		res = MidMan.Y.heatbed_status()
 		#if no valid response try again
-		if res == -1 or res != 47 :
+		if res == -1 :
 			res = MidMan.Y.heatbed_status()
 			#if again no valid response, flag an error
 			if res == -1 or res != 47 :
@@ -353,7 +353,7 @@ class MidMan :
 		#get heatbed status
 		res = MidMan.X.ext_heat_status()
 		#if no valid response try again
-		if res == -1 or res != 47 :
+		if res == -1 :
 			res = MidMan.X.ext_heat_status()
 			#if again no valid response, flag an error
 			if res == -1 or res != 47 :
