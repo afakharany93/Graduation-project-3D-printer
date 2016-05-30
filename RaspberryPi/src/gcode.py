@@ -26,6 +26,9 @@ progress = 0
 if M.is_valid():
 	with open(fileName,"r") as f:
 		for line in f:
+			progress = progress + len(line)
+        	progressPercent = (100.0*progress)/fileSize
+        	print "progress:",progressPercent
 			if accepted_line(line):
 				print line
 				if line.find("G0") != -1 :
@@ -54,9 +57,7 @@ if M.is_valid():
 					print "smth wrong"
 					break
 
-			progress = progress + len(line)
-        	progressPercent = (100.0*progress)/fileSize
-        	print "progress:",progressPercent
+			
 
 		M.Detach_machine()
 else :
