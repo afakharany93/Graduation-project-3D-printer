@@ -213,10 +213,12 @@ class MidMan :
 					return False
 				if "remain_steps" in parameter :
 					lst = parameter.split()
-					self.Xremain_steps = int(lst[1])
+					if lst[1].isdigit() :
+						self.Xremain_steps = int(lst[1])
 				if "t_bet_steps" in parameter :
 					lst = parameter.split()
-					self.Xt_bet_steps_stat = int(lst[1])
+					if lst[1].isdigit() :
+						self.Xt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
 				#if 'Stepper has ended motion' in parameter :
@@ -249,10 +251,12 @@ class MidMan :
 					return False
 				if "remain_steps" in parameter :
 					lst = parameter.split()
-					self.Yremain_steps = int(lst[1])
+					if lst[1].isdigit() :
+						self.Yremain_steps = int(lst[1])
 				if "t_bet_steps" in parameter :
 					lst = parameter.split()
-					self.Yt_bet_steps_stat = int(lst[1])
+					if lst[1].isdigit() :
+						self.Yt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
 				#if 'Stepper has ended motion' in parameter :
@@ -285,10 +289,12 @@ class MidMan :
 					return False
 				if "remain_steps" in parameter :
 					lst = parameter.split()
-					self.Zremain_steps = int(lst[1])
+					if lst[1].isdigit() :
+						self.Zremain_steps = int(lst[1])
 				if "t_bet_steps" in parameter :
 					lst = parameter.split()
-					self.Zt_bet_steps_stat = int(lst[1])
+					if lst[1].isdigit() :
+						self.Zt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
 				#if 'Stepper has ended motion' in parameter :
@@ -315,10 +321,12 @@ class MidMan :
 			for parameter in statusList :
 				if "remain_steps" in parameter :
 					lst = parameter.split()
-					self.Eremain_steps = int(lst[1])
+					if lst[1].isdigit() :
+						self.Eremain_steps = int(lst[1])
 				if "t_bet_steps" in parameter :
 					lst = parameter.split()
-					self.Et_bet_steps_stat = int(lst[1])
+					if lst[1].isdigit() :
+						self.Et_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
 				#if 'Stepper has ended motion' in parameter :
@@ -345,7 +353,8 @@ class MidMan :
 		for parameter in statusList :
 			if "temp(c)" in parameter :
 				lst = parameter.split()
-				self.heatbed_t_stat = int(lst[1])
+				if lst[1].isdigit() :
+					self.heatbed_t_stat = int(lst[1])
 		return True
 
 
@@ -365,7 +374,8 @@ class MidMan :
 		for parameter in statusList :
 			if "ext_temp(c)" in parameter :
 				lst = parameter.split()
-				self.ext_t_stat = int(lst[1])
+				if lst[1].isdigit() :
+					self.ext_t_stat = int(lst[1])
 		return True
 
 	def machine_control(self) :
