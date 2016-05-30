@@ -29,6 +29,8 @@ class MidMan :
 		self.Yt_bet_steps_stat = 0 
 		self.Zt_bet_steps_stat = 0
 		self.Et_bet_steps_stat = 0
+		self.heatbed_t_stat = 0
+		self.ext_t_stat = 0
 		#check validity
 		if MidMan.X.isValid() :
 			self.valid = self.valid * self.valid
@@ -326,6 +328,44 @@ class MidMan :
 		else :
 			return True
 
+		def monitor_heatbed_status(self) :
+		#get heatbed status
+		res = MidMan.Y.heatbed_status()
+		#if no valid response try again
+		if res == -1 or res != 47 :
+			res = MidMan.Y.heatbed_status()
+			#if again no valid response, flag an error
+			if res == -1 or res != 47 :
+				print "Error getting heatbed_status. Hint: check if heatbed module is properly defined in Y axis controller"
+				return False
+		#process heatbed status
+		print res
+		statusList = res.split(",")
+		for parameter in statusList :
+			if "temp(c)" in parameter :
+				lst = parameter.split()
+				self.heatbed_t_stat = int(lst[1])
+		return True
+
+		def monitor_ext_h_status(self) :
+		#get heatbed status
+		res = MidMan.X.ext_heat_status()
+		#if no valid response try again
+		if res == -1 or res != 47 :
+			res = MidMan.X.ext_heat_status()
+			#if again no valid response, flag an error
+			if res == -1 or res != 47 :
+				print "Error getting ext_heat_status. Hint: check if extruder heat module is properly defined in X axis controller"
+				return False
+		#process heatbed status
+		print res
+		statusList = res.split(",")
+		for parameter in statusList :
+			if "ext_temp(c)" in parameter :
+				lst = parameter.split()
+				self.ext_t_stat = int(lst[1])
+		return True
+
 	def machine_control(self) :
 		if not (self.send_Xdata() and self.send_Ydata() and self.send_Zdata() and self.send_Edata() and self.send_heatbed_t() and self.send_ext_t() ):
 			return False
@@ -333,7 +373,23 @@ class MidMan :
 			ret = self.monitor_Xstatus()
 			if not(ret) :
 				return False
-			while (self.Xremain_steps != 0 or self.Yremain_steps != 0 or self.Zremain_steps != 0 or self.Eremain_steps != 0 ) :
+			ret = self.monitor_Ystatus()
+			if not(ret) :
+				return False
+			ret = self.monitor_Zstatus()
+			if not(ret) :
+				return False
+			ret = self.monitor_Estatus()
+			if not(ret) :
+				return False
+			ret = self.monitor_heatbed_status()
+			if not(ret) :
+				return False
+			ret = self.monitor_ext_h_status()
+			if not(ret) :
+				return False
+			while (self.Xremain_steps != 0 or self.Yremain_steps != 0 or self.Zremain_steps != 0 or self.Eremain_steps != 0 or 
+				self.heatbed_t_stat < (self.heatbed_t * 0.9) or self.ext_t_stat < (self.ext_heat * 0.85) ) :
 				ret = self.monitor_Xstatus()
 				if not(ret) :
 					return False
@@ -344,6 +400,12 @@ class MidMan :
 				if not(ret) :
 					return False
 				ret = self.monitor_Estatus()
+				if not(ret) :
+					return False
+				ret = self.monitor_heatbed_status()
+				if not(ret) :
+					return False
+				ret = self.monitor_ext_h_status()
 				if not(ret) :
 					return False
 				sleep(0.05)

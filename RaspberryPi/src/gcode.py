@@ -56,6 +56,8 @@ if M.is_valid():
 			progress = progress + len(line)
 			progressPercent = (100.0*progress)/fileSize
 			print "progress:",progressPercent
+			if progressPercent == 100 :
+				print "End of print, please wait at least 10 minutes till all the heaters cool down before getting your print \nEnjoy :)"
 			
 
 		M.Detach_machine()

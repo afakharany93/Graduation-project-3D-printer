@@ -100,6 +100,8 @@ class UUGearDevice(object):
 									5 : 'Stepper is flowing'}
 
 		self.endstop_status_dict = {0 : 'No endstops pressed', 1 : 'Home endstop pressed', 2 : 'Away endstop pressed'}
+		self.ext_heat_dict = {1 : "heatbed active", 2 : "heatbed inactive"}
+		self.heatbed_dict = {1 : "extHeat active", 2 : "extHeat inactive"}
 		
 	def isValid(self):
 		return self.devProfile != None and self.devProfile.fd != -1
@@ -178,12 +180,18 @@ class UUGearDevice(object):
 	def heatbed_status (self)	:
 		if self.isValid():
 			buf =  uugearlib.heatbed_status(byref(self.devProfile))
+			if buf.find("Status 10") != -1 :
+				buf = buf.replace("10", self.heatbed_dict[1], 1)
+			elif buf.find("Status 20") != -1 :
+				buf = buf.replace("20", self.heatbed_dict[2], 1)
 			return buf
 		else :
 			return -1
 
 	def heatbed_set_temp(self, temp):
 		if self.isValid():
+			if temp == 0:
+				temp = 1
 			return uugearlib.heatbed_set_temp(byref(self.devProfile), temp)
 		else :
 			return -1
@@ -191,12 +199,18 @@ class UUGearDevice(object):
 	def ext_heat_status (self)	:
 		if self.isValid():
 			buf =  uugearlib.ext_heat_status(byref(self.devProfile))
+			if buf.find("Status 30") != -1 :
+				buf = buf.replace("30", self.ext_heat_dict[1], 1)
+			elif buf.find("Status 40") != -1 :
+				buf = buf.replace("40", self.ext_heat_dict[2], 1)
 			return buf
 		else :
 			return -1
 
 	def ext_heat_set_temp(self, temp):
 		if self.isValid():
+			if temp == 0:
+				temp = 1
 			return uugearlib.ext_heat_set_temp(byref(self.devProfile), temp)
 		else :
 			return -1
