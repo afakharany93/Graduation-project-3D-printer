@@ -210,12 +210,113 @@ class MidMan :
 					print "Error Away endstop pressed in X axis. Hint: check print space dimensions in the slicer software"
 					return False
 				if "remain_steps" in parameter :
-					print "aha"
 					lst = parameter.split()
 					self.Xremain_steps = int(lst[1])
 				if "t_bet_steps" in parameter :
 					lst = parameter.split()
 					self.Xt_bet_steps_stat = int(lst[1])
+				#if 'Stepper is moving' in parameter :
+					
+				#if 'Stepper has ended motion' in parameter :
+					
+			return True
+
+		else :
+			return True
+
+	def monitor_Ystatus(self) :
+		if self.Ylist[0] != 0 :
+			#get stepper status
+			res = MidMan.Y.stepper_status()
+			#if no valid response try again
+			if res == -1 :
+				res = MidMan.Y.stepper_status()
+				#if again no valid response, flag an error
+				if res == -1 :
+					print "Error getting stepper_status. Hint: check if stepper module is properly defined in Y axis controller"
+					return False
+			#process stepper status
+			print res
+			statusList = res.split(",")
+			for parameter in statusList :
+				if 'Home endstop pressed' in parameter :
+					print "Error Home endstop pressed in Y axis. Hint: check print space dimensions in the slicer software"
+					return False
+				if 'Away endstop pressed' in parameter :
+					print "Error Away endstop pressed in Y axis. Hint: check print space dimensions in the slicer software"
+					return False
+				if "remain_steps" in parameter :
+					lst = parameter.split()
+					self.Yremain_steps = int(lst[1])
+				if "t_bet_steps" in parameter :
+					lst = parameter.split()
+					self.Yt_bet_steps_stat = int(lst[1])
+				#if 'Stepper is moving' in parameter :
+					
+				#if 'Stepper has ended motion' in parameter :
+					
+			return True
+
+		else :
+			return True
+
+	def monitor_Zstatus(self) :
+		if self.Zlist[0] != 0 :
+			#get stepper status
+			res = MidMan.Z.stepper_status()
+			#if no valid response try again
+			if res == -1 :
+				res = MidMan.Z.stepper_status()
+				#if again no valid response, flag an error
+				if res == -1 :
+					print "Error getting stepper_status. Hint: check if stepper module is properly defined in Z axis controller"
+					return False
+			#process stepper status
+			print res
+			statusList = res.split(",")
+			for parameter in statusList :
+				if 'Home endstop pressed' in parameter :
+					print "Error Home endstop pressed in Z axis. Hint: check print space dimensions in the slicer software"
+					return False
+				if 'Away endstop pressed' in parameter :
+					print "Error Away endstop pressed in Z axis. Hint: check print space dimensions in the slicer software"
+					return False
+				if "remain_steps" in parameter :
+					lst = parameter.split()
+					self.Zremain_steps = int(lst[1])
+				if "t_bet_steps" in parameter :
+					lst = parameter.split()
+					self.Zt_bet_steps_stat = int(lst[1])
+				#if 'Stepper is moving' in parameter :
+					
+				#if 'Stepper has ended motion' in parameter :
+					
+			return True
+
+		else :
+			return True
+
+	def monitor_Estatus(self) :
+		if self.Elist[0] != 0 :
+			#get stepper status
+			res = MidMan.Z.ext_stepper_status()
+			#if no valid response try again
+			if res == -1 :
+				res = MidMan.Z.ext_stepper_status()
+				#if again no valid response, flag an error
+				if res == -1 :
+					print "Error getting ext_stepper_status. Hint: check if extruder stepper module is properly defined in Z axis controller"
+					return False
+			#process stepper status
+			print res
+			statusList = res.split(",")
+			for parameter in statusList :
+				if "remain_steps" in parameter :
+					lst = parameter.split()
+					self.Eremain_steps = int(lst[1])
+				if "t_bet_steps" in parameter :
+					lst = parameter.split()
+					self.Et_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
 				#if 'Stepper has ended motion' in parameter :
@@ -232,9 +333,17 @@ class MidMan :
 			ret = self.monitor_Xstatus()
 			if not(ret) :
 				return False
-			while (self.Xremain_steps != 0) :
-				print self.Xremain_steps
+			while (self.Xremain_steps != 0 or self.Yremain_steps != 0 or self.Zremain_steps != 0 or self.Eremain_steps != 0 ) :
 				ret = self.monitor_Xstatus()
+				if not(ret) :
+					return False
+				ret = self.monitor_Ystatus()
+				if not(ret) :
+					return False
+				ret = self.monitor_Zstatus()
+				if not(ret) :
+					return False
+				ret = self.monitor_Estatus()
 				if not(ret) :
 					return False
 				sleep(0.05)
