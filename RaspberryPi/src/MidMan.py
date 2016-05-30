@@ -336,7 +336,7 @@ class MidMan :
 		if res == -1 :
 			res = MidMan.Y.heatbed_status()
 			#if again no valid response, flag an error
-			if res == -1 or res != 47 :
+			if res == -1 :
 				print "Error getting heatbed_status. Hint: check if heatbed module is properly defined in Y axis controller"
 				return False
 		#process heatbed status
@@ -356,7 +356,7 @@ class MidMan :
 		if res == -1 :
 			res = MidMan.X.ext_heat_status()
 			#if again no valid response, flag an error
-			if res == -1 or res != 47 :
+			if res == -1 :
 				print "Error getting ext_heat_status. Hint: check if extruder heat module is properly defined in X axis controller"
 				return False
 		#process heatbed status
