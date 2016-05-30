@@ -329,42 +329,42 @@ class MidMan :
 			return True
 
 		def monitor_heatbed_status(self) :
-		#get heatbed status
-		res = MidMan.Y.heatbed_status()
-		#if no valid response try again
-		if res == -1 or res != 47 :
+			#get heatbed status
 			res = MidMan.Y.heatbed_status()
-			#if again no valid response, flag an error
+			#if no valid response try again
 			if res == -1 or res != 47 :
-				print "Error getting heatbed_status. Hint: check if heatbed module is properly defined in Y axis controller"
-				return False
-		#process heatbed status
-		print res
-		statusList = res.split(",")
-		for parameter in statusList :
-			if "temp(c)" in parameter :
-				lst = parameter.split()
-				self.heatbed_t_stat = int(lst[1])
-		return True
+				res = MidMan.Y.heatbed_status()
+				#if again no valid response, flag an error
+				if res == -1 or res != 47 :
+					print "Error getting heatbed_status. Hint: check if heatbed module is properly defined in Y axis controller"
+					return False
+			#process heatbed status
+			print res
+			statusList = res.split(",")
+			for parameter in statusList :
+				if "temp(c)" in parameter :
+					lst = parameter.split()
+					self.heatbed_t_stat = int(lst[1])
+			return True
 
 		def monitor_ext_h_status(self) :
-		#get heatbed status
-		res = MidMan.X.ext_heat_status()
-		#if no valid response try again
-		if res == -1 or res != 47 :
+			#get heatbed status
 			res = MidMan.X.ext_heat_status()
-			#if again no valid response, flag an error
+			#if no valid response try again
 			if res == -1 or res != 47 :
-				print "Error getting ext_heat_status. Hint: check if extruder heat module is properly defined in X axis controller"
-				return False
-		#process heatbed status
-		print res
-		statusList = res.split(",")
-		for parameter in statusList :
-			if "ext_temp(c)" in parameter :
-				lst = parameter.split()
-				self.ext_t_stat = int(lst[1])
-		return True
+				res = MidMan.X.ext_heat_status()
+				#if again no valid response, flag an error
+				if res == -1 or res != 47 :
+					print "Error getting ext_heat_status. Hint: check if extruder heat module is properly defined in X axis controller"
+					return False
+			#process heatbed status
+			print res
+			statusList = res.split(",")
+			for parameter in statusList :
+				if "ext_temp(c)" in parameter :
+					lst = parameter.split()
+					self.ext_t_stat = int(lst[1])
+			return True
 
 	def machine_control(self) :
 		if not (self.send_Xdata() and self.send_Ydata() and self.send_Zdata() and self.send_Edata() and self.send_heatbed_t() and self.send_ext_t() ):
