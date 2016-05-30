@@ -1,5 +1,8 @@
 from MidMan import *
 from Gcode import *
+import os
+fileName = "gcode-ex"
+fileSize = os.path.getsize(fileName)
 
 def accepted_line(txt) :
 	if txt.find("G0") != -1 :
@@ -15,8 +18,10 @@ def accepted_line(txt) :
 
 M = MidMan()
 G = Gcode()
+
+progress = 0
 if M.is_valid():
-	with open("gcode-ex","r") as f:
+	with open(fileName,"r") as f:
 		for line in f:
 			if accepted_line(line):
 				print line
@@ -37,6 +42,7 @@ if M.is_valid():
 				M.fill_Edata( G.get_E_req() )
 				M.fill_heatbed_data( G.get_heatbed_req() )
 				M.fill_ext_heat_data( G.get_EXTheat_req() )
+				M.fill_exec_time( G.get_exec_time() )
 
 				machine = M.machine_control()
 				if machine :
@@ -44,6 +50,10 @@ if M.is_valid():
 				else :
 					print "smth wrong"
 					break
+
+				progress = progress + len(line)
+        		progressPercent = (1.0*progress)/fileSize
+        		print "progress:",progressPercent
 
 		M.Detach_machine()
 else :

@@ -51,8 +51,8 @@ class Gcode :
 			elif "E" in parameter :
 				parameter = parameter[1:]
 				self.e = float(parameter)
-		#print Glist
-		#print "f ",self.f,"\tx ", self.x,"\ty ", self.y,"\tz " ,self.z,"\te " ,self.e
+		print Glist
+		print "f ",self.f,"\tx ", self.x,"\ty ", self.y,"\tz " ,self.z,"\te " ,self.e
 
 	def motion_calc (self) :
 		#calculate the deltas
@@ -98,10 +98,10 @@ class Gcode :
 		self.oldz = self.z
 		self.olde = self.e
 
-		#print "dx ", dx,"\tdy ", dy,"\tdz ", dz, "\tde ", de,"\th " , h,"\tt ",t
-		#print "fdx ",fdx,"\tfdy",fdy,"\tfdz",fdz,"\tfde",fde
-		#print "x steps ",self.x_steps ,"\ty steps ",self.y_steps,"\tz steps ",self.z_steps,"\te steps ",self.e_steps
-		#print "tx ",self.tx_steps,"\tty ",self.ty_steps,"\ttz ",self.tz_steps,"\tte ",self.te_steps,"\n"
+		print "dx ", dx,"\tdy ", dy,"\tdz ", dz, "\tde ", de,"\th " , h,"\tt ",t
+		print "fdx ",fdx,"\tfdy",fdy,"\tfdz",fdz,"\tfde",fde
+		print "x steps ",self.x_steps ,"\ty steps ",self.y_steps,"\tz steps ",self.z_steps,"\te steps ",self.e_steps
+		print "tx ",self.tx_steps,"\tty ",self.ty_steps,"\ttz ",self.tz_steps,"\tte ",self.te_steps,"\n"
 
 	def heatbed_parser(self,Gline) :
 		Glist = Gline.split()
@@ -109,8 +109,8 @@ class Gcode :
 			if "S" in parameter :
 				parameter = parameter[1:]
 				self.bed_t = float(parameter)
-		#print Glist
-		#print "s ",self.bed_t
+		print Glist
+		print "s ",self.bed_t
 
 	def extheat_parser(self,Gline) :
 		Glist = Gline.split()
@@ -118,8 +118,8 @@ class Gcode :
 			if "S" in parameter :
 				parameter = parameter[1:]
 				self.ext_t = float(parameter)
-		#print Glist
-		#print "ext s ",self.ext_t
+		print Glist
+		print "ext s ",self.ext_t
 
 	def get_X_req(self) :
 		return [int(round(self.x_steps)) , int(round(self.tx_steps))]

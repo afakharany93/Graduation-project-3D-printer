@@ -19,24 +19,33 @@ class MidMan :
 		self.old_heatbed_t = 0
 		self.ext_heat = 0
 		self.old_ext_heat = 0
-		self.exec_time = 0
+		self.exec_time = 0		#execution time in milliseconds
+
+		self.Xremain_steps = 1
+		self.Yremain_steps = 1
+		self.Zremain_steps = 1
+		self.Eremain_steps = 1
+		self.Xt_bet_steps_stat = 0
+		self.Yt_bet_steps_stat = 0 
+		self.Zt_bet_steps_stat = 0
+		self.Et_bet_steps_stat = 0
 		#check validity
 		if MidMan.X.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "X axis isn't correctly initialized. Hint : check UUgear ID"
+			print "X axis controller isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 		if MidMan.Y.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "Y axis isn't correctly initialized. Hint : check UUgear ID"
+			print "Y axis controller isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 		if MidMan.Z.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "Z axis isn't correctly initialized. Hint : check UUgear ID"
+			print "Z axis controller isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 	def is_valid (self) :
@@ -60,6 +69,9 @@ class MidMan :
 	def fill_ext_heat_data(self, var) :
 		self.ext_heat = var
 
+	def fill_exec_time(self, var) :
+		self.exec_time = var
+
 	def send_Xdata(self) :
 		if self.Xlist[0] != 0 :
 			#send time between steps
@@ -69,7 +81,7 @@ class MidMan :
 				res = MidMan.X.stepper_time_bet_steps(self.Xlist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in X axis"
+					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in X axis controller"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
 			res1 = MidMan.X.stepper_move(self.Xlist[0])
@@ -78,7 +90,7 @@ class MidMan :
 				res1 = MidMan.X.stepper_move(self.Xlist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending stepper_move. Hint: check if stepper module is properly defined in X axis"
+					print "Error sending stepper_move. Hint: check if stepper module is properly defined in X axis controller"
 					return False
 		return True
 
@@ -91,7 +103,7 @@ class MidMan :
 				res = MidMan.Y.stepper_time_bet_steps(self.Ylist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Y axis"
+					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Y axis controller"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
 			res1 = MidMan.Y.stepper_move(self.Ylist[0])
@@ -100,7 +112,7 @@ class MidMan :
 				res1 = MidMan.Y.stepper_move(self.Ylist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending stepper_move. Hint: check if stepper module is properly defined in Y axis"
+					print "Error sending stepper_move. Hint: check if stepper module is properly defined in Y axis controller"
 					return False
 		return True
 
@@ -113,7 +125,7 @@ class MidMan :
 				res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Z axis"
+					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Z axis controller"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
 			res1 = MidMan.Z.stepper_move(self.Zlist[0])
@@ -122,7 +134,7 @@ class MidMan :
 				res1 = MidMan.Z.stepper_move(self.Zlist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending stepper_move. Hint: check if stepper module is properly defined in Z axis"
+					print "Error sending stepper_move. Hint: check if stepper module is properly defined in Z axis controller"
 					return False
 		return True
 
@@ -135,7 +147,7 @@ class MidMan :
 				res = MidMan.Z.ext_stepper_time_bet_steps(self.Elist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending ext_stepper_time_bet_steps. Hint: check if stepper module is properly defined in E axis"
+					print "Error sending ext_stepper_time_bet_steps. Hint: check if extruder stepper module is properly defined in E axis controller"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
 			res1 = MidMan.Z.ext_stepper_move(self.Elist[0])
@@ -144,7 +156,7 @@ class MidMan :
 				res1 = MidMan.Z.ext_stepper_move(self.Elist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending ext_stepper_move. Hint: check if stepper module is properly defined in Z axis"
+					print "Error sending ext_stepper_move. Hint: check if extruder stepper module is properly defined in Z axis controller"
 					return False
 		return True
 
@@ -157,7 +169,7 @@ class MidMan :
 				res = MidMan.Y.heatbed_set_temp(self.heatbed_t)
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending heatbed_set_temp. Hint: check if heatbed module is properly defined in Y axis"
+					print "Error sending heatbed_set_temp. Hint: check if heatbed module is properly defined in Y axis controller"
 					return False
 		self.old_heatbed_t = self.heatbed_t
 		return True
@@ -171,16 +183,61 @@ class MidMan :
 				res = MidMan.X.ext_heat_set_temp(self.ext_heat)
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending ext_heat_set_temp. Hint: check if extruder heat module is properly defined in X axis"
+					print "Error sending ext_heat_set_temp. Hint: check if extruder heat module is properly defined in X axis controller"
 					return False
 		self.old_ext_heat = self.ext_heat
 		return True
 
-	def machine_control(self) :
-		if self.send_Xdata() and self.send_Ydata() and self.send_Zdata() and self.send_Edata() and self.send_heatbed_t() and self.send_ext_t() :
-			return True
+	def monitor_Xstatus(self) :
+		if self.Xlist[0] != 0 :
+			#get stepper status
+			res = MidMan.X.stepper_status()
+			#if no valid response try again
+			if res == -1 :
+				res = MidMan.X.stepper_status()
+				#if again no valid response, flag an error
+				if res == -1 :
+					print "Error getting stepper_status. Hint: check if stepper module is properly defined in X axis controller"
+					return False
+			#process stepper status
+			print res
+			statusList = res.split(",")
+			for parameter in statusList :
+				if 'Home endstop pressed' in parameter :
+					print "Error Home endstop pressed in X axis. Hint: check print space dimensions in the slicer software"
+					return False
+				if 'Away endstop pressed' in parameter :
+					print "Error Away endstop pressed in X axis. Hint: check print space dimensions in the slicer software"
+					return False
+				if "remain_steps" in parameter :
+					lst = parameter.split()
+					self.Xremain_steps = int(lst[1])
+				if "t_bet_steps" in parameter :
+					lst = parameter.split()
+					self.Xt_bet_steps_stat = int(lst[1])
+				if 'Stepper is moving' in parameter :
+					return True
+				if 'Stepper has ended motion' in parameter :
+					return True
+
+
 		else :
+			return True
+
+	def machine_control(self) :
+		if not (self.send_Xdata() and self.send_Ydata() and self.send_Zdata() and self.send_Edata() and self.send_heatbed_t() and self.send_ext_t() ):
 			return False
+		else :
+			ret = self.monitor_Xstatus()
+			if not(ret) :
+				return False
+			while (self.Xremain_steps != 0) :
+				print self.Xremain_steps
+				ret = self.monitor_Xstatus()
+				if not(ret) :
+					return False
+				sleep(0.05)
+			return True
 
 	def Detach_machine(self) :
 		MidMan.X.detach()
