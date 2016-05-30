@@ -1,6 +1,8 @@
 from MidMan import *
 from Gcode import *
 import os
+import sys
+
 fileName = "gcode-ex"
 fileSize = os.path.getsize(fileName)
 print fileSize
@@ -52,9 +54,9 @@ if M.is_valid():
 					print "smth wrong"
 					break
 
-				progress = progress + len(line)
-        		progressPercent = (1.0*progress)/fileSize
-        		print "progress:",progressPercent
+			progress = progress + sys.getsizeof(line)
+        	progressPercent = (100.0*progress)/fileSize
+        	print "progress:",progressPercent
 
 		M.Detach_machine()
 else :
