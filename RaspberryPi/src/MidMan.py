@@ -328,6 +328,7 @@ class MidMan :
 		else :
 			return True
 
+
 	def monitor_heatbed_status(self) :
 		#get heatbed status
 		res = MidMan.Y.heatbed_status()
@@ -346,6 +347,7 @@ class MidMan :
 				lst = parameter.split()
 				self.heatbed_t_stat = int(lst[1])
 		return True
+
 
 	def monitor_ext_h_status(self) :
 		#get heatbed status
