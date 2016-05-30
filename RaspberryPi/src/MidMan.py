@@ -21,10 +21,10 @@ class MidMan :
 		self.old_ext_heat = 0
 		self.exec_time = 0		#execution time in milliseconds
 
-		self.Xremain_steps = 1
-		self.Yremain_steps = 1
-		self.Zremain_steps = 1
-		self.Eremain_steps = 1
+		self.Xremain_steps = 0
+		self.Yremain_steps = 0
+		self.Zremain_steps = 0
+		self.Eremain_steps = 0
 		self.Xt_bet_steps_stat = 0
 		self.Yt_bet_steps_stat = 0 
 		self.Zt_bet_steps_stat = 0
