@@ -100,8 +100,8 @@ class UUGearDevice(object):
 									5 : 'Stepper is flowing'}
 
 		self.endstop_status_dict = {0 : 'No endstops pressed', 1 : 'Home endstop pressed', 2 : 'Away endstop pressed'}
-		self.ext_heat_dict = {1 : "heatbed active", 2 : "heatbed inactive"}
-		self.heatbed_dict = {1 : "extHeat active", 2 : "extHeat inactive"}
+		self.heatbed_dict = {1 : "heatbed active", 2 : "heatbed inactive"}
+		self.ext_heat_dict = {1 : "extHeat active", 2 : "extHeat inactive"}
 		
 	def isValid(self):
 		return self.devProfile != None and self.devProfile.fd != -1
