@@ -25,6 +25,10 @@ cp UUGear.py $TARGET_DIR/UUGear.py
 cp StepperMove.py $TARGET_DIR/StepperMove.py
 cp String_test.py $TARGET_DIR/String_test.py
 cp example.py $TARGET_DIR/example.py
+cp gcode.py $TARGET_DIR/gcode.py
+cp Gcode.py $TARGET_DIR/Gcode.py
+cp MidMan.py $TARGET_DIR/MidMan.py
+cp gcode-ex $TARGET_DIR/gcode-ex
 
 echo "Copying shared object file to /usr/lib/..."
 

@@ -6,7 +6,7 @@ ext_heat eh;
 ext_stepper_3d extruder;
 
 
-int st_point = 250;
+int st_point = 150;
 
 
 /* the ISR function is the one that does the moving of the stepper motor, it outputs the step at the time required */
@@ -31,7 +31,7 @@ void loop()
 
 	if(eh.input >= st_point)
 	{
-		extruder.stepper_move (1000, 164933 );
+		extruder.stepper_move (-100, 164933 );
 	}
 
 

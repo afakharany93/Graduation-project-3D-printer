@@ -12,6 +12,9 @@
  * Quick test: after uploading the sketch, send "U01" with both NL and CR in
  * the serial monitor, you should be able to see the 1 + {device id} + :)
  */
+
+
+
 #include <EEPROM.h>
 #include "Stepper_3D.h"
 #include "Thermistor_3D.h"
@@ -20,6 +23,8 @@
 #include "ext_Stepper_3D.h"
 
 #define LCD_DEBUGGING 0   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
+
+
 
 #define BAUD_RATE  115200
 
@@ -90,8 +95,9 @@ stepper_3d motor;
 Thermistor_3d thermistor(A3);
 heatbed bed;
 ext_heat extHeat;
+#if EXTRUDER
 ext_stepper_3d extStp;
-
+#endif
 unsigned char heatbed_temp = 0;
 unsigned int ext_heat_temp = 0;
 // declare reset function
@@ -126,12 +132,12 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 {
   motor.inside_ISR();
 }
-
+#if EXTRUDER
 ISR(TIMER5_COMPA_vect)          // timer compare interrupt service routine
 {
   extStp.inside_ISR();
 }
-
+#endif
 ISR(PCINT1_vect)
 {
   motor.inside_endstop_ISR ();
@@ -266,7 +272,7 @@ void processCommand(String cmd) {
     case CMD_SET_EXT_HEAT:
       cmd_set_ext_heat(cmd);
       break;
-
+#if EXTRUDER
     case CMD_EXT_STEPPER_MOVE:
       cmd_ext_stepper_move(cmd);
       break;
@@ -285,7 +291,7 @@ void processCommand(String cmd) {
     case CMD_EXT_STEPPER_STATUS:
       cmd_ext_stepper_status(cmd);
       break;
-
+#endif
     case 0xFF:
       resetDevice();
       break;
@@ -520,7 +526,7 @@ void cmd_set_ext_heat(String cmd) {
     Serial.print(RESPONSE_END_STRING);
   }
 }
-
+#if EXTRUDER
 void cmd_ext_stepper_move(String cmd) {
   if (cmd.length() > 5) {
     int least_significant_byte = cmd.charAt(2);
@@ -622,3 +628,4 @@ void cmd_ext_stepper_status(String cmd)
     Serial.print(RESPONSE_END_STRING);
   }
 }
+#endif
