@@ -1,12 +1,10 @@
-
-
 from MidMan import *
 from Gcode import *
 import os
+import sys
 
 
-
-fileName = "gcode-ex"
+fileName = sys.argv[1]
 fileSize = os.path.getsize(fileName)
 
 def accepted_line(txt) :
@@ -59,7 +57,7 @@ try :
 						break
 				progress = progress + len(line)
 				progressPercent = (100.0*progress)/fileSize
-				s15 = "Progress in terms of number of Gcode lines executed: " + str(progressPercent) + " %"
+				s15 = "Progress in terms of number of Gcode lines executed: " + str(int(progressPercent)) + " %"
 				MidMan.stdscr.addstr(15, 0, s15)
 				MidMan.stdscr.refresh()
 				if progressPercent == 100 :
