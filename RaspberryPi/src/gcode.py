@@ -55,6 +55,8 @@ try :
 					M.fill_exec_time( G.get_exec_time() )
 
 					machine = M.machine_control()
+					if not(machine) :
+						break
 				progress = progress + len(line)
 				progressPercent = (100.0*progress)/fileSize
 				s15 = "Progress in terms of number of Gcode lines executed: " + str(progressPercent) + " %"
