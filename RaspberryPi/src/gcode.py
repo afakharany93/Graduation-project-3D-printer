@@ -27,11 +27,13 @@ G = Gcode()
 try :
 	progress = 0
 	if M.is_valid():
+		s1 = "I'm now printing for you " + fileName
+		MidMan.stdscr.addstr(1, 9, s1)
 		with open(fileName,"r") as f:
 			for line in f:
 				if accepted_line(line):
-					s = "current Gcode Line: " + line
-					MidMan.stdscr.addstr(0, 0, s)
+					s2 = "current Gcode Line: " + line
+					MidMan.stdscr.addstr(2, 0, s2)
 					MidMan.stdscr.refresh()
 					if line.find("G0") != -1 :
 						G.motion_parser(line)
@@ -55,8 +57,8 @@ try :
 					machine = M.machine_control()
 				progress = progress + len(line)
 				progressPercent = (100.0*progress)/fileSize
-				s10 = "Progress in terms of number of Gcode lines executed: " + str(progressPercent) + "%"
-				MidMan.stdscr.addstr(10, 0, s10)
+				s15 = "Progress in terms of number of Gcode lines executed: " + str(progressPercent) + " %"
+				MidMan.stdscr.addstr(15, 0, s15)
 				MidMan.stdscr.refresh()
 				if progressPercent == 100 :
 					M.end_UI()

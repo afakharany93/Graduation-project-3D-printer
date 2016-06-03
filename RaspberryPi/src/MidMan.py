@@ -13,6 +13,9 @@ class MidMan :
 	def __init__(self):
 		MidMan.stdscr.keypad(1)
 		curses.noecho()
+
+		s = "**** Greetings Human from X-2 3D-printer ****"
+		MidMan.stdscr.addstr(0, 4, s)
 		
 		self.valid = 1
 
@@ -466,20 +469,18 @@ class MidMan :
 				ret = self.monitor_ext_h_status()
 				if not(ret) :
 					return False
-				s1 = "Remaining steps in X axis: " + str(self.Xremain_steps)
-				MidMan.stdscr.addstr(1, 0, s1)
-				s2 = "Remaining steps in Y axis: " + str(self.Yremain_steps)
-				MidMan.stdscr.addstr(2, 0, s2)
-				s3 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
+				s3 = "Remaining steps in X axis: " + str(self.Xremain_steps)
 				MidMan.stdscr.addstr(3, 0, s3)
-				s4 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
+				s4 = "Remaining steps in Y axis: " + str(self.Yremain_steps)
 				MidMan.stdscr.addstr(4, 0, s4)
-				s5 = "Remaining steps in Extruder: " + str(self.Eremain_steps)
+				s5 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
 				MidMan.stdscr.addstr(5, 0, s5)
-				s6 = "Extruder temperature: " + str(self.heatbed_t_stat)
+				s6 = "Remaining steps in Extruder: " + str(self.Eremain_steps)
 				MidMan.stdscr.addstr(6, 0, s6)
-				s7 = "Heatbed temperature: " + str(self.ext_t_stat)
+				s7 = "Extruder temperature: " + str(self.heatbed_t_stat) + " c"
 				MidMan.stdscr.addstr(7, 0, s7)
+				s8 = "Heatbed temperature: " + str(self.ext_t_stat) + " c"
+				MidMan.stdscr.addstr(8, 0, s8)
 				MidMan.stdscr.refresh()
 				sleep(0.05)
 			return True
