@@ -53,11 +53,6 @@ try :
 					M.fill_exec_time( G.get_exec_time() )
 
 					machine = M.machine_control()
-					if machine :
-						print "cool"
-					else :
-						print "smth wrong"
-						break
 				progress = progress + len(line)
 				progressPercent = (100.0*progress)/fileSize
 				s10 = "Progress in terms of number of Gcode lines executed: " + str(progressPercent) + "%"

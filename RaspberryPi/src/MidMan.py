@@ -466,19 +466,19 @@ class MidMan :
 				ret = self.monitor_ext_h_status()
 				if not(ret) :
 					return False
-				s1 = "Remaining steps in X axis: " + self.Xremain_steps
+				s1 = "Remaining steps in X axis: " + str(self.Xremain_steps)
 				MidMan.stdscr.addstr(1, 0, s1)
-				s2 = "Remaining steps in Y axis: " + self.Yremain_steps
+				s2 = "Remaining steps in Y axis: " + str(self.Yremain_steps)
 				MidMan.stdscr.addstr(2, 0, s2)
-				s3 = "Remaining steps in Z axis: " + self.Zremain_steps
+				s3 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
 				MidMan.stdscr.addstr(3, 0, s3)
-				s4 = "Remaining steps in Z axis: " + self.Zremain_steps
+				s4 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
 				MidMan.stdscr.addstr(4, 0, s4)
-				s5 = "Remaining steps in Extruder: " + self.Eremain_steps
+				s5 = "Remaining steps in Extruder: " + str(self.Eremain_steps)
 				MidMan.stdscr.addstr(5, 0, s5)
-				s6 = "Extruder temperature: " + self.heatbed_t_stat
+				s6 = "Extruder temperature: " + str(self.heatbed_t_stat)
 				MidMan.stdscr.addstr(6, 0, s6)
-				s7 = "Heatbed temperature: " + self.ext_t_stat
+				s7 = "Heatbed temperature: " + str(self.ext_t_stat)
 				MidMan.stdscr.addstr(7, 0, s7)
 				MidMan.stdscr.refresh()
 				sleep(0.05)
