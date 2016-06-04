@@ -1,9 +1,9 @@
+import os
 current_dir = os.getcwd()
-os.chdir(~/Graduation-project-codes/RaspberryPi/bin)
+os.chdir("/home/pi/Graduation-project-codes/RaspberryPi/bin")
 
 from MidMan import *
 from Gcode import *
-import os
 import sys
 
 if len(sys.argv) > 1 :
