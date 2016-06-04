@@ -1,3 +1,6 @@
+current_dir = os.getcwd()
+os.chdir(~/Graduation-project-codes/RaspberryPi/bin)
+
 from MidMan import *
 from Gcode import *
 import os
@@ -73,3 +76,7 @@ if len(sys.argv) > 1 :
 
 else :
 	print "input Gcode file required"
+
+
+os.chdir(current_dir)
+
