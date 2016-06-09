@@ -7,7 +7,7 @@ Serial.begin(115200);
   Serial.flush();
  
   x.permission=1;
-  x.Step_SetTime(900);
+  x.Step_SetTime(600);
 
 }
 
@@ -16,7 +16,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   char y=0;
   if (y==0){
-  x.stepper_move(100,x.time_bet_steps_us);
+  x.stepper_move(1000);
   y++;
   }
 }

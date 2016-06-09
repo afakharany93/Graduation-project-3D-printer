@@ -15,7 +15,7 @@ stepper_3d::stepper_3d()
 	digitalWrite(second, LOW);
 	digitalWrite(third, LOW);
 	digitalWrite(forth, LOW);
-
+	current_time_bet_steps=1000;
 	/* turn on pin PCINT9 and PCINT10 pin change interrupts, which is: 
      		for NANO : PC1 and PC2, physical pin A1 and A2
      		for MEGA : Pj0 and Pj1, physical pins 15 and 14*/ 
@@ -72,7 +72,7 @@ void stepper_3d::previous_step (struct stepper_state_struct *current_state)
   	Method of operation : its a non blocking function, used to move the stepper motor when it has permission i.e.(stepper_permission == 1), 
   						  it sets the values of the global variables direction and stepper_steps, and sends the parameters needed to the timer setup function
 */
-void stepper_3d::stepper_move (long int steps, unsigned long int time_bet_steps_stepper )
+void stepper_3d::stepper_move (long int steps)
 {
 	if (permission == 1)	//if you have permission, execute
 	{
@@ -125,7 +125,10 @@ void stepper_3d::stepper_resume ()
 void stepper_3d::Step_SetTime(unsigned long int targettime)
 {
 	time_bet_steps_us=targettime;
-	//current_time_bet_steps=time_bet_steps_us;
+	if(status_var!=ACCELERATED&&time_bet_steps_us>=minimum_initial_step_delay)
+{
+	current_time_bet_steps=time_bet_steps_us;
+}
 	timer1_setup();
 
 }
@@ -140,11 +143,13 @@ void stepper_3d::stepper_flow (unsigned char direction_flow)
 {
 	if (direction_flow == clockwise )
 	{
-		stepper_move (2147483647, 500 );	//move max number of steps in a direction
+		Step_SetTime(500);
+		stepper_move (2147483647);	//move max number of steps in a direction
 	}
 	else if (direction_flow == anticlockwise )
 	{
-		stepper_move (-2147483647, 500 );	//move max number of steps oin the other direction
+		Step_SetTime(500);
+		stepper_move (-2147483647);	//move max number of steps in the other direction
 	}
 	status_var = FLOW;
 
@@ -419,16 +424,22 @@ void stepper_3d::stepper_accel_required_check ()
 }
 void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_steps)
 {
-	unsigned long int total_steps=0;
-	if(status_var!=ACCELERATING||status_var!=DECELERATING)
-	{
-		total_steps=stepper_steps;
-		if(total_steps!=0)// this calculation is to be done once at the start of accelerated motion when stepper_Steps is = total number of steps
+
+		if(accel_steps==0||(status_var!=ACCELERATING && status_var!=DECELERATING))// this calculation is to be done once at the start of accelerated motion when stepper_Steps is = total number of steps
 		{
-			accel_steps= stepper_steps/5;// for now accelerates for the first 20% of total steps
+			//accel_steps= stepper_steps/5;// for now accelerates for the first 20% of total steps
+			time_bet_steps_us_accel=10;
+			if(current_time_bet_steps>target_time_bet_steps) //Accel
+			{
+				accel_steps=(current_time_bet_steps -target_time_bet_steps)/time_bet_steps_us_accel;
+			}
+			else //Decel
+			{
+				accel_steps=(target_time_bet_steps- current_time_bet_steps)/time_bet_steps_us_accel;
+			}
+		//time_bet_steps_us_accel=(current_time_bet_steps - target_time_bet_steps)/accel_steps;
 		}
-		time_bet_steps_us_accel=(current_time_bet_steps - target_time_bet_steps)/accel_steps;
-	}
+
 }
 void stepper_3d::AccelerationHandler()
 {
@@ -439,7 +450,7 @@ void stepper_3d::AccelerationHandler()
 		current_time_bet_steps=current_time_bet_steps - time_bet_steps_us_accel;	
 		OCR1A =ctc_value_determination(current_time_bet_steps);
 	}
-	else if(status_var==ACCELERATED||stepper_steps==(accel_steps+1))
+	else if(status_var==ACCELERATED&&stepper_steps==(accel_steps+1))
 	{
 		//if nearing the end of the Move command and Deceleration is required to stop
 		time_bet_steps_us=minimum_initial_step_delay; //set Target Time between steps to be equal to minimum amount of time to overcome inertia.
@@ -448,7 +459,7 @@ void stepper_3d::AccelerationHandler()
 	else if(status_var==DECELERATING)
 	{
 		//Decelerates Timer1
-		current_time_bet_steps=current_time_bet_steps -time_bet_steps_us_accel;			
+		current_time_bet_steps=current_time_bet_steps + time_bet_steps_us_accel;			
 		OCR1A = ctc_value_determination(current_time_bet_steps);
 	}
 

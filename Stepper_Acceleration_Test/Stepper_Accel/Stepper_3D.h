@@ -67,10 +67,10 @@ class stepper_3d
 		stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 5;
-		unsigned char blue  = 11;
-		unsigned char red   = 6;
-		unsigned char green = 3;
+		unsigned char black = 6;
+		unsigned char blue  =4;
+		unsigned char red   = 5;
+		unsigned char green = 7;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -110,11 +110,10 @@ class stepper_3d
 			Function name : stepper_move
 		  	return : void
 		  	parameters : long int steps :- variable to hold the value of the number of steps needed to be move, if +ve the motion is in a direction, if -ve the motion is in reverse
-		  				 unsigned long int time_bet_steps_stepper :- time between each step, this is the value that determines the speed of motion
 		  	Method of operation : its a non blocking function, used to move the stepper motor when it has permission i.e.(stepper_permission == 1), 
 		  						  it sets the values of the global variables direction and stepper_steps, and sends the parameters needed to the timer setup function
 		*/
-		void stepper_move (long int steps, unsigned long int time_bet_steps_stepper );
+		void stepper_move (long int steps);
 
 		/*
 			Function name : stepper_stop
@@ -131,6 +130,12 @@ class stepper_3d
 		  	Method of operation : it is used to resume the motion after stopping
 		*/
 		void stepper_resume ();
+		/*
+			Function name: Step_SetTime
+			return: void
+			parameters: unsigned long int target time
+			Method of operation: Sets up the timer and target time between steps so that Acceleration handler and ISR's Capture Compare Register can work
+		*/
 		void Step_SetTime(unsigned long int targettime);
 
 		/*
