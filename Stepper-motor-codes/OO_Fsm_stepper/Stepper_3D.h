@@ -34,19 +34,19 @@ class stepper_3d
 		stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 9;
-		unsigned char blue  = 11;
-		unsigned char red   = 10;
-		unsigned char green = 8;
-		unsigned char brown;
+		unsigned char black;
+		unsigned char blue =7 ;
+		unsigned char red;
+		unsigned char green =6;
+		unsigned char brown =5;
 		unsigned char orange;
 		unsigned char yellow;
-		unsigned char white;
+		unsigned char white =4;
 		//mapping wire colors with firing order
-		unsigned char first  = green;
-		unsigned char second = red;
-		unsigned char third  = black;
-		unsigned char forth  = blue;
+		unsigned char first  = blue;
+		unsigned char second = brown;
+		unsigned char third  = green;
+		unsigned char forth  = white;
 		//mapping directions motion with state transition direction
 		unsigned char clockwise     = PREVIOUS;
 		unsigned char anticlockwise = NEXT;

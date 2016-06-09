@@ -26,14 +26,14 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 void loop() 
 {
 	extruder.stepper_flow (BACKWARD);
-	if (digitalRead(7) == HIGH)
+	/*if (digitalRead(7) == HIGH)
 	{
 		extruder.stepper_stop();
 	}
 	if (digitalRead(6) == HIGH)
 	{
 		extruder.stepper_resume ();
-	}
+	}*/
 	delay(5000);
 	extruder.permission = 1;
 	extruder.change_linear_direction_mapping();
