@@ -36,9 +36,9 @@ extern void resetUUGearDevice(UUGearDevice *dev);
 extern void cleanupUUGear();
 
 
-extern void sendMessage(mqd_t in, int msgType, int clientId, int fd, int pin);
+extern void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int val);
 
-extern void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int pin, int parameter);
+extern void sendMessageWith2Parameter(mqd_t in, int msgType, int clientId, int fd, int val, int parameter);
 
 extern void send_message_with_3_data_bytes(mqd_t in, int msgType, int clientId, int fd, int data_byte_1, int data_byte_2 , int data_byte_3);
 
@@ -61,3 +61,22 @@ extern int stepper_resume (UUGearDevice *dev);
 extern char * stepper_status(UUGearDevice *dev);
 
 extern char * temperature_status(UUGearDevice *dev);
+
+extern char * heatbed_status(UUGearDevice *dev);
+
+extern int heatbed_set_temp (UUGearDevice *dev, int temp);
+
+extern char * ext_heat_status(UUGearDevice *dev);
+
+extern int ext_heat_set_temp (UUGearDevice *dev, unsigned short temp);
+
+extern int ext_stepper_move(UUGearDevice *dev, short steps );
+
+extern int ext_stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us );
+
+extern int ext_stepper_stop (UUGearDevice *dev);
+
+extern int ext_stepper_resume (UUGearDevice *dev);
+
+extern char * ext_stepper_status(UUGearDevice *dev);
+

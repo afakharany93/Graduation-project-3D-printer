@@ -12,11 +12,19 @@
  * Quick test: after uploading the sketch, send "U01" with both NL and CR in
  * the serial monitor, you should be able to see the 1 + {device id} + :)
  */
+
+
+
 #include <EEPROM.h>
 #include "Stepper_3D.h"
 #include "Thermistor_3D.h"
+#include "heatbed_3D.h"
+#include "ext_heat_3D.h"
+#include "ext_Stepper_3D.h"
 
 #define LCD_DEBUGGING 0   //if set to one, the messages received by the arduino will be printed on the LCD, if set to zero then it won't
+
+
 
 #define BAUD_RATE  115200
 
@@ -42,6 +50,18 @@
 
 //temperature commands
 #define CMD_TEMPERATURE_STATUS    0x66    //to send the statuses of the temperature sensors
+//heatbed commands
+#define CMD_SET_HEATBED         0x70    //to set heatbed temperature
+#define CMD_HEATBED_STATUS      0x71
+//extruder heat commands
+#define CMD_SET_EXT_HEAT         0x75    //to set heatbed temperature
+#define CMD_EXT_HEAT_STATUS      0x76
+//stepper commands
+#define CMD_EXT_STEPPER_MOVE        0x40
+#define CMD_EXT_STEPPER_D_TIME      0x41    //for delay time between steps
+#define CMD_EXT_STEPPER_STOP        0x42
+#define CMD_EXT_STEPPER_RESUME      0x43
+#define CMD_EXT_STEPPER_STATUS      0x44
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -72,8 +92,14 @@ String cmdBuf = "";
 int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
 stepper_3d motor;
-Thermistor_3d thermistor(A0);
-
+Thermistor_3d thermistor(A3);
+heatbed bed;
+ext_heat extHeat;
+#if EXTRUDER
+ext_stepper_3d extStp;
+#endif
+unsigned char heatbed_temp = 0;
+unsigned int ext_heat_temp = 0;
 // declare reset function
 void(* resetDevice) (void) = 0;
 
@@ -106,7 +132,12 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 {
   motor.inside_ISR();
 }
-
+#if EXTRUDER
+ISR(TIMER5_COMPA_vect)          // timer compare interrupt service routine
+{
+  extStp.inside_ISR();
+}
+#endif
 ISR(PCINT1_vect)
 {
   motor.inside_endstop_ISR ();
@@ -114,6 +145,8 @@ ISR(PCINT1_vect)
 
 void loop() {
 
+  bed.heatbed_control(heatbed_temp);
+  extHeat.ext_heat_control(ext_heat_temp);
   // listen to incoming commands
   int len = Serial.available();
   for (int i = 0; i < len; i ++) {
@@ -224,6 +257,41 @@ void processCommand(String cmd) {
       cmd_temperature_status(cmd);
       break;
 
+    case CMD_HEATBED_STATUS:
+      cmd_heatbed_status(cmd);
+      break;
+
+    case CMD_SET_HEATBED:
+      cmd_set_heatbed(cmd);
+      break;
+
+    case CMD_EXT_HEAT_STATUS:
+      cmd_ext_heat_status(cmd);
+      break;
+
+    case CMD_SET_EXT_HEAT:
+      cmd_set_ext_heat(cmd);
+      break;
+#if EXTRUDER
+    case CMD_EXT_STEPPER_MOVE:
+      cmd_ext_stepper_move(cmd);
+      break;
+    case CMD_EXT_STEPPER_D_TIME:
+      cmd_ext_stepper_d_time(cmd);
+      break;
+
+    case CMD_EXT_STEPPER_STOP:
+      cmd_ext_stepper_stop(cmd);
+      break;
+      
+    case CMD_EXT_STEPPER_RESUME:
+      cmd_ext_stepper_resume(cmd);
+      break;
+
+    case CMD_EXT_STEPPER_STATUS:
+      cmd_ext_stepper_status(cmd);
+      break;
+#endif
     case 0xFF:
       resetDevice();
       break;
@@ -387,6 +455,177 @@ void cmd_temperature_status(String cmd)
   }
 }
 
+void cmd_heatbed_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(bed.heatbed_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
 
 
+void cmd_set_heatbed(String cmd) {
+  if (cmd.length() > 5) {
+    if(cmd.charAt(2) > 2)
+    {
+      bed.heatbed_permission();
+    }
+    heatbed_temp = cmd.charAt(2);
+    byte clientId = cmd.charAt(3);
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
 
+void cmd_ext_heat_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(extHeat.ext_heat_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+
+void cmd_set_ext_heat(String cmd) {
+   if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    unsigned int data = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    if(data > 2)
+    {
+      extHeat.ext_heat_permission();
+    }
+    ext_heat_temp = data;
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+#if EXTRUDER
+void cmd_ext_stepper_move(String cmd) {
+  if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    int steps = ((((int) most_significant_byte) << 8 ) | 0x00FF) & (((int) least_significant_byte) | 0xFF00);
+    #if LCD_DEBUGGING
+    LCD.setCursor(0, 1); //
+    LCD.print(steps);   //print number of steps received
+    #endif
+    extStp.permission = 1;
+    extStp.stepper_move(steps, extStp.time_bet_steps_us);
+
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_d_time(String cmd) {
+  if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    extStp.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    extStp.time_bet_steps_us = extStp.time_bet_steps_us * 95;
+    #if LCD_DEBUGGING
+    LCD.setCursor(0, 1); // 
+    LCD.print(extStp.time_bet_steps_us); //print the received time between steps
+    #endif
+
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_stop(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    extStp.permission = 1;
+    extStp.stepper_stop ();
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_resume(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    extStp.permission = 1;
+    extStp.stepper_resume ();
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(extStp.stepper_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+#endif

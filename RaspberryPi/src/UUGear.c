@@ -170,17 +170,17 @@ void sendMessageWithoutParameter(mqd_t in, int msgType, int clientId, int fd)
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
-void sendMessage(mqd_t in, int msgType, int clientId, int fd, int pin)
+void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int val)
 {
 	char buffer[MAX_MSG_SIZE + 1];
-	sprintf (buffer,"%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, pin);
+	sprintf (buffer,"%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, val);
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
-void sendMessageWithParameter(mqd_t in, int msgType, int clientId, int fd, int pin, int parameter)
+void sendMessageWith2Parameter(mqd_t in, int msgType, int clientId, int fd, int val, int parameter)
 {
 	char buffer[MAX_MSG_SIZE + 1];
-	sprintf (buffer,"%d%s%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, pin, MSG_PART_SEPARATOR, parameter);
+	sprintf (buffer,"%d%s%d%s%d%s%d%s%d", msgType, MSG_PART_SEPARATOR, clientId, MSG_PART_SEPARATOR, fd, MSG_PART_SEPARATOR, val, MSG_PART_SEPARATOR, parameter);
 	ASSERT_TRUE (0 <= mq_send (in, buffer, strlen (buffer), 0));
 }
 
@@ -379,3 +379,129 @@ char * temperature_status(UUGearDevice *dev)
 	return errorCode == 0 ? recieved : "-1";
 
 }
+
+char * heatbed_status(UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_HEATBED_STATUS, dev->clientId, dev->fd);
+	//recieve staus response
+	int errorCode = 0;
+	char * recieved = waitForString(dev, &errorCode);
+	return errorCode == 0 ? recieved : "-1";
+
+}
+
+int heatbed_set_temp (UUGearDevice *dev, int temp)
+{
+	sendMessageWithParameter(dev->in, MSG_SET_HEATBED, dev->clientId, dev->fd, temp);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
+char * ext_heat_status(UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_EXT_HEAT_STATUS, dev->clientId, dev->fd);
+	//recieve staus response
+	int errorCode = 0;
+	char * recieved = waitForString(dev, &errorCode);
+	return errorCode == 0 ? recieved : "-1";
+
+}
+
+int ext_heat_set_temp (UUGearDevice *dev, unsigned short temp)
+{
+	char least_significant_byte  = (char)(temp & 0xFF) ;
+	char most_significant_byte   = (char)((temp >> 8) & 0xFF) ;
+	unsigned char status_byte = STATUS_BYTE_INITIAL_VAL;
+	if (most_significant_byte == 0)
+	{
+		status_byte = MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		most_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	else if (least_significant_byte == 0)
+	{
+		status_byte = LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		least_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	send_message_with_3_data_bytes(dev->in, MSG_SET_EXT_HEAT, dev->clientId, dev->fd, least_significant_byte, most_significant_byte , status_byte);
+
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
+int ext_stepper_move(UUGearDevice *dev, short steps ) 
+{
+	char least_significant_byte  = (char)(steps & 0xFF) ;
+	char most_significant_byte   = (char)((steps >> 8) & 0xFF) ;
+	unsigned char status_byte = STATUS_BYTE_INITIAL_VAL;
+	if (most_significant_byte == 0)
+	{
+		status_byte = MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		most_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	else if (least_significant_byte == 0)
+	{
+		status_byte = LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		least_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	send_message_with_3_data_bytes(dev->in, MSG_EXT_STEPPER_MOVE, dev->clientId, dev->fd, least_significant_byte, most_significant_byte , status_byte);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
+int ext_stepper_time_bet_steps(UUGearDevice *dev, unsigned short time_us ) 
+{
+	char least_significant_byte  = (char)(time_us & 0xFF) ;
+	char most_significant_byte   = (char)((time_us >> 8) & 0xFF) ;
+	unsigned char status_byte = STATUS_BYTE_INITIAL_VAL;
+	if (most_significant_byte == 0)
+	{
+		status_byte = MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		most_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	else if (least_significant_byte == 0)
+	{
+		status_byte = LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS;
+		least_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
+	}
+	send_message_with_3_data_bytes(dev->in, MSG_EXT_STEPPER_D_TIME, dev->clientId, dev->fd, least_significant_byte, most_significant_byte , status_byte);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
+int ext_stepper_stop (UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_EXT_STEPPER_STOP, dev->clientId, dev->fd);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
+int ext_stepper_resume (UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_EXT_STEPPER_RESUME, dev->clientId, dev->fd);
+	//recieve akhnolodgment procedure
+	int errorCode = 0;
+	int recieved = waitForInteger(dev, &errorCode);
+	return errorCode == 0 ? recieved : -1;
+}
+
+char * ext_stepper_status(UUGearDevice *dev)
+{
+	sendMessageWithoutParameter(dev->in, MSG_EXT_STEPPER_STATUS, dev->clientId, dev->fd);
+	//recieve staus response
+	int errorCode = 0;
+	char * recieved = waitForString(dev, &errorCode);
+	return errorCode == 0 ? recieved : "-1";
+
+}
+
+

@@ -359,17 +359,17 @@ void sendCommandWithoutParameter(char cmd, int clientId, int targetFd)
 	serialWriteString (targetFd, command);
 }
 
-void sendCommand(char cmd, int clientId, int targetFd, int pin)
+void sendCommandWithParameter(char cmd, int clientId, int targetFd, int val)
 {
-	syslog (LOG_INFO, "Send command: cmd=0x%02x, clientId=%d, fd=%d, pin=%d", cmd, clientId, targetFd, pin);
-	char command[] = { COMMAND_START_CHAR, cmd, (char)(pin & 0xFF), (char)(clientId & 0xFF), COMMAND_END_CHAR1, COMMAND_END_CHAR2, 0x00 };
+	syslog (LOG_INFO, "Send command: cmd=0x%02x, clientId=%d, fd=%d, val=%d", cmd, clientId, targetFd, val);
+	char command[] = { COMMAND_START_CHAR, cmd, (char)(val & 0xFF), (char)(clientId & 0xFF), COMMAND_END_CHAR1, COMMAND_END_CHAR2, 0x00 };
 	serialWriteString (targetFd, command);
 }
 
-void sendCommandWithParameter(char cmd, int clientId, int targetFd, int pin, int parameter)
+void sendCommandWith2Parameters(char cmd, int clientId, int targetFd, int val, int parameter)
 {
-	syslog (LOG_INFO, "Send command: cmd=0x%02x, clientId=%d, fd=%d, pin=%d, parameter=%d", cmd, clientId, targetFd, pin, parameter);
-	char command[] = { COMMAND_START_CHAR, cmd, (char)(pin & 0xFF), (char)(parameter & 0xFF), (char)(clientId & 0xFF), COMMAND_END_CHAR1, COMMAND_END_CHAR2, 0x00 };
+	syslog (LOG_INFO, "Send command: cmd=0x%02x, clientId=%d, fd=%d, val=%d, parameter=%d", cmd, clientId, targetFd, val, parameter);
+	char command[] = { COMMAND_START_CHAR, cmd, (char)(val & 0xFF), (char)(parameter & 0xFF), (char)(clientId & 0xFF), COMMAND_END_CHAR1, COMMAND_END_CHAR2, 0x00 };
 	serialWriteString (targetFd, command);
 }
 
@@ -478,6 +478,48 @@ int main(int argc, char **argv)
 						
 					case MSG_TEMPERATURE_STATUS:
 						sendCommandWithoutParameter(CMD_TEMPERATURE_STATUS, clientId, targetFd);
+						break;
+					case MSG_HEATBED_STATUS:
+						sendCommandWithoutParameter(CMD_HEATBED_STATUS, clientId, targetFd);
+						break;
+					case MSG_SET_HEATBED:
+						sendCommandWithParameter(CMD_SET_HEATBED, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1);
+						break;
+					case MSG_EXT_HEAT_STATUS:
+						sendCommandWithoutParameter(CMD_EXT_HEAT_STATUS, clientId, targetFd);
+						break;
+					case MSG_SET_EXT_HEAT:
+						send_command_with_3_data_bytes(CMD_SET_EXT_HEAT, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
+							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
+							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
+						break;
+
+					case MSG_EXT_STEPPER_MOVE:
+						send_command_with_3_data_bytes(CMD_EXT_STEPPER_MOVE, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
+							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
+							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
+						break;
+
+					case MSG_EXT_STEPPER_D_TIME:
+						send_command_with_3_data_bytes(CMD_EXT_STEPPER_D_TIME, clientId, targetFd,
+							count > 3 ? (atoi (parts[3]) & 0xFF) : -1,
+							count > 4 ? (atoi (parts[4]) & 0xFF) : -1,
+							count > 5 ? (atoi (parts[5]) & 0xFF) : -1);
+						break;
+
+					case MSG_EXT_STEPPER_STOP:
+						sendCommandWithoutParameter(CMD_EXT_STEPPER_STOP, clientId, targetFd);
+						break;
+						
+					case MSG_EXT_STEPPER_RESUME:
+						sendCommandWithoutParameter(CMD_EXT_STEPPER_RESUME, clientId, targetFd);
+						break;
+
+					case MSG_EXT_STEPPER_STATUS:
+						sendCommandWithoutParameter(CMD_EXT_STEPPER_STATUS, clientId, targetFd);
 						break;
 				}
 			}

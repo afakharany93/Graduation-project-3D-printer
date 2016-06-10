@@ -17,7 +17,7 @@ echo "Building src..."
 cc -o $TARGET_DIR/UUGearDaemon UUGearDaemon.c serial.c -lrt -lpthread
 cc -o $TARGET_DIR/UUGear.o -c -Wall -Werror -fPIC UUGear.c
 cc -shared -o $TARGET_DIR/libUUGear.so $TARGET_DIR/UUGear.o -lrt
-cc -o $TARGET_DIR/SocketBroker SocketBroker.c UUGear.c -lrt
+#cc -o $TARGET_DIR/SocketBroker SocketBroker.c UUGear.c -lrt
 
 cc -o $TARGET_DIR/lsuu lsuu.c serial.c
 
@@ -25,6 +25,10 @@ cp UUGear.py $TARGET_DIR/UUGear.py
 cp StepperMove.py $TARGET_DIR/StepperMove.py
 cp String_test.py $TARGET_DIR/String_test.py
 cp example.py $TARGET_DIR/example.py
+cp gcode.py $TARGET_DIR/gcode.py
+cp Gcode.py $TARGET_DIR/Gcode.py
+cp MidMan.py $TARGET_DIR/MidMan.py
+cp gcode-ex $TARGET_DIR/gcode-ex
 
 echo "Copying shared object file to /usr/lib/..."
 
