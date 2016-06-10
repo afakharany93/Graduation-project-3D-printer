@@ -39,8 +39,8 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define HOME_PRESSED	1
 #define AWAY_PRESSED	2
 //Minimum initial stepper delays to overcome their inertia
-#define ZMOTOR_INITIAL_SPEED 1000
-#define XYMOTOR_INITIAL_SPEED 1000
+#define ZMOTOR_INITIAL_SPEED 1500
+#define XYMOTOR_INITIAL_SPEED 800
 
 /*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resembles one step,
 it holds the output of the state and a pointer to the next state to use to step forward and
@@ -67,10 +67,10 @@ class stepper_3d
 		stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 6;
-		unsigned char blue  =4;
-		unsigned char red   = 5;
-		unsigned char green = 7;
+		unsigned char black = 12;
+		unsigned char blue  =10;
+		unsigned char red   = 9;
+		unsigned char green = 11;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -99,7 +99,7 @@ class stepper_3d
 		signed long int time_bet_steps_us_accel=0; // how much time between each step will be accelerated
 		//acceleration Activation flag
 		//minimum initial step delay to overcome motor inertia
-		unsigned int minimum_initial_step_delay=1000;
+		unsigned int minimum_initial_step_delay=800;
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
 
@@ -225,7 +225,7 @@ class stepper_3d
 		  				unsigned char pwm :- an unsigned char to hold the pwm of the output, useful for current limiting	
 		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previous_step functions, runs after next_step or previous_step
 		 */
-		void stepper_output (struct stepper_state_struct *current_state , unsigned char pwm);
+		void stepper_output (struct stepper_state_struct *current_state);
 		/*
 			Function name : next_step
 		  	return : void

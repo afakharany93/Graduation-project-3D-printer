@@ -19,8 +19,8 @@ stepper_3d::stepper_3d()
 	/* turn on pin PCINT9 and PCINT10 pin change interrupts, which is: 
      		for NANO : PC1 and PC2, physical pin A1 and A2
      		for MEGA : Pj0 and Pj1, physical pins 15 and 14*/ 
-     PCICR |= 0b00000010;    
-     PCMSK1 |= 0b00000110;   
+    /* PCICR |= 0b00000010;    
+     PCMSK1 |= 0b00000110;   */
 
 	interrupts();             // enable all interrupts
 }
@@ -31,13 +31,13 @@ stepper_3d::stepper_3d()
   parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
   Method of operation : to interpert and output the out member of the stepper_state_struct variable holding currrent state information
  */
-void stepper_3d::stepper_output (struct stepper_state_struct *current_state , unsigned char pwm)
+void stepper_3d::stepper_output (struct stepper_state_struct *current_state )
 {
-	digitalWrite(first  , (current_state->out & 0x01) * pwm);		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
+	digitalWrite(first  , (current_state->out & 0x01) );		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
 																	then the pin mapped to first will be high, if not it will be zero, all that with the pwm required	*/				
-	digitalWrite(second , (((current_state->out & 0x02) >> 1) * pwm));		//same as the line above but with bit 2 and pin mapped to second
-	digitalWrite(third  , (((current_state->out & 0x04) >> 2) * pwm));		//same as the line above but with bit 3 and pin mapped to third
-	digitalWrite(forth  , (((current_state->out & 0x08) >> 3) * pwm));		//same as the line above but with bit 4 and pin mapped to forth
+	digitalWrite(second , ((current_state->out & 0x02)) );		//same as the line above but with bit 2 and pin mapped to second
+	digitalWrite(third  , ((current_state->out & 0x04)) );		//same as the line above but with bit 3 and pin mapped to third
+	digitalWrite(forth  , ((current_state->out & 0x08)) );		//same as the line above but with bit 4 and pin mapped to forth
 }
 
 /*
@@ -106,7 +106,7 @@ void stepper_3d::stepper_stop ()
 {
 	TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
 	TIMSK1 = 0 ;  // disable timer compare interrupt
-	stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+	stepper_output (&current_state );	//ouput the current state,with current limiting pwm
 	status_var = SW_FORCE_STOP;	//setting status to indicate the stop due to software command
 }
 
@@ -281,19 +281,19 @@ void stepper_3d::inside_ISR ()
 		{
 			if (direction == NEXT)
 			{			
-				stepper_output (&current_state , max_pwm);	//ouput the current state
+				stepper_output (&current_state );	//ouput the current state
 				next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
 			}
 			else if (direction == PREVIOUS)
 			{
-				stepper_output (&current_state , max_pwm);	//ouput the current state
+				stepper_output (&current_state );	//ouput the current state
 				previous_step(&current_state);		//point to the previous state so that it can be outputed the next call of the isr
 			}
 			stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
 		}
 		else
 		{
-			stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+			stepper_output (&current_state );	//ouput the current state,with current limiting pwm
 			stepper_steps = 0;	//just for safety
 			TIMSK1 = 0;	//disable timer compare interrupt
 			TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
@@ -341,7 +341,7 @@ char * stepper_3d::stepper_status()
 		{
 			steps =  stepper_steps* (-1);
 		}
-	char buff[120];
+	char buff[200];
 	x = sprintf(buff, "Status %d, target_t_bet_steps %lu, current_t_bet_steps%lu, remain_steps %ld, accelsteps %lu",status_var , time_bet_steps_us,current_time_bet_steps, steps, accel_steps);
 	return (char *) buff;
 }
@@ -428,7 +428,7 @@ void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_st
 		if(accel_steps==0||(status_var!=ACCELERATING && status_var!=DECELERATING))// this calculation is to be done once at the start of accelerated motion when stepper_Steps is = total number of steps
 		{
 			//accel_steps= stepper_steps/5;// for now accelerates for the first 20% of total steps
-			time_bet_steps_us_accel=10;
+			time_bet_steps_us_accel=1;
 			if(current_time_bet_steps>target_time_bet_steps) //Accel
 			{
 				accel_steps=(current_time_bet_steps -target_time_bet_steps)/time_bet_steps_us_accel;
