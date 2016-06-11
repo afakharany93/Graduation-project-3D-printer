@@ -5,7 +5,7 @@ import curses
 UUGearDevice.setShowLogs(0)
 
 class MidMan :
-	X = UUGearDevice('UUGear-Arduino-1239-9170')	#X axis stepper and extruder heater
+	X = UUGearDevice('UUGear-Arduino-4713-9982')	#X axis stepper and extruder heater
 	Y = UUGearDevice('UUGear-Arduino-3167-3008')	#Y axis stepper and heatbed
 	Z = UUGearDevice('UUGear-Arduino-5658-7598')	#Z axis stepper and extruder stepper
 	stdscr = curses.initscr()
@@ -253,7 +253,7 @@ class MidMan :
 							self.Xt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				if 'Stepper has ended motion' in parameter :
+				if ('Stepper has ended motion' in parameter) and (self.Xremain_steps != 0) :
 					self.Xremain_steps = 0
 					
 			return True
@@ -297,7 +297,7 @@ class MidMan :
 							self.Yt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				if 'Stepper has ended motion' in parameter :
+				if ('Stepper has ended motion' in parameter) and (self.Yremain_steps != 0) :
 					self.Yremain_steps = 0
 					
 			return True
@@ -341,7 +341,7 @@ class MidMan :
 							self.Zt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				if 'Stepper has ended motion' in parameter :
+				if ('Stepper has ended motion' in parameter) and (self.Zremain_steps != 0) :
 					self.Zremain_steps = 0
 					
 			return True
@@ -377,7 +377,7 @@ class MidMan :
 							self.Et_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				if 'Stepper has ended motion' in parameter :
+				if ('Stepper has ended motion' in parameter) and (self.Eremain_steps != 0) :
 					self.Eremain_steps = 0
 					
 			return True

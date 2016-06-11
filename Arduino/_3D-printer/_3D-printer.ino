@@ -96,7 +96,9 @@ Thermistor_3d thermistor(A3);
 heatbed bed;
 ext_heat extHeat;
 #if EXTRUDER
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
 ext_stepper_3d extStp;
+#endif
 #endif
 unsigned char heatbed_temp = 0;
 unsigned int ext_heat_temp = 0;
@@ -133,10 +135,12 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
   motor.inside_ISR();
 }
 #if EXTRUDER
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
 ISR(TIMER5_COMPA_vect)          // timer compare interrupt service routine
 {
   extStp.inside_ISR();
 }
+#endif
 #endif
 ISR(PCINT1_vect)
 {
@@ -273,6 +277,7 @@ void processCommand(String cmd) {
       cmd_set_ext_heat(cmd);
       break;
 #if EXTRUDER
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
     case CMD_EXT_STEPPER_MOVE:
       cmd_ext_stepper_move(cmd);
       break;
@@ -291,6 +296,7 @@ void processCommand(String cmd) {
     case CMD_EXT_STEPPER_STATUS:
       cmd_ext_stepper_status(cmd);
       break;
+#endif
 #endif
     case 0xFF:
       resetDevice();
@@ -527,6 +533,7 @@ void cmd_set_ext_heat(String cmd) {
   }
 }
 #if EXTRUDER
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
 void cmd_ext_stepper_move(String cmd) {
   if (cmd.length() > 5) {
     int least_significant_byte = cmd.charAt(2);
@@ -628,4 +635,5 @@ void cmd_ext_stepper_status(String cmd)
     Serial.print(RESPONSE_END_STRING);
   }
 }
+#endif
 #endif
