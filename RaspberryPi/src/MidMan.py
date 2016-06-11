@@ -253,7 +253,8 @@ class MidMan :
 							self.Xt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				#if 'Stepper has ended motion' in parameter :
+				if 'Stepper has ended motion' in parameter :
+					self.Xremain_steps = 0
 					
 			return True
 
@@ -296,7 +297,8 @@ class MidMan :
 							self.Yt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				#if 'Stepper has ended motion' in parameter :
+				if 'Stepper has ended motion' in parameter :
+					self.Yremain_steps = 0
 					
 			return True
 
@@ -339,7 +341,8 @@ class MidMan :
 							self.Zt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				#if 'Stepper has ended motion' in parameter :
+				if 'Stepper has ended motion' in parameter :
+					self.Zremain_steps = 0
 					
 			return True
 
@@ -374,7 +377,8 @@ class MidMan :
 							self.Et_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				#if 'Stepper has ended motion' in parameter :
+				if 'Stepper has ended motion' in parameter :
+					self.Eremain_steps = 0
 					
 			return True
 
