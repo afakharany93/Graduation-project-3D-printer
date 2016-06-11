@@ -14,6 +14,9 @@ stepper_3d extruder;
 
 void setup() 
 {
+	extruder.permission = 1;
+	extruder.stepper_flow (BACKWARD);
+	Serial.begin(115200);
 	
 }
 
@@ -21,22 +24,21 @@ void setup()
 ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 {
 	extruder.inside_ISR();
+
 }
 
 void loop() 
 {
-	extruder.stepper_flow (BACKWARD);
-	if (digitalRead(7) == HIGH)
+	/*if (digitalRead(7) == HIGH)
 	{
 		extruder.stepper_stop();
 	}
 	if (digitalRead(6) == HIGH)
 	{
 		extruder.stepper_resume ();
-	}
-	delay(5000);
-	extruder.permission = 1;
-	extruder.change_linear_direction_mapping();
+	}*/
+	delay(50);
+	Serial.println(extruder.stepper_status());
 	//extruder.stepper_flow (BACKWARD);
 }
 

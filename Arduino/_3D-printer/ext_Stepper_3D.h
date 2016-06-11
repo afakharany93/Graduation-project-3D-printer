@@ -66,10 +66,10 @@ class ext_stepper_3d
 		ext_stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 4;
-		unsigned char blue  = 7;
-		unsigned char red   = 8;
-		unsigned char green = 12;
+		unsigned char black = 7;
+		unsigned char blue  = 6;
+		unsigned char red   = 5;
+		unsigned char green = 4;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -89,7 +89,7 @@ class ext_stepper_3d
 		
 
 		//time variable
-		unsigned long int time_bet_steps_us = 400 ;
+		unsigned long int time_bet_steps_us = 1000 ;
 
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0

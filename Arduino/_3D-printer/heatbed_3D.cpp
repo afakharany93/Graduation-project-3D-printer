@@ -12,14 +12,14 @@
 
 #include "heatbed_3D.h"
 
-Thermistor_3d temp(A0);
+Thermistor_3d temp(A3);
 fuzzy magic(9, 120, 0, 220, 0);
 
 
 heatbed::heatbed()
 {
 	_permission = STOP_HB;
-	op_pin = 9;
+	op_pin = 3;
 	_old_time = 0;
 	_current_time = millis();
 	samp_time = 50;	//milliseconds

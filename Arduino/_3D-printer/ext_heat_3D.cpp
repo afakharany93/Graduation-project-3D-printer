@@ -12,7 +12,7 @@
 
 #include "ext_heat_3D.h"
 
-Thermistor_3d ext_temp(A4);
+Thermistor_3d ext_temp(A3);
 fuzzy ext_fuzzy(9, 300, 0, 255, 0);
 
 
