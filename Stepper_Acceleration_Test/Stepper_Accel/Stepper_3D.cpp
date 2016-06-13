@@ -354,7 +354,7 @@ char * stepper_3d::stepper_status()
 			steps =  stepper_steps* (-1);
 		}
 	char buff[200];
-	x = sprintf(buff, "Status1 %d, Status2 %d,target_t_bet_steps %lu,currenttimebetsteps %ld, remain_steps %ld, accelsteps %lu ",status_var ,accel_status ,time_bet_steps_us,current_time_bet_steps ,steps, accel_steps);
+	x = sprintf(buff, "Status1 %d,target_t_bet_steps %lu,currenttimebetsteps %ld, remain_steps %ld, accelsteps %lu ",status_var ,time_bet_steps_us,current_time_bet_steps ,steps, accel_steps);
 	return (char *) buff;
 }
 
@@ -474,9 +474,3 @@ void stepper_3d::AccelerationHandler()
 
 
 }
-// i need to check if acceleration is required , if indeed it is required i need to make it so that stepper move starts at an initial speed and then changes the value
-// of the OCR1A (Capture compare value ) after every step. during which the status is STEPPER_ACCEL, this needs to be functional in both acceleration and deceleration. 
-// I need a state known as AcceleratedMotion, if the motor is in this state it cannot Stop normally it needs to be Decelerated then stopped.
-//The Deceleration should start when stepper_steps= the_minimum_amount_of_Steps_required_to_decelerate
-
-// timer
