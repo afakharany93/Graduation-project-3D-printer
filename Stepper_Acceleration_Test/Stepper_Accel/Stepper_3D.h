@@ -39,8 +39,9 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define HOME_PRESSED	1
 #define AWAY_PRESSED	2
 //Minimum initial stepper delays to overcome their inertia
-#define ZMOTOR_INITIAL_SPEED 1500
-#define XYMOTOR_INITIAL_SPEED 800
+#define ZMOTOR_INITIAL_SPEED 550
+#define XYMOTOR_INITIAL_SPEED 550
+#define ACCELFACTOR 1
 
 /*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resembles one step,
 it holds the output of the state and a pointer to the next state to use to step forward and
@@ -99,12 +100,14 @@ class stepper_3d
 		signed long int time_bet_steps_us_accel=0; // how much time between each step will be accelerated
 		//acceleration Activation flag
 		//minimum initial step delay to overcome motor inertia
-		unsigned int minimum_initial_step_delay=800;
+		unsigned int minimum_initial_step_delay=0;
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
-
+		unsigned char startofmotionflag=0; //to prevent overwriting of currenttimebetsteps
+		unsigned char accelstepsfactor =0;
 		//status holding variable
 		unsigned char status_var = END_MOVE;
+		unsigned char accel_status=status_var;
 
 		/*
 			Function name : stepper_move
@@ -203,6 +206,19 @@ class stepper_3d
 		/*6*/	 {0x08 , &stepper_states[7] , &stepper_states[5] } ,
 		/*7*/	 {0x09 , &stepper_states[0] , &stepper_states[6] } ,
 		};
+//TEST FULL STEP
+//struct stepper_state_struct stepper_states[4] =
+//{
+		//states {out  , next state         , previous state      }
+//		/*0*/	 {0x01 , &stepper_states[1] , &stepper_states[3] } ,
+//		/*1*/	 {0x03 , &stepper_states[2] , &stepper_states[0] } ,
+//		/*2*/	 {0x02 , &stepper_states[2] , &stepper_states[0] } ,
+//		/*3*/	 {0x06 , &stepper_states[4] , &stepper_states[2] } ,
+//		/*4*/	 {0x04 , &stepper_states[3] , &stepper_states[1] } ,
+//		/*5*/	 {0x0c , &stepper_states[6] , &stepper_states[4] } ,
+//		/*6*/	 {0x08 , &stepper_states[0] , &stepper_states[2] } ,
+//		/*7*/	 {0x09 , &stepper_states[0] , &stepper_states[6] } ,
+//};
 
 		/* timer1_value_lookup_table is an array that holds the values of the prescales and the time per tick and the max time value for each prescale */
 		struct timer1_value timer1_value_lookup_table[5] = 
@@ -214,7 +230,7 @@ class stepper_3d
 			{256  	, 16	 			, 1048560	   },
 			{1024 	, 64 				, 4194240	   }
 		};
-		unsigned long int current_time_bet_steps;
+		unsigned long int current_time_bet_steps=0;
 		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
 		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
 		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr

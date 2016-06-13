@@ -15,7 +15,14 @@ stepper_3d::stepper_3d()
 	digitalWrite(second, LOW);
 	digitalWrite(third, LOW);
 	digitalWrite(forth, LOW);
-	current_time_bet_steps=1000;
+	//The following section checks if The motor is an XY motor or a Z motor to determine the smallest starting speed possible for it to overcome its own inertia
+	#if defined(__AVR_ATmega328__)|| defined(__AVR_ATmega328P__)	//if arduino nano or uno is used
+		minimum_initial_step_delay=XYMOTOR_INITIAL_SPEED;	
+	#endif
+	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__)	//if arduino mega is used
+		minimum_initial_step_delay=ZMOTOR_INITIAL_SPEED;
+	#endif
+	current_time_bet_steps=minimum_initial_step_delay;
 	/* turn on pin PCINT9 and PCINT10 pin change interrupts, which is: 
      		for NANO : PC1 and PC2, physical pin A1 and A2
      		for MEGA : Pj0 and Pj1, physical pins 15 and 14*/ 
@@ -125,7 +132,7 @@ void stepper_3d::stepper_resume ()
 void stepper_3d::Step_SetTime(unsigned long int targettime)
 {
 	time_bet_steps_us=targettime;
-	if(status_var!=ACCELERATED&&time_bet_steps_us>=minimum_initial_step_delay)
+	if(accel_status!=ACCELERATED&&time_bet_steps_us>=minimum_initial_step_delay)
 {
 	current_time_bet_steps=time_bet_steps_us;
 }
@@ -210,14 +217,18 @@ void stepper_3d::timer1_setup ()
   	TCNT1  = 0;
   	TIMSK1 = 0;
   	stepper_accel_required_check();
-	if(status_var==ACCELERATING)
+	if(accel_status==ACCELERATING)
 	{
 		//Acceleration is required
-		current_time_bet_steps=minimum_initial_step_delay;
+		if(startofmotionflag=0)
+		{
+			current_time_bet_steps=minimum_initial_step_delay;
+			startofmotionflag=1;
+		}
 		ctc_value = ctc_value_determination(current_time_bet_steps);
 		OCR1A = ctc_value;
 	}
-	else if(status_var==DECELERATING)
+	else if(accel_status==DECELERATING)
 	{
 		ctc_value = ctc_value_determination(current_time_bet_steps);
 		OCR1A = ctc_value;
@@ -297,6 +308,7 @@ void stepper_3d::inside_ISR ()
 			stepper_steps = 0;	//just for safety
 			TIMSK1 = 0;	//disable timer compare interrupt
 			TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
+			startofmotionflag=0;
 			status_var = END_MOVE;	//setting status to indicate that the motion ended
 		}
 
@@ -342,7 +354,7 @@ char * stepper_3d::stepper_status()
 			steps =  stepper_steps* (-1);
 		}
 	char buff[200];
-	x = sprintf(buff, "Status %d, target_t_bet_steps %lu, current_t_bet_steps%lu, remain_steps %ld, accelsteps %lu",status_var , time_bet_steps_us,current_time_bet_steps, steps, accel_steps);
+	x = sprintf(buff, "Status1 %d, Status2 %d,target_t_bet_steps %lu,currenttimebetsteps %ld, remain_steps %ld, accelsteps %lu ",status_var ,accel_status ,time_bet_steps_us,current_time_bet_steps ,steps, accel_steps);
 	return (char *) buff;
 }
 
@@ -390,42 +402,36 @@ void stepper_3d::inside_endstop_ISR ()
 */
 void stepper_3d::stepper_accel_required_check ()
 {
-//The following section checks if The motor is an XY motor or a Z motor to determine the smallest starting speed possible for it to overcome its own inertia
-	#if defined(__AVR_ATmega328__)|| defined(__AVR_ATmega328P__)	//if arduino nano or uno is used
-		minimum_initial_step_delay=XYMOTOR_INITIAL_SPEED;	
-	#endif
-	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__)	//if arduino mega is used
-		minimum_initial_step_delay=ZMOTOR_INITIAL_SPEED;
-	#endif
+
 //The following section checks if acceleration is required.	
 	if(time_bet_steps_us<minimum_initial_step_delay&&time_bet_steps_us<current_time_bet_steps)
 	{//Accelerating
 		stepper_accel_calculation(time_bet_steps_us);
-		status_var=ACCELERATING;
+		accel_status=ACCELERATING;
 		
 	}
 	else if(current_time_bet_steps<time_bet_steps_us && current_time_bet_steps<minimum_initial_step_delay)
 	{
 		//Decelerating
 		stepper_accel_calculation(time_bet_steps_us);
-		status_var=DECELERATING;
+		accel_status=DECELERATING;
 
 	}
 	else if(current_time_bet_steps<minimum_initial_step_delay)
 	{
 		// Accelerated Motion
-		status_var=ACCELERATED;
+		accel_status=ACCELERATED;
 	}
 	else
 	{
-		status_var=MOVE;
+		accel_status=MOVE;
 	}
 
 }
 void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_steps)
 {
 
-		if(accel_steps==0||(status_var!=ACCELERATING && status_var!=DECELERATING))// this calculation is to be done once at the start of accelerated motion when stepper_Steps is = total number of steps
+		if(accel_steps==0||(accel_status!=ACCELERATING && accel_status!=DECELERATING))// this calculation is to be done once at the start of accelerated motion when stepper_Steps is = total number of steps
 		{
 			//accel_steps= stepper_steps/5;// for now accelerates for the first 20% of total steps
 			time_bet_steps_us_accel=1;
@@ -444,24 +450,27 @@ void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_st
 void stepper_3d::AccelerationHandler()
 {
 	stepper_accel_required_check();
-	if(status_var==ACCELERATING)
+	if(accel_status==ACCELERATING&& accelstepsfactor==ACCELFACTOR)
 	{
 		//Accelerates Timer1
 		current_time_bet_steps=current_time_bet_steps - time_bet_steps_us_accel;	
 		OCR1A =ctc_value_determination(current_time_bet_steps);
+		accelstepsfactor=0;
 	}
-	else if(status_var==ACCELERATED&&stepper_steps==(accel_steps+1))
+	else if(accel_status==ACCELERATED&&stepper_steps==((accel_steps*ACCELFACTOR)+1))
 	{
 		//if nearing the end of the Move command and Deceleration is required to stop
 		time_bet_steps_us=minimum_initial_step_delay; //set Target Time between steps to be equal to minimum amount of time to overcome inertia.
-
+		accelstepsfactor=0;
 	}
-	else if(status_var==DECELERATING)
+	else if(accel_status==DECELERATING&&accelstepsfactor==ACCELFACTOR)
 	{
 		//Decelerates Timer1
 		current_time_bet_steps=current_time_bet_steps + time_bet_steps_us_accel;			
 		OCR1A = ctc_value_determination(current_time_bet_steps);
+		accelstepsfactor=0;
 	}
+	accelstepsfactor++;
 
 
 }
