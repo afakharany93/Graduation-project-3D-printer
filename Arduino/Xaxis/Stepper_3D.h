@@ -1,31 +1,58 @@
+/* some hints for usage:
+The Arduino has 3Timers and 6 PWM output pins. The relation between timers and PWM outputs is:
+
+Pins 5 and 6: controlled by timer0
+Pins 9 and 10: controlled by timer1
+Pins 11 and 3: controlled by timer2
+
+On the Arduino Mega we have 6 timers and 15 PWM outputs:
+
+Pins 4 and 13: controlled by timer0
+Pins 11 and 12: controlled by timer1
+Pins 9 and 10: controlled by timer2
+Pin 2, 3 and 5: controlled by timer 3
+Pin 6, 7 and 8: controlled by timer 4
+Pin 46, 45 and 44:: controlled by timer 5
+*/
+
 #ifndef _STEPPER_3D_
 #define _STEPPER_3D_
 
 #include "Arduino.h"
+#include <avr/interrupt.h>
 
 
 //defining the direction of the change in states
 #define NEXT 			1
 #define PREVIOUS 		0
+//statuses
+#define MOVE 			1
+#define END_MOVE		2
+#define	SW_FORCE_STOP	3
+#define	RESUME_AF_STOP	4
+#define	FLOW			5
+//enstop states
+#define NOTHING_PRESSED	0
+#define HOME_PRESSED	1
+#define AWAY_PRESSED	2
 
-
-/*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resemnles one step,
+/*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resembles one step,
 it holds the output of the state and a pointer to the next state to use to step forward and
 a pointer to the previous step in case of backwards */
 
 typedef struct stepper_state_struct
 {
-	unsigned char out;						//used to hold the output values to all pins, this value needs to be inturpeted later
- 	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resmbles the next step on the stepper motor, used for forward motion
-	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previos state, used for backwards motion
+	unsigned char out;						//used to hold the output values to all pins, this value needs to be interpreted later
+ 	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resembles the next step on the stepper motor, used for forward motion
+	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previous state, used for backwards motion
 } stepper_state_struct;
 /* struct timer1_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
- to be able to operate with the timer1 asagile as possible */
+ to be able to operate with the timer1 as agile as possible */
 typedef struct timer1_value
 {
 	unsigned int prescale;				//to hold the value of the prescale
 	float time_per_tick_us;				//to hold the value of time needed to make one tick in the timer in micro seconds
-	unsigned long int max_period_us;	//to haold the max value the timer can hold in micro seconds
+	unsigned long int max_period_us;	//to hold the max value the timer can hold in micro seconds
 }timer1_value;
 
 class stepper_3d
@@ -34,10 +61,10 @@ class stepper_3d
 		stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 9;
+		unsigned char black = 5;
 		unsigned char blue  = 11;
-		unsigned char red   = 10;
-		unsigned char green = 8;
+		unsigned char red   = 6;
+		unsigned char green = 3;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -53,7 +80,25 @@ class stepper_3d
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
 
-		unsigned char permission = 1;		//used to prevent stepper_move function fromoverwriting itself, to execute stepper_move set it to 1, to stop the overwrting set it to 0
+		//endstop states
+		unsigned char endstop_state = NOTHING_PRESSED;
+		
+
+		//pwm values
+		unsigned char max_pwm = 255;	//max speed and torque pwm value
+		unsigned char min_pwm = 0; //current limiting pwm value
+
+		//time variable
+		unsigned long int time_bet_steps_us = 400 ;
+
+		//permission handler
+		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
+
+		//status holding variable
+		unsigned char status_var = END_MOVE;
+
+		//braking variable
+		unsigned char brake = 0;		//set it zero to remove braking, set it one to apply braking
 
 		/*
 			Function name : stepper_move
@@ -85,7 +130,7 @@ class stepper_3d
 			Function name : stepper_flow
 		  	return : void
 		  	parameters : unsigned char direction_flow :- to determine the direction of motion
-		  	Method of operation : it is used to move the stepper motor in a very big nummber of steps that it seems it moves for infinityyyyy, but it doesn't, 
+		  	Method of operation : it is used to move the stepper motor in a very big number of steps that it seems it moves for infinityyyyy, but it doesn't, 
 		  						  best used for moving the stepper motor till a physical event happens to stop it
 		*/
 		void stepper_flow (unsigned char direction_flow);
@@ -93,9 +138,18 @@ class stepper_3d
 			Function name : inside_ISR
 		  	return : void
 		  	parameters :void
-		  	Functionality : this function is to be called inside the timer ISR function, it the function resposible for doing the motion everytime the ISR runs
+		  	Functionality : this function is to be called inside the timer ISR function, it the function responsible for doing the motion everytime the ISR runs
 		*/
 		void inside_ISR () ;
+		/*
+			Function name : inside_endstop_ISR
+		  	return : void
+		  	parameters :void
+		  	Functionality : this function is to be called inside the pin change ISR function, it the function responsible for handling the endstops 
+		  					home pin is the pin with the least value, away pin is the one with more value, for NANO : PC1 and PC2, physical pin A1 and A2
+     						for MEGA : Pj0 and Pj1, physical pins 15 and 14
+		*/
+		void inside_endstop_ISR () ;
 		/*
 			Function name : change_rotation_direction
 		  	return : void
@@ -112,6 +166,8 @@ class stepper_3d
 		  					just use this function to correct the motion direction
 		*/
 		void change_linear_direction_mapping();
+
+		char * stepper_status();
 
 	private:	//stuff under the hood, the user shouldn't bither himself with
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
@@ -140,15 +196,16 @@ class stepper_3d
 		};
 
 		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
-		unsigned long int 	stepper_steps;			//this variable holds the number of steps remained to be moved, needed by the isr
+		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
 		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
 
 		/*Function name : stepper_output
 		  return : void
-		  parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  parameters :  struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  				unsigned char pwm :- an unsigned char to hold the pwm of the output, useful for current limiting	
 		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previos_step functions, runs after next_step or previos_step
 		 */
-		void stepper_output (struct stepper_state_struct *current_state);
+		void stepper_output (struct stepper_state_struct *current_state , unsigned char pwm);
 		/*
 			Function name : next_step
 		  	return : void

@@ -1,14 +1,22 @@
 from time import sleep
 from UUGear import *
+import curses
 
 UUGearDevice.setShowLogs(0)
 
 class MidMan :
-	X = UUGearDevice('UUGear-Arduino-1239-9170')	#X axis stepper and extruder heater
+	X = UUGearDevice('UUGear-Arduino-4713-9982')	#X axis stepper and extruder heater
 	Y = UUGearDevice('UUGear-Arduino-3167-3008')	#Y axis stepper and heatbed
 	Z = UUGearDevice('UUGear-Arduino-5658-7598')	#Z axis stepper and extruder stepper
-
+	stdscr = curses.initscr()
+	
 	def __init__(self):
+		MidMan.stdscr.keypad(1)
+		curses.noecho()
+
+		s = "**** Greetings Human from X-2 3D-printer ****"
+		MidMan.stdscr.addstr(0, 4, s)
+		
 		self.valid = 1
 
 		self.Xlist = [0,0]
@@ -35,23 +43,32 @@ class MidMan :
 		if MidMan.X.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "X axis controller isn't correctly initialized. Hint : check UUgear ID"
+			self.end_UI()
+			print "\r\nX axis controller isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 		if MidMan.Y.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "Y axis controller isn't correctly initialized. Hint : check UUgear ID"
+			self.end_UI()
+			print "\r\nY axis controller isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 		if MidMan.Z.isValid() :
 			self.valid = self.valid * self.valid
 		else :
-			print "Z axis controller isn't correctly initialized. Hint : check UUgear ID"
+			self.end_UI()
+			print "\r\nZ axis controller isn't correctly initialized. Hint : check UUgear ID"
 			self.valid = 0
 
 	def is_valid (self) :
 		return self.valid
+
+	def end_UI (self) :
+		MidMan.stdscr.keypad(0)
+		curses.echo()
+		curses.nocbreak()
+		curses.endwin()                 # Terminate curses
 
 	def fill_Xdata(self, lst) :
 		self.Xlist = lst
@@ -83,7 +100,8 @@ class MidMan :
 				res = MidMan.X.stepper_time_bet_steps(self.Xlist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in X axis controller"
+					self.end_UI()
+					print "\r\nError sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in X axis controller"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
 			res1 = MidMan.X.stepper_move(self.Xlist[0])
@@ -92,7 +110,8 @@ class MidMan :
 				res1 = MidMan.X.stepper_move(self.Xlist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending stepper_move. Hint: check if stepper module is properly defined in X axis controller"
+					self.end_UI()
+					print "\r\nError sending stepper_move. Hint: check if stepper module is properly defined in X axis controller"
 					return False
 		return True
 
@@ -105,7 +124,8 @@ class MidMan :
 				res = MidMan.Y.stepper_time_bet_steps(self.Ylist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Y axis controller"
+					self.end_UI()
+					print "\r\nError sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Y axis controller"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
 			res1 = MidMan.Y.stepper_move(self.Ylist[0])
@@ -114,7 +134,8 @@ class MidMan :
 				res1 = MidMan.Y.stepper_move(self.Ylist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending stepper_move. Hint: check if stepper module is properly defined in Y axis controller"
+					self.end_UI()
+					print "\r\nError sending stepper_move. Hint: check if stepper module is properly defined in Y axis controller"
 					return False
 		return True
 
@@ -127,7 +148,8 @@ class MidMan :
 				res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Z axis controller"
+					self.end_UI()
+					print "\r\nError sending stepper_time_bet_steps. Hint: check if stepper module is properly defined in Z axis controller"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
 			res1 = MidMan.Z.stepper_move(self.Zlist[0])
@@ -136,7 +158,8 @@ class MidMan :
 				res1 = MidMan.Z.stepper_move(self.Zlist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending stepper_move. Hint: check if stepper module is properly defined in Z axis controller"
+					self.end_UI()
+					print "\r\nError sending stepper_move. Hint: check if stepper module is properly defined in Z axis controller"
 					return False
 		return True
 
@@ -149,7 +172,8 @@ class MidMan :
 				res = MidMan.Z.ext_stepper_time_bet_steps(self.Elist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending ext_stepper_time_bet_steps. Hint: check if extruder stepper module is properly defined in E axis controller"
+					self.end_UI()
+					print "\r\nError sending ext_stepper_time_bet_steps. Hint: check if extruder stepper module is properly defined in E axis controller"
 					return False
 			#if time between steps is sent properly then proceed to send the number of steps
 			res1 = MidMan.Z.ext_stepper_move(self.Elist[0])
@@ -158,7 +182,8 @@ class MidMan :
 				res1 = MidMan.Z.ext_stepper_move(self.Elist[0])
 				#if again no valid response, flag an error
 				if res1 == -1 or res1 != 47 :
-					print "Error sending ext_stepper_move. Hint: check if extruder stepper module is properly defined in Z axis controller"
+					self.end_UI()
+					print "\r\nError sending ext_stepper_move. Hint: check if extruder stepper module is properly defined in Z axis controller"
 					return False
 		return True
 
@@ -171,7 +196,8 @@ class MidMan :
 				res = MidMan.Y.heatbed_set_temp(self.heatbed_t)
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending heatbed_set_temp. Hint: check if heatbed module is properly defined in Y axis controller"
+					self.end_UI()
+					print "\r\nError sending heatbed_set_temp. Hint: check if heatbed module is properly defined in Y axis controller"
 					return False
 		self.old_heatbed_t = self.heatbed_t
 		return True
@@ -185,7 +211,8 @@ class MidMan :
 				res = MidMan.X.ext_heat_set_temp(self.ext_heat)
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
-					print "Error sending ext_heat_set_temp. Hint: check if extruder heat module is properly defined in X axis controller"
+					self.end_UI()
+					print "\r\nError sending ext_heat_set_temp. Hint: check if extruder heat module is properly defined in X axis controller"
 					return False
 		self.old_ext_heat = self.ext_heat
 		return True
@@ -199,17 +226,20 @@ class MidMan :
 				res = MidMan.X.stepper_status()
 				#if again no valid response, flag an error
 				if res == -1 :
-					print "Error getting stepper_status. Hint: check if stepper module is properly defined in X axis controller"
+					self.end_UI()
+					print "\r\nError getting stepper_status. Hint: check if stepper module is properly defined in X axis controller"
 					return False
 			#process stepper status
-			print res
+			#print res
 			statusList = res.split(",")
 			for parameter in statusList :
 				if 'Home endstop pressed' in parameter :
-					print "Error Home endstop pressed in X axis. Hint: check print space dimensions in the slicer software"
+					self.end_UI()
+					print "\r\nError Home endstop pressed in X axis. Hint: check print space dimensions in the slicer software"
 					return False
 				if 'Away endstop pressed' in parameter :
-					print "Error Away endstop pressed in X axis. Hint: check print space dimensions in the slicer software"
+					self.end_UI()
+					print "\r\nError Away endstop pressed in X axis. Hint: check print space dimensions in the slicer software"
 					return False
 				if "remain_steps" in parameter :
 					lst = parameter.split()
@@ -223,7 +253,8 @@ class MidMan :
 							self.Xt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				#if 'Stepper has ended motion' in parameter :
+				if ('Stepper has ended motion' in parameter) and (self.Xremain_steps != 0) :
+					self.Xremain_steps = 0
 					
 			return True
 
@@ -239,17 +270,20 @@ class MidMan :
 				res = MidMan.Y.stepper_status()
 				#if again no valid response, flag an error
 				if res == -1 :
-					print "Error getting stepper_status. Hint: check if stepper module is properly defined in Y axis controller"
+					self.end_UI()
+					print "\r\nError getting stepper_status. Hint: check if stepper module is properly defined in Y axis controller"
 					return False
 			#process stepper status
-			print res
+			#print res
 			statusList = res.split(",")
 			for parameter in statusList :
 				if 'Home endstop pressed' in parameter :
-					print "Error Home endstop pressed in Y axis. Hint: check print space dimensions in the slicer software"
+					self.end_UI()
+					print "\r\nError Home endstop pressed in Y axis. Hint: check print space dimensions in the slicer software"
 					return False
 				if 'Away endstop pressed' in parameter :
-					print "Error Away endstop pressed in Y axis. Hint: check print space dimensions in the slicer software"
+					self.end_UI()
+					print "\r\nError Away endstop pressed in Y axis. Hint: check print space dimensions in the slicer software"
 					return False
 				if "remain_steps" in parameter :
 					lst = parameter.split()
@@ -263,7 +297,8 @@ class MidMan :
 							self.Yt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				#if 'Stepper has ended motion' in parameter :
+				if ('Stepper has ended motion' in parameter) and (self.Yremain_steps != 0) :
+					self.Yremain_steps = 0
 					
 			return True
 
@@ -279,17 +314,20 @@ class MidMan :
 				res = MidMan.Z.stepper_status()
 				#if again no valid response, flag an error
 				if res == -1 :
-					print "Error getting stepper_status. Hint: check if stepper module is properly defined in Z axis controller"
+					self.end_UI()
+					print "\r\nError getting stepper_status. Hint: check if stepper module is properly defined in Z axis controller"
 					return False
 			#process stepper status
-			print res
+			#print res
 			statusList = res.split(",")
 			for parameter in statusList :
 				if 'Home endstop pressed' in parameter :
-					print "Error Home endstop pressed in Z axis. Hint: check print space dimensions in the slicer software"
+					self.end_UI()
+					print "\r\nError Home endstop pressed in Z axis. Hint: check print space dimensions in the slicer software"
 					return False
 				if 'Away endstop pressed' in parameter :
-					print "Error Away endstop pressed in Z axis. Hint: check print space dimensions in the slicer software"
+					self.end_UI()
+					print "\r\nError Away endstop pressed in Z axis. Hint: check print space dimensions in the slicer software"
 					return False
 				if "remain_steps" in parameter :
 					lst = parameter.split()
@@ -303,7 +341,8 @@ class MidMan :
 							self.Zt_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				#if 'Stepper has ended motion' in parameter :
+				if ('Stepper has ended motion' in parameter) and (self.Zremain_steps != 0) :
+					self.Zremain_steps = 0
 					
 			return True
 
@@ -319,10 +358,11 @@ class MidMan :
 				res = MidMan.Z.ext_stepper_status()
 				#if again no valid response, flag an error
 				if res == -1 :
-					print "Error getting ext_stepper_status. Hint: check if extruder stepper module is properly defined in Z axis controller"
+					self.end_UI()
+					print "\r\nError getting ext_stepper_status. Hint: check if extruder stepper module is properly defined in Z axis controller"
 					return False
 			#process stepper status
-			print res
+			#print res
 			statusList = res.split(",")
 			for parameter in statusList :
 				if "remain_steps" in parameter :
@@ -337,7 +377,8 @@ class MidMan :
 							self.Et_bet_steps_stat = int(lst[1])
 				#if 'Stepper is moving' in parameter :
 					
-				#if 'Stepper has ended motion' in parameter :
+				if ('Stepper has ended motion' in parameter) and (self.Eremain_steps != 0) :
+					self.Eremain_steps = 0
 					
 			return True
 
@@ -353,10 +394,11 @@ class MidMan :
 			res = MidMan.Y.heatbed_status()
 			#if again no valid response, flag an error
 			if res == -1 :
-				print "Error getting heatbed_status. Hint: check if heatbed module is properly defined in Y axis controller"
+				self.end_UI()
+				print "\r\nError getting heatbed_status. Hint: check if heatbed module is properly defined in Y axis controller"
 				return False
 		#process heatbed status
-		print res
+		#print res
 		statusList = res.split(",")
 		for parameter in statusList :
 			if "temp(c)" in parameter :
@@ -375,10 +417,11 @@ class MidMan :
 			res = MidMan.X.ext_heat_status()
 			#if again no valid response, flag an error
 			if res == -1 :
-				print "Error getting ext_heat_status. Hint: check if extruder heat module is properly defined in X axis controller"
+				self.end_UI()
+				print "\r\nError getting ext_heat_status. Hint: check if extruder heat module is properly defined in X axis controller"
 				return False
 		#process heatbed status
-		print res
+		#print res
 		statusList = res.split(",")
 		for parameter in statusList :
 			if "ext_temp(c)" in parameter :
@@ -410,6 +453,21 @@ class MidMan :
 			ret = self.monitor_ext_h_status()
 			if not(ret) :
 				return False
+
+			s3 = "Remaining steps in X axis: " + str(self.Xremain_steps)
+			MidMan.stdscr.addstr(4, 0, s3)
+			s4 = "Remaining steps in Y axis: " + str(self.Yremain_steps)
+			MidMan.stdscr.addstr(5, 0, s4)
+			s5 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
+			MidMan.stdscr.addstr(6, 0, s5)
+			s6 = "Remaining steps in Extruder: " + str(self.Eremain_steps)
+			MidMan.stdscr.addstr(7, 0, s6)
+			s7 = "Extruder temperature: " + str(self.heatbed_t_stat) + " c"
+			MidMan.stdscr.addstr(8, 0, s7)
+			s8 = "Heatbed temperature: " + str(self.ext_t_stat) + " c"
+			MidMan.stdscr.addstr(9, 0, s8)
+			MidMan.stdscr.refresh()
+			
 			while (self.Xremain_steps != 0 or self.Yremain_steps != 0 or self.Zremain_steps != 0 or self.Eremain_steps != 0 or 
 				self.heatbed_t_stat < (self.heatbed_t * 0.9) or self.ext_t_stat < (self.ext_heat * 0.85) ) :
 				ret = self.monitor_Xstatus()
@@ -430,8 +488,22 @@ class MidMan :
 				ret = self.monitor_ext_h_status()
 				if not(ret) :
 					return False
+				s3 = "Remaining steps in X axis: " + str(self.Xremain_steps)
+				MidMan.stdscr.addstr(4, 0, s3)
+				s4 = "Remaining steps in Y axis: " + str(self.Yremain_steps)
+				MidMan.stdscr.addstr(5, 0, s4)
+				s5 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
+				MidMan.stdscr.addstr(6, 0, s5)
+				s6 = "Remaining steps in Extruder: " + str(self.Eremain_steps)
+				MidMan.stdscr.addstr(7, 0, s6)
+				s7 = "Extruder temperature: " + str(self.heatbed_t_stat) + " c"
+				MidMan.stdscr.addstr(8, 0, s7)
+				s8 = "Heatbed temperature: " + str(self.ext_t_stat) + " c"
+				MidMan.stdscr.addstr(9, 0, s8)
+				MidMan.stdscr.refresh()
 				sleep(0.05)
 			return True
+
 
 	def Detach_machine(self) :
 		MidMan.X.detach()

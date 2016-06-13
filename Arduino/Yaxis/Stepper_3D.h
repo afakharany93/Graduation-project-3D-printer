@@ -2,28 +2,23 @@
 The Arduino has 3Timers and 6 PWM output pins. The relation between timers and PWM outputs is:
 
 Pins 5 and 6: controlled by timer0
-Pins 9 and 10: controlled by timer5
+Pins 9 and 10: controlled by timer1
 Pins 11 and 3: controlled by timer2
 
 On the Arduino Mega we have 6 timers and 15 PWM outputs:
 
 Pins 4 and 13: controlled by timer0
-Pins 11 and 12: controlled by timer5
+Pins 11 and 12: controlled by timer1
 Pins 9 and 10: controlled by timer2
 Pin 2, 3 and 5: controlled by timer 3
 Pin 6, 7 and 8: controlled by timer 4
 Pin 46, 45 and 44:: controlled by timer 5
 */
 
-#ifndef _EXT_STEPPER_3D_
-#define _EXT_STEPPER_3D_
+#ifndef _STEPPER_3D_
+#define _STEPPER_3D_
 
-#define EXTRUDER  1
-
-#if EXTRUDER
-#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__)	//if arduino mega is used
 #include "Arduino.h"
-#include "Stepper_3D.h"
 #include <avr/interrupt.h>
 
 
@@ -45,31 +40,31 @@ Pin 46, 45 and 44:: controlled by timer 5
 it holds the output of the state and a pointer to the next state to use to step forward and
 a pointer to the previous step in case of backwards */
 
-/*typedef struct stepper_state_struct
+typedef struct stepper_state_struct
 {
 	unsigned char out;						//used to hold the output values to all pins, this value needs to be interpreted later
  	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resembles the next step on the stepper motor, used for forward motion
 	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previous state, used for backwards motion
-} stepper_state_struct;*/
-/* struct timer5_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
- to be able to operate with the timer5 as agile as possible */
-typedef struct timer5_value
+} stepper_state_struct;
+/* struct timer1_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
+ to be able to operate with the timer1 as agile as possible */
+typedef struct timer1_value
 {
 	unsigned int prescale;				//to hold the value of the prescale
 	float time_per_tick_us;				//to hold the value of time needed to make one tick in the timer in micro seconds
 	unsigned long int max_period_us;	//to hold the max value the timer can hold in micro seconds
-}timer5_value;
+}timer1_value;
 
-class ext_stepper_3d
+class stepper_3d
 {
 	public:		//what the user has access to
-		ext_stepper_3d ();	//constructor
+		stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 7;
-		unsigned char blue  = 6;
-		unsigned char red   = 5;
-		unsigned char green = 4;
+		unsigned char black = 5;
+		unsigned char blue  = 11;
+		unsigned char red   = 6;
+		unsigned char green = 3;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -85,17 +80,25 @@ class ext_stepper_3d
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
 
-		
+		//endstop states
+		unsigned char endstop_state = NOTHING_PRESSED;
 		
 
+		//pwm values
+		unsigned char max_pwm = 255;	//max speed and torque pwm value
+		unsigned char min_pwm = 0; //current limiting pwm value
+
 		//time variable
-		unsigned long int time_bet_steps_us = 1000 ;
+		unsigned long int time_bet_steps_us = 400 ;
 
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
 
 		//status holding variable
 		unsigned char status_var = END_MOVE;
+
+		//braking variable
+		unsigned char brake = 0;		//set it zero to remove braking, set it one to apply braking
 
 		/*
 			Function name : stepper_move
@@ -138,7 +141,15 @@ class ext_stepper_3d
 		  	Functionality : this function is to be called inside the timer ISR function, it the function responsible for doing the motion everytime the ISR runs
 		*/
 		void inside_ISR () ;
-	
+		/*
+			Function name : inside_endstop_ISR
+		  	return : void
+		  	parameters :void
+		  	Functionality : this function is to be called inside the pin change ISR function, it the function responsible for handling the endstops 
+		  					home pin is the pin with the least value, away pin is the one with more value, for NANO : PC1 and PC2, physical pin A1 and A2
+     						for MEGA : Pj0 and Pj1, physical pins 15 and 14
+		*/
+		void inside_endstop_ISR () ;
 		/*
 			Function name : change_rotation_direction
 		  	return : void
@@ -163,14 +174,18 @@ class ext_stepper_3d
 		struct stepper_state_struct stepper_states[8] = 
 		{
 		//states {out  , next state         , previos state      }
-		/*0*/	 {0x01 , &stepper_states[1] , &stepper_states[3] } ,
-		/*2*/	 {0x02 , &stepper_states[2] , &stepper_states[0] } ,
-		/*4*/	 {0x04 , &stepper_states[3] , &stepper_states[1] } ,
-		/*6*/	 {0x08 , &stepper_states[0] , &stepper_states[2] } ,
+		/*0*/	 {0x01 , &stepper_states[1] , &stepper_states[7] } ,
+		/*1*/	 {0x03 , &stepper_states[2] , &stepper_states[0] } ,
+		/*2*/	 {0x02 , &stepper_states[3] , &stepper_states[1] } ,
+		/*3*/	 {0x06 , &stepper_states[4] , &stepper_states[2] } ,
+		/*4*/	 {0x04 , &stepper_states[5] , &stepper_states[3] } ,
+		/*5*/	 {0x0c , &stepper_states[6] , &stepper_states[4] } ,
+		/*6*/	 {0x08 , &stepper_states[7] , &stepper_states[5] } ,
+		/*7*/	 {0x09 , &stepper_states[0] , &stepper_states[6] } ,
 		};
 
-		/* timer5_value_lookup_table is an array that holds the values of the prescales and the time per tick and the max time value for each prescale */
-		struct timer5_value timer5_value_lookup_table[5] = 
+		/* timer1_value_lookup_table is an array that holds the values of the prescales and the time per tick and the max time value for each prescale */
+		struct timer1_value timer1_value_lookup_table[5] = 
 		{
 		 //{prescale , time_per_tick_us , max_period_us}
 			{1 	  	, 0.0625  			, 4096   	   },
@@ -186,11 +201,11 @@ class ext_stepper_3d
 
 		/*Function name : stepper_output
 		  return : void
-		  -	parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
-	
+		  parameters :  struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
+		  				unsigned char pwm :- an unsigned char to hold the pwm of the output, useful for current limiting	
 		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previos_step functions, runs after next_step or previos_step
 		 */
-		void stepper_output (struct stepper_state_struct *current_state);
+		void stepper_output (struct stepper_state_struct *current_state , unsigned char pwm);
 		/*
 			Function name : next_step
 		  	return : void
@@ -208,32 +223,32 @@ class ext_stepper_3d
 
 		/*
 			Function name : prescale_determination
-		  	return : struct timer5_value * :- pointer to the element of the timer5_value_lookup_table with the right prescale
-		  	parameters : struct timer5_value *timer5_value_lookup_table_ptr_for_prescale :- pointer to the timer5_value_lookup_table array
+		  	return : struct timer1_value * :- pointer to the element of the timer1_value_lookup_table with the right prescale
+		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the timer1_value_lookup_table array
 		  				 unsigned long int time_bet_steps_for_prescale :- used to hold the time between each step in microseconds
-		  	Method of operation : it searches the timer5_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
+		  	Method of operation : it searches the timer1_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
 		*/
-		struct timer5_value * prescale_determination (struct timer5_value *timer5_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
+		struct timer1_value * prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
 
 		/*
 			Function name : ctc_value_determination
 		  	return : unsigned int:- used to return the value needed for the OCR1A register in ctc mode
-		  	parameters : struct timer5_value *timer5_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer5_value_lookup_table array
+		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
 		  				 unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
 		  	Method of operation : it calculates the value neede to be in the OCR1A register for the isr to work in the right perioo of time
 		*/
-		unsigned int ctc_value_determination (struct timer5_value *timer5_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc);
+		unsigned int ctc_value_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc);
 
 		/*
-			Function name : timer5_setup
+			Function name : timer1_setup
 		  	return : void
-		  	parameters : struct timer5_value *timer5_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer5_value_lookup_table array
+		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
 		  				 unsigned long int time_bet_steps :- used to hold the time between each step in microseconds
 		  	Method of operation : it sets the registers for timer 1 to the right prescale value and ctc value and enables the timer one ctc interrupt
 		*/
-		void timer5_setup (struct timer5_value *timer5_value_lookup_table_ptr , unsigned long int time_bet_steps);
+		void timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned long int time_bet_steps);
 };
 
-#endif
-#endif
+
+
 #endif 
