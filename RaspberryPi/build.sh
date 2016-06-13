@@ -29,6 +29,7 @@ cp X2.py $TARGET_DIR/X2.py
 cp Gcode.py $TARGET_DIR/Gcode.py
 cp MidMan.py $TARGET_DIR/MidMan.py
 cp gcode-ex $TARGET_DIR/gcode-ex
+cp ext-calibration $TARGET_DIR/ext-calibration
 
 echo "Copying shared object file to /usr/lib/..."
 
