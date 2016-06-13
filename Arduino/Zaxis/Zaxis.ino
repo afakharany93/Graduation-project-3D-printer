@@ -1,5 +1,6 @@
 #include <EEPROM.h>
 #include "Stepper_3D.h"
+#include "ext_Stepper_3D.h"
 
 #define BAUD_RATE  115200
 
@@ -22,6 +23,12 @@
 #define CMD_STEPPER_STOP        0x63    //to force the motor to stop
 #define CMD_STEPPER_RESUME      0x64    //to resume the motor after stop
 #define CMD_STEPPER_STATUS      0x65    //to send the status of the stepper motor
+//extruder stepper commands
+#define CMD_EXT_STEPPER_MOVE        0x40
+#define CMD_EXT_STEPPER_D_TIME      0x41    //for delay time between steps
+#define CMD_EXT_STEPPER_STOP        0x42
+#define CMD_EXT_STEPPER_RESUME      0x43
+#define CMD_EXT_STEPPER_STATUS      0x44
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -36,11 +43,35 @@ String cmdBuf = "";
 int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
 stepper_3d motor;
-
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
+ext_stepper_3d extStp;
+#endif
 void(* resetDevice) (void) = 0;
 void setup() 
 {
-  // put your setup code here, to run once:
+  	motor.brown = 13;
+	motor.blue = 12;
+	motor.white = 11;
+	motor.green = 10;
+
+	motor.first  = motor.blue;
+	motor.second = motor.brown;
+	motor.third  = motor.green;
+	motor.forth  = motor.white;
+
+	motor.brake = 0;	//no braking
+	
+	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
+	motor.black = 2;
+	motor.blue = 3;
+	motor.red = 4;
+	motor.green = 5;
+
+	motor.first  = motor.green;
+	motor.second = motor.red;
+	motor.third  = motor.black;
+	motor.forth  = motor.blue;
+	#endif
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();
@@ -68,6 +99,12 @@ ISR(PCINT1_vect)
   motor.inside_endstop_ISR ();
 }
 
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
+ISR(TIMER5_COMPA_vect)          // timer compare interrupt service routine
+{
+  extStp.inside_ISR();
+}
+#endif
 
 void loop() 
 {
@@ -173,6 +210,27 @@ void processCommand(String cmd) {
     case CMD_STEPPER_STATUS:
       cmd_stepper_status(cmd);
       break;
+    #if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
+    case CMD_EXT_STEPPER_MOVE:
+      cmd_ext_stepper_move(cmd);
+      break;
+    case CMD_EXT_STEPPER_D_TIME:
+      cmd_ext_stepper_d_time(cmd);
+      break;
+
+    case CMD_EXT_STEPPER_STOP:
+      cmd_ext_stepper_stop(cmd);
+      break;
+      
+    case CMD_EXT_STEPPER_RESUME:
+      cmd_ext_stepper_resume(cmd);
+      break;
+
+    case CMD_EXT_STEPPER_STATUS:
+      cmd_ext_stepper_status(cmd);
+      break;
+	#endif
+
     case 0xFF:
       resetDevice();
       break;
@@ -301,3 +359,106 @@ void cmd_stepper_status(String cmd)
   }
 }
 
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
+void cmd_ext_stepper_move(String cmd) {
+  if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    int steps = ((((int) most_significant_byte) << 8 ) | 0x00FF) & (((int) least_significant_byte) | 0xFF00);
+    #if LCD_DEBUGGING
+    LCD.setCursor(0, 1); //
+    LCD.print(steps);   //print number of steps received
+    #endif
+    extStp.permission = 1;
+    extStp.stepper_move(steps, extStp.time_bet_steps_us);
+
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_d_time(String cmd) {
+  if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    extStp.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    extStp.time_bet_steps_us = extStp.time_bet_steps_us * 95;
+    #if LCD_DEBUGGING
+    LCD.setCursor(0, 1); // 
+    LCD.print(extStp.time_bet_steps_us); //print the received time between steps
+    #endif
+
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_stop(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    extStp.permission = 1;
+    extStp.stepper_stop ();
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_resume(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    extStp.permission = 1;
+    extStp.stepper_resume ();
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+void cmd_ext_stepper_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(extStp.stepper_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+#endif

@@ -1,5 +1,7 @@
 #include <EEPROM.h>
 #include "Stepper_3D.h"
+#include "ext_heat_3D.h"
+
 
 #define BAUD_RATE  115200
 
@@ -22,6 +24,9 @@
 #define CMD_STEPPER_STOP        0x63    //to force the motor to stop
 #define CMD_STEPPER_RESUME      0x64    //to resume the motor after stop
 #define CMD_STEPPER_STATUS      0x65    //to send the status of the stepper motor
+//extruder heat commands
+#define CMD_SET_EXT_HEAT         0x75    //to set heatbed temperature
+#define CMD_EXT_HEAT_STATUS      0x76
 
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
@@ -36,11 +41,24 @@ String cmdBuf = "";
 int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
 stepper_3d motor;
+ext_heat extHeat;
 
+unsigned int ext_heat_temp = 0;
 void(* resetDevice) (void) = 0;
 void setup() 
 {
-  // put your setup code here, to run once:
+	motor.black = 7;
+	motor.blue = 6;
+	motor.red = 5;
+	motor.green = 4;
+
+	motor.first  = motor.green;
+	motor.second = motor.red;
+	motor.third  = motor.black;
+	motor.forth  = motor.blue;
+
+	motor.brake = 0;	//no braking
+
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();
@@ -71,7 +89,7 @@ ISR(PCINT1_vect)
 
 void loop() 
 {
-  // put your main code here, to run repeatedly:
+	extHeat.ext_heat_control(ext_heat_temp);
   // listen to incoming commands
   int len = Serial.available();
   for (int i = 0; i < len; i ++) {
@@ -173,6 +191,14 @@ void processCommand(String cmd) {
     case CMD_STEPPER_STATUS:
       cmd_stepper_status(cmd);
       break;
+
+    case CMD_EXT_HEAT_STATUS:
+      cmd_ext_heat_status(cmd);
+      break;
+
+    case CMD_SET_EXT_HEAT:
+      cmd_set_ext_heat(cmd);
+
     case 0xFF:
       resetDevice();
       break;
@@ -301,3 +327,44 @@ void cmd_stepper_status(String cmd)
   }
 }
 
+void cmd_ext_heat_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(extHeat.ext_heat_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+
+void cmd_set_ext_heat(String cmd) {
+   if (cmd.length() > 5) {
+    int least_significant_byte = cmd.charAt(2);
+    int most_significant_byte = cmd.charAt(3);
+    int status_byte = cmd.charAt(4);
+    byte clientId = cmd.charAt(5);
+    if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      most_significant_byte = 0;   
+    }
+    else if (status_byte == LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
+    {
+      least_significant_byte = 0;
+    }
+    unsigned int data = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    if(data > 2)
+    {
+      extHeat.ext_heat_permission();
+    }
+    ext_heat_temp = data;
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}

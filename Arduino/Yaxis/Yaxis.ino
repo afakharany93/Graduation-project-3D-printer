@@ -1,5 +1,6 @@
 #include <EEPROM.h>
 #include "Stepper_3D.h"
+#include "heatbed_3D.h"
 
 #define BAUD_RATE  115200
 
@@ -22,7 +23,9 @@
 #define CMD_STEPPER_STOP        0x63    //to force the motor to stop
 #define CMD_STEPPER_RESUME      0x64    //to resume the motor after stop
 #define CMD_STEPPER_STATUS      0x65    //to send the status of the stepper motor
-
+//heatbed commands
+#define CMD_SET_HEATBED         0x70    //to set heatbed temperature
+#define CMD_HEATBED_STATUS      0x71
 //Dealing with more than one bye of data in a message
 #define MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS   0x45
 #define LEAST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS  0x38
@@ -36,11 +39,24 @@ String cmdBuf = "";
 int cmdEndStrLen = strlen(COMMAND_END_STRING);
 
 stepper_3d motor;
+heatbed bed;
+
+unsigned char heatbed_temp = 0;
 
 void(* resetDevice) (void) = 0;
 void setup() 
 {
-  // put your setup code here, to run once:
+  	motor.black = 7;
+	motor.blue = 6;
+	motor.red = 5;
+	motor.green = 4;
+
+	motor.first  = motor.green;
+	motor.second = motor.red;
+	motor.third  = motor.black;
+	motor.forth  = motor.blue;
+
+	motor.brake = 0;	//no braking
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();
@@ -71,7 +87,7 @@ ISR(PCINT1_vect)
 
 void loop() 
 {
-  // put your main code here, to run repeatedly:
+  bed.heatbed_control(heatbed_temp);
   // listen to incoming commands
   int len = Serial.available();
   for (int i = 0; i < len; i ++) {
@@ -173,6 +189,15 @@ void processCommand(String cmd) {
     case CMD_STEPPER_STATUS:
       cmd_stepper_status(cmd);
       break;
+
+    case CMD_HEATBED_STATUS:
+      cmd_heatbed_status(cmd);
+      break;
+
+    case CMD_SET_HEATBED:
+      cmd_set_heatbed(cmd);
+      break;
+
     case 0xFF:
       resetDevice();
       break;
@@ -301,3 +326,32 @@ void cmd_stepper_status(String cmd)
   }
 }
 
+void cmd_heatbed_status(String cmd)
+{
+  if (cmd.length() > 4) 
+  {
+    byte clientId = cmd.charAt(2);
+    //send the status
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(bed.heatbed_status());
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
+
+
+void cmd_set_heatbed(String cmd) {
+  if (cmd.length() > 5) {
+    if(cmd.charAt(2) > 2)
+    {
+      bed.heatbed_permission();
+    }
+    heatbed_temp = cmd.charAt(2);
+    byte clientId = cmd.charAt(3);
+    //notify master with the recieve
+    Serial.write(RESPONSE_START_CHAR);
+    Serial.write(clientId);
+    Serial.print(REPOND_WITH_RECIEVED);
+    Serial.print(RESPONSE_END_STRING);
+  }
+}
