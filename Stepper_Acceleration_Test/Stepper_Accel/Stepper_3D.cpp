@@ -26,8 +26,8 @@ stepper_3d::stepper_3d()
 	/* turn on pin PCINT9 and PCINT10 pin change interrupts, which is: 
      		for NANO : PC1 and PC2, physical pin A1 and A2
      		for MEGA : Pj0 and Pj1, physical pins 15 and 14*/ 
-    /* PCICR |= 0b00000010;    
-     PCMSK1 |= 0b00000110;   */
+     PCICR |= 0b00000010;    
+     PCMSK1 |= 0b00000110;   
 
 	interrupts();             // enable all interrupts
 }
@@ -38,13 +38,13 @@ stepper_3d::stepper_3d()
   parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
   Method of operation : to interpert and output the out member of the stepper_state_struct variable holding currrent state information
  */
-void stepper_3d::stepper_output (struct stepper_state_struct *current_state )
+void stepper_3d::stepper_output (struct stepper_state_struct *current_state , unsigned char pwm)
 {
-	digitalWrite(first  , (current_state->out & 0x01) );		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
+	analogWrite(first  , (current_state->out & 0x01) * pwm);		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
 																	then the pin mapped to first will be high, if not it will be zero, all that with the pwm required	*/				
-	digitalWrite(second , ((current_state->out & 0x02)) );		//same as the line above but with bit 2 and pin mapped to second
-	digitalWrite(third  , ((current_state->out & 0x04)) );		//same as the line above but with bit 3 and pin mapped to third
-	digitalWrite(forth  , ((current_state->out & 0x08)) );		//same as the line above but with bit 4 and pin mapped to forth
+	analogWrite(second , (((current_state->out & 0x02) >> 1) * pwm));		//same as the line above but with bit 2 and pin mapped to second
+	analogWrite(third  , (((current_state->out & 0x04) >> 2) * pwm));		//same as the line above but with bit 3 and pin mapped to third
+	analogWrite(forth  , (((current_state->out & 0x08) >> 3) * pwm));		//same as the line above but with bit 4 and pin mapped to forth
 }
 
 /*
@@ -113,7 +113,9 @@ void stepper_3d::stepper_stop ()
 {
 	TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
 	TIMSK1 = 0 ;  // disable timer compare interrupt
-	stepper_output (&current_state );	//ouput the current state,with current limiting pwm
+	{
+		stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+	}
 	status_var = SW_FORCE_STOP;	//setting status to indicate the stop due to software command
 }
 
@@ -129,6 +131,12 @@ void stepper_3d::stepper_resume ()
 	TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt
 	status_var = RESUME_AF_STOP; //set status to indicate that the steper is resuming 
 }
+/*
+			Function name: Step_SetTime
+			return: void
+			parameters: unsigned long int target time
+			Method of operation: Sets up the timer and target time between steps so that Acceleration handler and ISR's Capture Compare Register can work
+*/
 void stepper_3d::Step_SetTime(unsigned long int targettime)
 {
 	time_bet_steps_us=targettime;
@@ -292,19 +300,22 @@ void stepper_3d::inside_ISR ()
 		{
 			if (direction == NEXT)
 			{			
-				stepper_output (&current_state );	//ouput the current state
+				stepper_output (&current_state , max_pwm);	//ouput the current state
 				next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
 			}
 			else if (direction == PREVIOUS)
 			{
-				stepper_output (&current_state );	//ouput the current state
+				stepper_output (&current_state , max_pwm);	//ouput the current state
 				previous_step(&current_state);		//point to the previous state so that it can be outputed the next call of the isr
 			}
 			stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
 		}
 		else
 		{
-			stepper_output (&current_state );	//ouput the current state,with current limiting pwm
+				if (brake >= 1)
+		{
+			stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+		}
 			stepper_steps = 0;	//just for safety
 			TIMSK1 = 0;	//disable timer compare interrupt
 			TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
@@ -353,8 +364,8 @@ char * stepper_3d::stepper_status()
 		{
 			steps =  stepper_steps* (-1);
 		}
-	char buff[200];
-	x = sprintf(buff, "Status1 %d,target_t_bet_steps %lu,currenttimebetsteps %ld, remain_steps %ld, accelsteps %lu ",status_var ,time_bet_steps_us,current_time_bet_steps ,steps, accel_steps);
+	char buff[120];
+	x = sprintf(buff, "Status %d, t_bet_steps %lu, remain_steps %ld, endstops %u",status_var , current_time_bet_steps, steps, endstop_state);
 	return (char *) buff;
 }
 
@@ -395,8 +406,8 @@ void stepper_3d::inside_endstop_ISR ()
 }
 /*
 	Function name: stepper_accel_required_check
-	return type : bool
-	parameters : unsigned long int target_time_bet_steps_stepper : holds the target time between steps for the stepper motor 
+	return type : void
+	parameters : void
 	Functionality: This function checks if the target time between steps can overcome the motor's inertia from an initial state of rest it returns true if
 				   the motor needs to be accelerated and false if it needs to be decelerated.
 */
@@ -428,6 +439,12 @@ void stepper_3d::stepper_accel_required_check ()
 	}
 
 }
+		/*
+			Function name : stepper_accel_calculation
+		  	return : void
+		  	parameters : unsigned long int target_time_bet_steps
+		  	Method of operation : calculates how many steps it should accelerate/decelerate in 
+		*/
 void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_steps)
 {
 
@@ -447,6 +464,13 @@ void stepper_3d::stepper_accel_calculation (unsigned long int target_time_bet_st
 		}
 
 }
+		/*
+			Function name : AccelerationHandler
+		  	return : void
+		  	parameters :void
+		  	Method of operation :If accelerating decreases time bet steps if decelerating decreases time bet steps
+		  	 if accelerated won't stop without decelerating
+		*/
 void stepper_3d::AccelerationHandler()
 {
 	stepper_accel_required_check();

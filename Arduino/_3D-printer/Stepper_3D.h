@@ -31,17 +31,10 @@ Pin 46, 45 and 44:: controlled by timer 5
 #define	SW_FORCE_STOP	3
 #define	RESUME_AF_STOP	4
 #define	FLOW			5
-#define ACCEL_MOVE		6
-#define ACCELERATING	7
-#define DECELERATING	8
-#define ACCELERATED 	9
-//endstop states
+//enstop states
 #define NOTHING_PRESSED	0
 #define HOME_PRESSED	1
 #define AWAY_PRESSED	2
-//Minimum initial stepper delays to overcome their inertia
-#define ZMOTOR_INITIAL_SPEED 1000
-#define XYMOTOR_INITIAL_SPEED 800
 
 /*struct stepper_state_struct is a struct used to hold the info concerning the states, each state resembles one step,
 it holds the output of the state and a pointer to the next state to use to step forward and
@@ -86,7 +79,7 @@ class stepper_3d
 		unsigned char anticlockwise = NEXT;
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
-		struct timer1_value *timer1_value_LT_PTR;
+
 		//endstop states
 		unsigned char endstop_state = NOTHING_PRESSED;
 		
@@ -97,16 +90,15 @@ class stepper_3d
 
 		//time variable
 		unsigned long int time_bet_steps_us = 400 ;
-		signed long int time_bet_steps_us_accel=0; // how much time between each step will be accelerated
-		//acceleration Activation flag
-		unsigned char accel_active=0;
-		//minimum initial step delay to overcome motor inertia
-		unsigned int minimum_initial_step_delay=0;
+
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
 
 		//status holding variable
 		unsigned char status_var = END_MOVE;
+
+		//braking variable
+		unsigned char brake = 0;		//set it zero to remove braking, set it one to apply braking
 
 		/*
 			Function name : stepper_move
@@ -165,14 +157,6 @@ class stepper_3d
 		  	Functionality : if the motor rotates in the other direction than the one specified - given to a function - in all times and all calls, just use 
 		  					this function to correct the rotation direction
 		*/
-		void stepper_accel_required_check ();
-		/*
-			Function name: stepper_accel_required_check
-			return type : void
-			parameters : void
-			Functionality: This function checks if the target time between steps can overcome the motor's inertia from an initial state of rest it returns true if
-						   the motor needs to be accelerated and false if it needs to be decelerated.
-		*/
 		void change_rotation_direction_mapping();
 		/*
 			Function name : change_rotation_direction
@@ -210,11 +194,11 @@ class stepper_3d
 			{256  	, 16	 			, 1048560	   },
 			{1024 	, 64 				, 4194240	   }
 		};
-		unsigned long int current_time_bet_steps;
+
 		struct stepper_state_struct current_state;		//the variable that will hold the current state information, initialized with state zero info
 		unsigned long int 	stepper_steps = 0;			//this variable holds the number of steps remained to be moved, needed by the isr
 		unsigned char 		direction;				//this variable holds the direction of movement, needed by the isr
-		unsigned long int 	accel_steps=0;		//This variable holds the amount of steps in which acceleration is to be achieved.
+
 		/*Function name : stepper_output
 		  return : void
 		  parameters :  struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
@@ -239,27 +223,22 @@ class stepper_3d
 
 		/*
 			Function name : prescale_determination
-		  	return : void
+		  	return : struct timer1_value * :- pointer to the element of the timer1_value_lookup_table with the right prescale
 		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the timer1_value_lookup_table array
 		  				 unsigned long int time_bet_steps_for_prescale :- used to hold the time between each step in microseconds
 		  	Method of operation : it searches the timer1_value_lookup_table array for the suitable prescale and returns a pointer to the member with the suitable prescale
 		*/
-		void prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
+		struct timer1_value * prescale_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_prescale , unsigned long int time_bet_steps_for_prescale);
 
 		/*
 			Function name : ctc_value_determination
 		  	return : unsigned int:- used to return the value needed for the OCR1A register in ctc mode
-		  	parameters : unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
+		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
+		  				 unsigned long int time_bet_steps_for_ctc :- used to hold the time between each step in microseconds
 		  	Method of operation : it calculates the value neede to be in the OCR1A register for the isr to work in the right perioo of time
 		*/
-		unsigned int ctc_value_determination (unsigned long int time_bet_steps_for_ctc);
-		/*
-			Function name : prescale_setter
-		  	return : void
-		  	parameters : void
-		  	Method of operation :checks the timer1_value_LT_PTR and sets the appropriate Prescale
-		*/
-		void prescale_setter();
+		unsigned int ctc_value_determination (struct timer1_value *timer1_value_lookup_table_ptr_for_ctc , unsigned long int time_bet_steps_for_ctc);
+
 		/*
 			Function name : timer1_setup
 		  	return : void
@@ -268,10 +247,6 @@ class stepper_3d
 		  	Method of operation : it sets the registers for timer 1 to the right prescale value and ctc value and enables the timer one ctc interrupt
 		*/
 		void timer1_setup (struct timer1_value *timer1_value_lookup_table_ptr , unsigned long int time_bet_steps);
-		/*
-		Placeholder Documentation
-		*/
-		void AccelerationHandler();
 };
 
 

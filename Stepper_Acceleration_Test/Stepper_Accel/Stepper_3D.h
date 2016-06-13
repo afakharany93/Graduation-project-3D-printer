@@ -86,7 +86,7 @@ class stepper_3d
 		unsigned char anticlockwise = NEXT;
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
-		struct timer1_value *timer1_value_LT_PTR;
+
 		//endstop states
 		unsigned char endstop_state = NOTHING_PRESSED;
 		
@@ -108,6 +108,9 @@ class stepper_3d
 		//status holding variable
 		unsigned char status_var = END_MOVE;
 		unsigned char accel_status=status_var;
+
+		//braking variable
+		unsigned char brake = 0;		//set it zero to remove braking, set it one to apply braking
 
 		/*
 			Function name : stepper_move
@@ -165,24 +168,25 @@ class stepper_3d
      						for MEGA : Pj0 and Pj1, physical pins 15 and 14
 		*/
 		void inside_endstop_ISR () ;
+
+/*
+	Function name: stepper_accel_required_check
+	return type : void
+	parameters : void
+	Functionality: This function checks if the target time between steps can overcome the motor's inertia from an initial state of rest it returns true if
+				   the motor needs to be accelerated and false if it needs to be decelerated.
+*/
+		void stepper_accel_required_check ();
 		/*
 			Function name : change_rotation_direction
 		  	return : void
 		  	parameters :void
 		  	Functionality : if the motor rotates in the other direction than the one specified - given to a function - in all times and all calls, just use 
 		  					this function to correct the rotation direction
-		*/
-		void stepper_accel_required_check ();
-		/*
-			Function name: stepper_accel_required_check
-			return type : void
-			parameters : void
-			Functionality: This function checks if the target time between steps can overcome the motor's inertia from an initial state of rest it returns true if
-						   the motor needs to be accelerated and false if it needs to be decelerated.
-		*/
+	*/	
 		void change_rotation_direction_mapping();
 		/*
-			Function name : change_rotation_direction
+			Function name : change_linear_direction
 		  	return : void
 		  	parameters :void
 		  	Functionality : if the motor when connected to a linear actuator moves in the other direction than the one specified - given to a function - in all times and all calls, 
@@ -241,7 +245,8 @@ class stepper_3d
 		  				unsigned char pwm :- an unsigned char to hold the pwm of the output, useful for current limiting	
 		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previous_step functions, runs after next_step or previous_step
 		 */
-		void stepper_output (struct stepper_state_struct *current_state);
+		struct timer1_value *timer1_value_LT_PTR;
+		void stepper_output (struct stepper_state_struct *current_state , unsigned char pwm);
 		/*
 			Function name : next_step
 		  	return : void
@@ -283,17 +288,23 @@ class stepper_3d
 		/*
 			Function name : timer1_setup
 		  	return : void
-		  	parameters : struct timer1_value *timer1_value_lookup_table_ptr_for_prescale :- pointer to the suitable element in the timer1_value_lookup_table array
-		  				 unsigned long int time_bet_steps :- used to hold the time between each step in microseconds
+		  	parameters :void
 		  	Method of operation : it sets the registers for timer 1 to the right prescale value and ctc value and enables the timer one ctc interrupt
 		*/
 		void timer1_setup ();
 		/*
-		Placeholder Documentation
+			Function name : stepper_accel_calculation
+		  	return : void
+		  	parameters : unsigned long int target_time_bet_steps
+		  	Method of operation : calculates how many steps it should accelerate/decelerate in 
 		*/
 		void stepper_accel_calculation (unsigned long int target_time_bet_steps);
 		/*
-		Placeholder Documentation
+			Function name : AccelerationHandler
+		  	return : void
+		  	parameters :void
+		  	Method of operation :If accelerating decreases time bet steps if decelerating decreases time bet steps
+		  	 if accelerated won't stop without decelerating
 		*/
 		void AccelerationHandler();
 };
