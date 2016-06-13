@@ -33,11 +33,11 @@ stepper_3d::stepper_3d()
  */
 void stepper_3d::stepper_output (struct stepper_state_struct *current_state , unsigned char pwm)
 {
-	digitalWrite(first  , (current_state->out & 0x01) * pwm);		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
+	analogWrite(first  , (current_state->out & 0x01) * pwm);		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
 																	then the pin mapped to first will be high, if not it will be zero, all that with the pwm required	*/				
-	digitalWrite(second , (((current_state->out & 0x02) >> 1) * pwm));		//same as the line above but with bit 2 and pin mapped to second
-	digitalWrite(third  , (((current_state->out & 0x04) >> 2) * pwm));		//same as the line above but with bit 3 and pin mapped to third
-	digitalWrite(forth  , (((current_state->out & 0x08) >> 3) * pwm));		//same as the line above but with bit 4 and pin mapped to forth
+	analogWrite(second , (((current_state->out & 0x02) >> 1) * pwm));		//same as the line above but with bit 2 and pin mapped to second
+	analogWrite(third  , (((current_state->out & 0x04) >> 2) * pwm));		//same as the line above but with bit 3 and pin mapped to third
+	analogWrite(forth  , (((current_state->out & 0x08) >> 3) * pwm));		//same as the line above but with bit 4 and pin mapped to forth
 }
 
 /*
