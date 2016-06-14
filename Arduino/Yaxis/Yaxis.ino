@@ -234,7 +234,7 @@ void cmd_stepper_move(String cmd) {
     }
     int steps = ((((int) most_significant_byte) << 8 ) | 0x00FF) & (((int) least_significant_byte) | 0xFF00);
     motor.permission = 1;
-    motor.stepper_move(steps, motor.time_bet_steps_us);
+    motor.stepper_move(steps);
 
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
@@ -258,7 +258,7 @@ void cmd_stepper_d_time(String cmd) {
     {
       least_significant_byte = 0;
     }
-    motor.time_bet_steps_us = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
+    motor.Step_SetTime(((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00));
 
     //notify master with the recieve
     Serial.write(RESPONSE_START_CHAR);
