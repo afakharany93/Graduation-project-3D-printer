@@ -106,7 +106,10 @@ void stepper_3d::stepper_stop ()
 {
 	TCCR1B &= (~(1 << WGM12));   // disable timer CTC mode
 	TIMSK1 = 0 ;  // disable timer compare interrupt
-	stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+	if (brake == 0)
+	{	
+		stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+	}
 	status_var = SW_FORCE_STOP;	//setting status to indicate the stop due to software command
 }
 
@@ -255,7 +258,7 @@ void stepper_3d::inside_ISR ()
 	}
 	else
 	{
-		if (brake == 1)
+		if (brake == 0)
 		{
 			stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
 		}
