@@ -61,10 +61,10 @@ class stepper_3d
 		stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 12;
-		unsigned char blue  = 10;
-		unsigned char red   = 9;
-		unsigned char green = 11;
+		unsigned char black = 4;
+		unsigned char blue = 5;
+		unsigned char red = 7;
+		unsigned char green = 6;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -96,6 +96,9 @@ class stepper_3d
 
 		//status holding variable
 		unsigned char status_var = END_MOVE;
+
+		//braking variable
+		unsigned char brake = 0;		//set it zero to remove braking, set it one to apply braking
 
 		/*
 			Function name : stepper_move
@@ -202,7 +205,7 @@ class stepper_3d
 		  				unsigned char pwm :- an unsigned char to hold the pwm of the output, useful for current limiting	
 		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previos_step functions, runs after next_step or previos_step
 		 */
-		void stepper_output (struct stepper_state_struct *current_state );
+		void stepper_output (struct stepper_state_struct *current_state , unsigned char pwm);
 		/*
 			Function name : next_step
 		  	return : void

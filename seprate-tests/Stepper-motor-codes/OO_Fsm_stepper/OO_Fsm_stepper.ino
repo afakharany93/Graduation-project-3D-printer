@@ -15,7 +15,7 @@ stepper_3d extruder;
 void setup() 
 {
 	extruder.permission = 1;
-	extruder.stepper_flow (BACKWARD);
+	extruder.stepper_move (-5*800,800);
 	Serial.begin(115200);
 	
 }
