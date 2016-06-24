@@ -49,8 +49,8 @@ void setup()
 {
 	motor.black = 7;
 	motor.blue = 6;
-	motor.red = 5;
-	motor.green = 4;
+	motor.red = 4;
+	motor.green = 5;
 
 	motor.first  = motor.green;
 	motor.second = motor.red;

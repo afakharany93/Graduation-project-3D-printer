@@ -49,10 +49,14 @@ ext_stepper_3d extStp;
 void(* resetDevice) (void) = 0;
 void setup() 
 {
-  	motor.brown = 13;
-	motor.blue = 12;
-	motor.white = 11;
-	motor.green = 10;
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  analogWrite(6,240);
+  analogWrite(7,240);
+  	motor.brown = 11;
+	motor.blue = 10;
+	motor.white = 13;
+	motor.green = 12;
 
 	motor.first  = motor.blue;
 	motor.second = motor.brown;
@@ -62,15 +66,15 @@ void setup()
 	motor.brake = 0;	//no braking
 	
 	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
-	motor.black = 2;
-	motor.blue = 3;
-	motor.red = 4;
-	motor.green = 5;
+	extStp.black = 3;
+	extStp.blue = 5;
+	extStp.red = 4;
+	extStp.green = 2;
 
-	motor.first  = motor.green;
-	motor.second = motor.red;
-	motor.third  = motor.black;
-	motor.forth  = motor.blue;
+	extStp.first  = motor.green;
+	extStp.second = motor.red;
+	extStp.third  = motor.black;
+	extStp.forth  = motor.blue;
 	#endif
   // if has no id yet, generate one
   if (getID() == "") {

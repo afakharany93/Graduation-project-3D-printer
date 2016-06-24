@@ -142,10 +142,12 @@ class MidMan :
 	def send_Zdata(self) :
 		if self.Zlist[0] != 0 :
 			#send time between steps
-			res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
+			res = MidMan.Z.stepper_time_bet_steps(2000)
+			#res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
 			#if no valid response try again
 			if res == -1 or res != 47 :
-				res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
+				res = MidMan.Z.stepper_time_bet_steps(2000)
+				#res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
 					self.end_UI()
@@ -432,7 +434,23 @@ class MidMan :
 		return True
 
 	def machine_control(self) :
-		if not (self.send_Xdata() and self.send_Ydata() and self.send_Zdata() and self.send_Edata() and self.send_heatbed_t() and self.send_ext_t() ):
+		if not (self.send_Zdata()):
+			return False
+		else :
+			ret = self.monitor_Zstatus()
+			if not(ret) :
+				return False
+			s5 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
+			MidMan.stdscr.addstr(6, 0, s5)
+			while(self.Zremain_steps != 0):
+				ret = self.monitor_Zstatus()
+				if not(ret) :
+					return False
+				s5 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
+				MidMan.stdscr.addstr(6, 0, s5)
+
+
+		if not (self.send_Xdata() and self.send_Ydata() and self.send_Edata() and self.send_heatbed_t() and self.send_ext_t() ):
 			return False
 		else :
 			ret = self.monitor_Xstatus()
@@ -441,9 +459,7 @@ class MidMan :
 			ret = self.monitor_Ystatus()
 			if not(ret) :
 				return False
-			ret = self.monitor_Zstatus()
-			if not(ret) :
-				return False
+			
 			ret = self.monitor_Estatus()
 			if not(ret) :
 				return False
@@ -458,17 +474,15 @@ class MidMan :
 			MidMan.stdscr.addstr(4, 0, s3)
 			s4 = "Remaining steps in Y axis: " + str(self.Yremain_steps)
 			MidMan.stdscr.addstr(5, 0, s4)
-			s5 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
-			MidMan.stdscr.addstr(6, 0, s5)
 			s6 = "Remaining steps in Extruder: " + str(self.Eremain_steps)
 			MidMan.stdscr.addstr(7, 0, s6)
-			s7 = "Extruder temperature: " + str(self.heatbed_t_stat) + " c"
+			s7 = "Extruder temperature: " + str(self.ext_t_stat) + " c"
 			MidMan.stdscr.addstr(8, 0, s7)
-			s8 = "Heatbed temperature: " + str(self.ext_t_stat) + " c"
+			s8 = "Heatbed temperature: " + str(self.heatbed_t_stat) + " c"
 			MidMan.stdscr.addstr(9, 0, s8)
 			MidMan.stdscr.refresh()
 			
-			while (self.Xremain_steps != 0 or self.Yremain_steps != 0 or self.Zremain_steps != 0 or self.Eremain_steps != 0 or 
+			while (self.Xremain_steps != 0 or self.Yremain_steps != 0  or self.Eremain_steps != 0 or 
 				self.heatbed_t_stat < (self.heatbed_t * 0.9) or self.ext_t_stat < (self.ext_heat * 0.85) ) :
 				ret = self.monitor_Xstatus()
 				if not(ret) :
@@ -476,9 +490,7 @@ class MidMan :
 				ret = self.monitor_Ystatus()
 				if not(ret) :
 					return False
-				ret = self.monitor_Zstatus()
-				if not(ret) :
-					return False
+				
 				ret = self.monitor_Estatus()
 				if not(ret) :
 					return False
@@ -496,9 +508,9 @@ class MidMan :
 				MidMan.stdscr.addstr(6, 0, s5)
 				s6 = "Remaining steps in Extruder: " + str(self.Eremain_steps)
 				MidMan.stdscr.addstr(7, 0, s6)
-				s7 = "Extruder temperature: " + str(self.heatbed_t_stat) + " c"
+				s7 = "Extruder temperature: " + str(self.ext_t_stat) + " c"
 				MidMan.stdscr.addstr(8, 0, s7)
-				s8 = "Heatbed temperature: " + str(self.ext_t_stat) + " c"
+				s8 = "Heatbed temperature: " + str(self.heatbed_t_stat) + " c"
 				MidMan.stdscr.addstr(9, 0, s8)
 				MidMan.stdscr.refresh()
 				sleep(0.05)

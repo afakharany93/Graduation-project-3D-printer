@@ -14,8 +14,16 @@ stepper_3d extruder;
 
 void setup() 
 {
+	extruder.white = 13;
+	extruder.green = 12;
+	extruder.brown = 11;
+	extruder.blue = 10;
+	extruder.first = extruder.blue;
+	extruder.second = extruder.brown;
+	extruder.third = extruder.green;
+	extruder.forth = extruder.white;
 	extruder.permission = 1;
-	extruder.stepper_move (-5*800,800);
+	extruder.stepper_move (-5*800,2525);
 	Serial.begin(115200);
 	
 }

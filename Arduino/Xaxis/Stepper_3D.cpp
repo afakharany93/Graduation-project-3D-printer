@@ -137,11 +137,11 @@ void stepper_3d::stepper_flow (unsigned char direction_flow)
 {
 	if (direction_flow == clockwise )
 	{
-		stepper_move (2147483647, 500 );	//move max number of steps in a direction
+		stepper_move (2147483647, 1000 );	//move max number of steps in a direction
 	}
 	else if (direction_flow == anticlockwise )
 	{
-		stepper_move (-2147483647, 500 );	//move max number of steps oin the other direction
+		stepper_move (-2147483647, 1000 );	//move max number of steps oin the other direction
 	}
 	status_var = FLOW;
 
