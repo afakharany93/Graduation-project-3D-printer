@@ -352,6 +352,7 @@ void cmd_set_ext_heat(String cmd) {
     Serial.print(REPOND_WITH_RECIEVED);
     Serial.print(RESPONSE_END_STRING);
 
+    extHeat.ext_heat_permission();
     if (status_byte == MOST_SIGNIFICANT_BYTE_EQ_ZERO_STATUS)
     {
       most_significant_byte = 0;   
@@ -361,10 +362,7 @@ void cmd_set_ext_heat(String cmd) {
       least_significant_byte = 0;
     }
     unsigned int data = ((((unsigned int) most_significant_byte) << 8 ) | 0x00FF) & (((unsigned int) least_significant_byte) | 0xFF00);
-    if(data > 2)
-    {
-      extHeat.ext_heat_permission();
-    }
+    
     ext_heat_temp = data;
     //notify master with the recieve
     

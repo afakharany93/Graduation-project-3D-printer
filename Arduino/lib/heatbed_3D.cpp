@@ -27,6 +27,7 @@ heatbed::heatbed()
 	op = 0;
 	magic.max_st = 2000;
 	magic.zero_st = 100;
+	temp.series_resistor = 98000;
 	#if DEBUG
 		
 	#endif
