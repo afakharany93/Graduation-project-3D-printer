@@ -3,15 +3,15 @@ from UUGear import *
 
 UUGearDevice.setShowLogs(0)
 
-device = UUGearDevice('UUGear-Arduino-3167-3008')
+device = UUGearDevice('UUGear-Arduino-4713-9982')
 
 if device.isValid():
-		response1 = device.stepper_time_bet_steps(400)
+		response1 = device.stepper_time_bet_steps(1000)
 		print response1
 		status = device.stepper_status()
 		print status
 
-		response1 = device.stepper_go_home()
+		response1 = device.stepper_move(5*800)
 		print response1
 		status = device.stepper_status()
 		print status
