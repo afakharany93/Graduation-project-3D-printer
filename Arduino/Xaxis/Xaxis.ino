@@ -47,8 +47,8 @@ unsigned int ext_heat_temp = 0;
 void(* resetDevice) (void) = 0;
 void setup() 
 {
-	motor.black = 7;
-	motor.blue = 6;
+	motor.black = 6;
+	motor.blue = 7;
 	motor.red = 4;
 	motor.green = 5;
 
