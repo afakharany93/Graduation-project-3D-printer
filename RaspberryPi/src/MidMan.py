@@ -443,7 +443,7 @@ class MidMan :
 			s5 = "Remaining steps in Z axis: " + str(self.Zremain_steps)
 			MidMan.stdscr.addstr(6, 0, s5)
 			while(self.Zremain_steps != 0):
-				sleep(0.05)
+				sleep(0.1)
 				ret = self.monitor_Zstatus()
 				if not(ret) :
 					return False
@@ -485,7 +485,7 @@ class MidMan :
 			
 			while (self.Xremain_steps != 0 or self.Yremain_steps != 0  or self.Eremain_steps != 0 or 
 				self.heatbed_t_stat < (self.heatbed_t * 0.9) or self.ext_t_stat < (self.ext_heat * 0.85) ) :
-				sleep(0.05)
+				sleep(0.1)
 				ret = self.monitor_Xstatus()
 				if not(ret) :
 					return False

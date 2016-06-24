@@ -51,8 +51,8 @@ void setup()
 {
   pinMode(6, OUTPUT);
   pinMode(7, OUTPUT);
-  analogWrite(6,240);
-  analogWrite(7,240);
+  analogWrite(6,255);
+  analogWrite(7,255);
   	motor.brown = 11;
 	motor.blue = 10;
 	motor.white = 13;

@@ -106,6 +106,43 @@ unsigned int ext_heat_temp = 0;
 void(* resetDevice) (void) = 0;
 
 void setup() {
+  motor.black = 7;
+  motor.blue = 6;
+  motor.red = 4;
+  motor.green = 5;
+
+  motor.first  = motor.green;
+  motor.second = motor.red;
+  motor.third  = motor.black;
+  motor.forth  = motor.blue;
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  analogWrite(6,255);
+  analogWrite(7,255);
+    motor.brown = 11;
+  motor.blue = 10;
+  motor.white = 13;
+  motor.green = 12;
+
+  motor.first  = motor.blue;
+  motor.second = motor.brown;
+  motor.third  = motor.green;
+  motor.forth  = motor.white;
+
+#endif
+  
+  #if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
+  extStp.black = 3;
+  extStp.blue = 5;
+  extStp.red = 4;
+  extStp.green = 2;
+
+  extStp.first  = motor.green;
+  extStp.second = motor.red;
+  extStp.third  = motor.black;
+  extStp.forth  = motor.blue;
+  #endif
   #if LCD_DEBUGGING
   LCD.begin(16, 2);  // 16 lines by 2 rows
   LCD.clear();        //clear LCD screen
