@@ -142,11 +142,11 @@ class MidMan :
 	def send_Zdata(self) :
 		if self.Zlist[0] != 0 :
 			#send time between steps
-			res = MidMan.Z.stepper_time_bet_steps(2000)
+			res = MidMan.Z.stepper_time_bet_steps(2000/95)
 			#res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
 			#if no valid response try again
 			if res == -1 or res != 47 :
-				res = MidMan.Z.stepper_time_bet_steps(2000)
+				res = MidMan.Z.stepper_time_bet_steps(2000/95)
 				#res = MidMan.Z.stepper_time_bet_steps(self.Zlist[1])
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
