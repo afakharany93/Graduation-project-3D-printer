@@ -57,6 +57,7 @@ void setup()
 	motor.forth  = motor.blue;
 
 	motor.brake = 0;	//no braking
+  motor.gohome();
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();

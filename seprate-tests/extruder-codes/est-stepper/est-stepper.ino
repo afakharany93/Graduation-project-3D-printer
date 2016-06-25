@@ -10,10 +10,14 @@ ISR(TIMER1_COMPA_vect)          // timer compare interrupt service routine
 
 void setup() 
 {
+	pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  digitalWrite(6,1);
+  digitalWrite(7,1);
 	extruder.permission = 1;
 	//digitalWrite(5,1);
 	//digitalWrite(3,0);
-	extruder.stepper_move(578,1500);
+	extruder.stepper_move(5000,16000);
 }
 
 void loop() 

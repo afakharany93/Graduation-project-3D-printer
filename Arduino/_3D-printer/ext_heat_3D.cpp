@@ -27,6 +27,7 @@ ext_heat::ext_heat()
 	op = 0;
 	ext_fuzzy.max_st = 500;
 	ext_fuzzy.zero_st = 10;
+	ext_temp.series_resistor = 99000;
 	#if DEBUG_EXT_H
 		
 	#endif

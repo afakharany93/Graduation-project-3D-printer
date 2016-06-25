@@ -51,8 +51,8 @@ void setup()
 {
   pinMode(6, OUTPUT);
   pinMode(7, OUTPUT);
-  analogWrite(6,255);
-  analogWrite(7,255);
+  digitalWrite(6,1);
+  digitalWrite(7,1);
   motor.brown = 11;
 	motor.blue = 10;
 	motor.white = 13;
@@ -66,16 +66,20 @@ void setup()
 	motor.brake = 0;	//no braking
 	
 	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
-	extStp.black = 3;
-	extStp.blue = 5;
-	extStp.red = 4;
-	extStp.green = 2;
+	extStp.black = 5;
+	extStp.blue = 3;
+	extStp.red = 2;
+	extStp.green = 4;
 
-	extStp.first  = motor.green;
+	extStp.first  = motor.blue;
 	extStp.second = motor.red;
-	extStp.third  = motor.black;
-	extStp.forth  = motor.blue;
+	extStp.third  = motor.green;
+	extStp.forth  = motor.black;
+
+  /*extStp.permission = 1;
+    extStp.stepper_move(3000, 1500);*/
 	#endif
+  motor.gohome();
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();

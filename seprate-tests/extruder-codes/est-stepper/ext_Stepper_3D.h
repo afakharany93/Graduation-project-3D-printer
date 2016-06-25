@@ -62,9 +62,9 @@ class ext_stepper_3d
 
 		//mapping the pins with wire colors
 		unsigned char black = 5;
-		unsigned char blue  = 11;
-		unsigned char red   = 6;
-		unsigned char green = 3;
+		unsigned char blue  = 3;
+		unsigned char red   = 2;
+		unsigned char green = 4;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -168,7 +168,7 @@ class ext_stepper_3d
 
 	private:	//stuff under the hood, the user shouldn't bither himself with
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
-		struct stepper_state_struct stepper_states[8] = 
+		struct stepper_state_struct stepper_states[4] = 
 		{
 		//states {out  , next state         , previos state      }
 		/*0*/	 {0x01 , &stepper_states[1] , &stepper_states[3] } ,

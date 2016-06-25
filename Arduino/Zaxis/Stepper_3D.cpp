@@ -15,7 +15,6 @@ stepper_3d::stepper_3d()
 	digitalWrite(second, LOW);
 	digitalWrite(third, LOW);
 	digitalWrite(forth, LOW);
-
 	/* turn on pin PCINT9 and PCINT10 pin change interrupts, which is: 
      		for NANO : PC1 and PC2, physical pin A1 and A2
      		for MEGA : Pj0 and Pj1, physical pins 15 and 14*/ 
@@ -346,5 +345,16 @@ void stepper_3d::inside_endstop_ISR ()
 	else if(away_pin_state == HIGH && home_pin_state == HIGH)
 	{
 		endstop_state = NOTHING_PRESSED;
+	}
+}
+
+void stepper_3d::gohome()
+{
+	if(endstop_state != HOME_PRESSED)
+	{
+		stepper_flow(backward);
+		while(endstop_state != HOME_PRESSED && status_var != SW_FORCE_STOP);
+		permission = 1;
+		stepper_move(160,1500);
 	}
 }

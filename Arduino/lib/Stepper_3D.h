@@ -169,6 +169,8 @@ class stepper_3d
 
 		char * stepper_status();
 
+		void gohome();
+
 	private:	//stuff under the hood, the user shouldn't bither himself with
 		/*stepper_states is an array that holds the constant values of all the states of the stepper motor */
 		struct stepper_state_struct stepper_states[8] = 
