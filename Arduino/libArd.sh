@@ -6,8 +6,8 @@ cp lib/Thermistor_3D.h Xaxis/Thermistor_3D.h
 cp lib/fuzzy.cpp Xaxis/fuzzy.cpp
 cp lib/fuzzy.h Xaxis/fuzzy.h
 
-cp lib/ext_heat_3D.cpp Xaxis/ext_heat_3D.cpp
-cp lib/ext_heat_3D.h Xaxis/ext_heat_3D.h
+cp lib/heatbed_3D.cpp Xaxis/heatbed_3D.cpp
+cp lib/heatbed_3D.h Xaxis/heatbed_3D.h
 
 #Yaxis
 cp lib/Stepper_3D.cpp Yaxis/Stepper_3D.cpp

@@ -206,11 +206,10 @@ class MidMan :
 
 	def send_ext_t(self) :
 		if (self.ext_heat - self.old_ext_heat) != 0 :
-			#send heatbed temperature
-			res = MidMan.X.ext_heat_set_temp(self.ext_heat)
+			res = MidMan.X.heatbed_set_temp(self.ext_heat)
 			#if no valid response try again
 			if res == -1 or res != 47 :
-				res = MidMan.X.ext_heat_set_temp(self.ext_heat)
+				res = MidMan.X.heatbed_set_temp(self.ext_heat)
 				#if again no valid response, flag an error
 				if res == -1 or res != 47 :
 					self.end_UI()
@@ -413,10 +412,10 @@ class MidMan :
 
 	def monitor_ext_h_status(self) :
 		#get heatbed status
-		res = MidMan.X.ext_heat_status()
+		res = MidMan.X.heatbed_status()
 		#if no valid response try again
 		if res == -1 :
-			res = MidMan.X.ext_heat_status()
+			res = MidMan.X.heatbed_status()
 			#if again no valid response, flag an error
 			if res == -1 :
 				self.end_UI()
@@ -426,7 +425,7 @@ class MidMan :
 		#print res
 		statusList = res.split(",")
 		for parameter in statusList :
-			if "ext_temp(c)" in parameter :
+			if "temp(c)" in parameter :
 				lst = parameter.split()
 				if 1 < len(lst) :
 					if lst[1].isdigit() :
