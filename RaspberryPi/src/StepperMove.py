@@ -6,7 +6,8 @@ UUGearDevice.setShowLogs(0)
 device = UUGearDevice('UUGear-Arduino-5658-7598')
 
 if device.isValid():
-		response1 = device.stepper_time_bet_steps(1000)
+	try:
+		response1 = device.stepper_time_bet_steps(1000/95)
 		print response1
 		status = device.stepper_status()
 		print status
@@ -21,7 +22,7 @@ if device.isValid():
 			print status
 			sleep(0.1)
 
-
+	finally:
 		device.detach()
 		device.stopDaemon()
 else:
