@@ -53,10 +53,10 @@ void setup()
   pinMode(7, OUTPUT);
   analogWrite(6,255);
   analogWrite(7,255);
-  	motor.brown = 11;
+  motor.brown = 12;
 	motor.blue = 10;
 	motor.white = 13;
-	motor.green = 12;
+	motor.green = 11;
 
 	motor.first  = motor.blue;
 	motor.second = motor.brown;

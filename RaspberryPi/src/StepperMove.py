@@ -3,7 +3,7 @@ from UUGear import *
 
 UUGearDevice.setShowLogs(0)
 
-device = UUGearDevice('UUGear-Arduino-4713-9982')
+device = UUGearDevice('UUGear-Arduino-5658-7598')
 
 if device.isValid():
 		response1 = device.stepper_time_bet_steps(1000)
