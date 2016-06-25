@@ -65,6 +65,8 @@ class Gcode :
 		#calculate the total motion
 		h = math.pow(dx,2) + math.pow(dy,2) + math.pow(dz,2)
 		h = math.sqrt(h)
+		if h == 0 :
+			h = de
 		#calculate time of motion
 		self.t = h / self.f		#sec
 		#calculate feed on every axis

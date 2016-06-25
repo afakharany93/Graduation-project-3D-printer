@@ -38,7 +38,7 @@ public:
 
 	heatbed();
 	void heatbed_permission();
-	void heatbed_control(unsigned char set_temp);
+	void heatbed_control(unsigned int set_temp);
 	char * heatbed_status();
 
 };

@@ -13,7 +13,7 @@
 #include "heatbed_3D.h"
 
 Thermistor_3d temp(A3);
-fuzzy magic(9, 120, 0, 220, 0);
+fuzzy magic(9, 300, 0, 255, 0);
 
 
 heatbed::heatbed()
@@ -38,9 +38,11 @@ void heatbed::heatbed_permission()
 	_permission = START_HB;
 }
 
-void heatbed::heatbed_control(unsigned char set_temp)
+void heatbed::heatbed_control(unsigned int set_temp)
 {
 	unsigned long diff;
+	set_temp = set_temp * 5;
+	set_temp = set_temp / 2;
 
 	if (set_temp < 2)
 	{
@@ -59,9 +61,9 @@ void heatbed::heatbed_control(unsigned char set_temp)
 				t = temp.temperature_measurment();
 				input = (int) t;
 				op = op + magic.fuzzy_controller(input, set_temp);
-				if(op > 220)
+				if(op > 255)
 				{
-					op = 220;
+					op = 255;
 				}
 				else if (op < 0)
 				{

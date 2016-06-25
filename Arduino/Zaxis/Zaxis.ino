@@ -66,10 +66,10 @@ void setup()
 	motor.brake = 0;	//no braking
 	
 	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
-	extStp.black = 5;
-	extStp.blue = 7;
-	extStp.red = 6;
-	extStp.green = 4;
+	extStp.black = 4;
+	extStp.blue = 2;
+	extStp.red = 3;
+	extStp.green = 5;
 
 	extStp.first  = extStp.green;
 	extStp.second = extStp.red;
@@ -78,7 +78,8 @@ void setup()
 
   extStp.max_pwm = 255;
 	#endif
- // motor.gohome();
+  motor.gohome();
+  motor.stepper_move(-200,1000);
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();

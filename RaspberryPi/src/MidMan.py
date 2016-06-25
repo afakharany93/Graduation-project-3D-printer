@@ -7,7 +7,7 @@ UUGearDevice.setShowLogs(0)
 class MidMan :
 	X = UUGearDevice('UUGear-Arduino-4713-9982')	#X axis stepper and extruder heater
 	Y = UUGearDevice('UUGear-Arduino-3167-3008')	#Y axis stepper and heatbed
-	Z = UUGearDevice('UUGear-Arduino-5658-7598')	#Z axis stepper and extruder stepper
+	Z = UUGearDevice('UUGear-Arduino-7309-1013')	#Z axis stepper and extruder stepper
 	stdscr = curses.initscr()
 	
 	def __init__(self):
@@ -483,7 +483,7 @@ class MidMan :
 			MidMan.stdscr.refresh()
 			
 			while (self.Xremain_steps != 0 or self.Yremain_steps != 0  or self.Eremain_steps != 0 or 
-				self.heatbed_t_stat < (self.heatbed_t * 0.9) or self.ext_t_stat < (self.ext_heat * 0.85) ) :
+				self.heatbed_t_stat < (self.heatbed_t * 0.9) or self.ext_t_stat < (self.ext_heat * 0.85 * 2.5) ) :
 				sleep(0.1)
 				ret = self.monitor_Xstatus()
 				if not(ret) :
