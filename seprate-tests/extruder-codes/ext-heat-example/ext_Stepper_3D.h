@@ -18,7 +18,12 @@ Pin 46, 45 and 44:: controlled by timer 5
 #ifndef _EXT_STEPPER_3D_
 #define _EXT_STEPPER_3D_
 
+#define EXTRUDER  1
+
+#if EXTRUDER
+#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__)	//if arduino mega is used
 #include "Arduino.h"
+#include "Stepper_3D.h"
 #include <avr/interrupt.h>
 
 
@@ -40,12 +45,12 @@ Pin 46, 45 and 44:: controlled by timer 5
 it holds the output of the state and a pointer to the next state to use to step forward and
 a pointer to the previous step in case of backwards */
 
-typedef struct stepper_state_struct
+/*typedef struct stepper_state_struct
 {
 	unsigned char out;						//used to hold the output values to all pins, this value needs to be interpreted later
  	struct stepper_state_struct	*nxt;		//used to hold a pointer to the next state which resembles the next step on the stepper motor, used for forward motion
 	struct stepper_state_struct	*prev;		//pointer used to hold the address to the previous state, used for backwards motion
-} stepper_state_struct;
+} stepper_state_struct;*/
 /* struct timer5_value is used in the lookup table used to determine the value of the prescale and the determination of the value of OCR1A register
  to be able to operate with the timer5 as agile as possible */
 typedef struct timer5_value
@@ -61,10 +66,10 @@ class ext_stepper_3d
 		ext_stepper_3d ();	//constructor
 
 		//mapping the pins with wire colors
-		unsigned char black = 4;
-		unsigned char blue  = 7;
-		unsigned char red   = 8;
-		unsigned char green = 12;
+		unsigned char black = 7;
+		unsigned char blue  = 6;
+		unsigned char red   = 5;
+		unsigned char green = 4;
 		unsigned char brown;
 		unsigned char orange;
 		unsigned char yellow;
@@ -84,7 +89,7 @@ class ext_stepper_3d
 		
 
 		//time variable
-		unsigned long int time_bet_steps_us = 400 ;
+		unsigned long int time_bet_steps_us = 1000 ;
 
 		//permission handler
 		unsigned char permission = 1;		//used to prevent stepper_move function from overwriting itself, to execute stepper_move set it to 1, to stop the overwriting set it to 0
@@ -229,6 +234,6 @@ class ext_stepper_3d
 		void timer5_setup (struct timer5_value *timer5_value_lookup_table_ptr , unsigned long int time_bet_steps);
 };
 
-
-
+#endif
+#endif
 #endif 

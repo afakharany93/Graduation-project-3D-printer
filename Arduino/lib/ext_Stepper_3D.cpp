@@ -27,15 +27,14 @@ ext_stepper_3d::ext_stepper_3d()
   parameters : struct stepper_state_struct *current_state :- pointer to struct, used for call by refrence for the variable containing the information of the current state
   Method of operation : to interpert and output the out member of the stepper_state_struct variable holding currrent state information
  */
-void ext_stepper_3d::stepper_output (struct stepper_state_struct *current_state)
+void ext_stepper_3d::stepper_output (struct stepper_state_struct *current_state,unsigned char pwm)
 {
-	digitalWrite(first  , ((current_state->out) & 0x01));		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
-															then the pin mapped to first will be high, if not it will be zero	*/				
-	digitalWrite(second , ((current_state->out) & 0x02));		//same as the line above but with bit 2 and pin mapped to second
-	digitalWrite(third  , ((current_state->out) & 0x04));		//same as the line above but with bit 3 and pin mapped to third
-	digitalWrite(forth  , ((current_state->out) & 0x08));		//same as the line above but with bit 4 and pin mapped to forth
+	analogWrite(first  , (((current_state->out) & 0x01))*pwm);		/*if bit one in the out member of the stepper_state_struct variable holding currrent state information is one
+																		then the pin mapped to first will be high, if not it will be zero	*/				
+	analogWrite(second , (((current_state->out) & 0x02)>>1)*pwm);		//same as the line above but with bit 2 and pin mapped to second
+	analogWrite(third  , (((current_state->out) & 0x04)>>2)*pwm);		//same as the line above but with bit 3 and pin mapped to third
+	analogWrite(forth  , (((current_state->out) & 0x08)>>3)*pwm);		//same as the line above but with bit 4 and pin mapped to forth
 }
-
 /*
 	Function name : next_step
   	return : void
@@ -102,6 +101,11 @@ void ext_stepper_3d::stepper_stop ()
 {
 	TCCR5B &= (~(1 << WGM52));   // disable timer CTC mode
 	TIMSK5 = 0 ;  // disable timer compare interrupt
+	if (brake == 0)
+	{	
+		stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+	}
+
 	status_var = SW_FORCE_STOP;	//setting status to indicate the stop due to software command
 }
 
@@ -238,18 +242,22 @@ void ext_stepper_3d::inside_ISR ()
 	{
 		if (direction == NEXT)
 		{			
-			stepper_output (&current_state);	//ouput the current state
+			stepper_output (&current_state, max_pwm);	//ouput the current state
 			next_step(&current_state);			//point to the next state so that it can be outputed the next call of the isr
 		}
 		else if (direction == PREVIOUS)
 		{
-			stepper_output (&current_state);	//ouput the current state
+			stepper_output (&current_state,max_pwm);	//ouput the current state
 			previos_step(&current_state);		//point to the previos state so that it can be outputed the next call of the isr
 		}
 		stepper_steps--;	//decrease the number of steps reaimed by one as it was just taken
 	}
 	else
 	{
+		if (brake == 0)
+		{	
+			stepper_output (&current_state , min_pwm);	//ouput the current state,with current limiting pwm
+		}
 		stepper_steps = 0;	//just for safety
 		TIMSK5 = 0;	//disable timer compare interrupt
 		TCCR5B &= (~(1 << WGM52));   // disable timer CTC mode

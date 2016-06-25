@@ -19,7 +19,7 @@ fuzzy ext_fuzzy(9, 300, 0, 255, 0);
 ext_heat::ext_heat()
 {
 	_permission = STOP_EXT_H;
-	op_pin = 3;
+	op_pin = 8;
 	_old_time = 0;
 	_current_time = millis();
 	samp_time = 50;	//milliseconds

@@ -67,19 +67,18 @@ void setup()
 	
 	#if defined(__AVR_ATmega2560__)|| defined(__AVR_ATmega1280__) //if arduino mega is used
 	extStp.black = 5;
-	extStp.blue = 3;
-	extStp.red = 2;
+	extStp.blue = 7;
+	extStp.red = 6;
 	extStp.green = 4;
 
-	extStp.first  = motor.blue;
-	extStp.second = motor.red;
-	extStp.third  = motor.green;
-	extStp.forth  = motor.black;
+	extStp.first  = extStp.green;
+	extStp.second = extStp.red;
+	extStp.third  = extStp.black;
+	extStp.forth  = extStp.blue;
 
-  /*extStp.permission = 1;
-    extStp.stepper_move(3000, 1500);*/
+  extStp.max_pwm = 255;
 	#endif
-  motor.gohome();
+ // motor.gohome();
   // if has no id yet, generate one
   if (getID() == "") {
     generateID();
@@ -198,7 +197,7 @@ void processCommand(String cmd) {
     case 0x30:
       cmdGetID(cmd);
       break;
-    case CMD_STEPPER_MOVE:
+   case CMD_STEPPER_MOVE:
       cmd_stepper_move(cmd);
       break;
     case CMD_STEPPER_D_TIME:

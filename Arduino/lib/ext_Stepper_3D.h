@@ -84,8 +84,9 @@ class ext_stepper_3d
 		unsigned char anticlockwise = NEXT;
 		unsigned char forward       = clockwise;
 		unsigned char backward      = anticlockwise;
-
-		
+		unsigned char min_pwm=0;
+		unsigned char max_pwm=255;
+		unsigned char brake=0;
 		
 
 		//time variable
@@ -190,7 +191,7 @@ class ext_stepper_3d
 	
 		  Functionality : to  output the ouy member in the current_state struct to the pins, use after next_step or previos_step functions, runs after next_step or previos_step
 		 */
-		void stepper_output (struct stepper_state_struct *current_state);
+		void stepper_output (struct stepper_state_struct *current_state,unsigned char pwm);
 		/*
 			Function name : next_step
 		  	return : void
