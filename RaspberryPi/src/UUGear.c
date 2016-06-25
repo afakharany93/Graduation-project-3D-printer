@@ -411,6 +411,8 @@ char * ext_heat_status(UUGearDevice *dev)
 
 int ext_heat_set_temp (UUGearDevice *dev, unsigned short temp)
 {
+	sendMessageWithParameter(dev->in, MSG_SET_EXT_HEAT, dev->clientId, dev->fd, temp);
+/*
 	char least_significant_byte  = (char)(temp & 0xFF) ;
 	char most_significant_byte   = (char)((temp >> 8) & 0xFF) ;
 	unsigned char status_byte = STATUS_BYTE_INITIAL_VAL;
@@ -425,7 +427,7 @@ int ext_heat_set_temp (UUGearDevice *dev, unsigned short temp)
 		least_significant_byte = DATA_BYTE_EQ_ZERO_SUBSTITUTE;
 	}
 	send_message_with_3_data_bytes(dev->in, MSG_SET_EXT_HEAT, dev->clientId, dev->fd, least_significant_byte, most_significant_byte , status_byte);
-
+*/
 	//recieve akhnolodgment procedure
 	int errorCode = 0;
 	int recieved = waitForInteger(dev, &errorCode);
