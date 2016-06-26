@@ -74,7 +74,8 @@ class Gcode :
 		fdx = dx / self.t		#mm/sec
 		fdy = dy / self.t		#mm/sec
 		fdz = dz / self.t		#mm/sec
-		fde = de / self.t		#mm/sec
+		#fde = de / self.t		#mm/sec
+		fde = self.f
 		#calculate number of steps per axis
 		self.x_steps = dx / self.d
 		self.y_steps = dy / self.d 
