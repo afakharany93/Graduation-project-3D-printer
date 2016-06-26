@@ -61,7 +61,8 @@ class Gcode :
 		dx = self.x - self.oldx
 		dy = self.y - self.oldy
 		dz = self.z - self.oldz
-		de = self.e - self.olde
+		#de = self.e - self.olde
+		de = self.e
 		#calculate the total motion
 		h = math.pow(dx,2) + math.pow(dy,2) + math.pow(dz,2)
 		h = math.sqrt(h)
